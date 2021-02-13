@@ -36,3 +36,7 @@ cmake ../src
 make
 ```
 This should result in a file called `rp2040-dongle.uf2` that can be copied to the Pico when it's in bootloader-mode.
+
+## License
+
+This source code is licensed under the GPL.
