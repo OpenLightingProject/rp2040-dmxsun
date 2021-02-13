@@ -14,6 +14,10 @@ Our next steps are to implement the same protocol as the [ja-rule](https://githu
 
 Currently, a universe can be `teared`. That means that the first half (or so) is already updated, while for the second half, old values are still be sent. This means if you have one fixture on channel 0 and another on channel 512 os the same universe and switch them ON or OFF at the same time, they might actually switch at different times. So another TODO is to add another layer of buffering. It's basically the same problem as with the V-Sync and screen tearing in videos or computer games.
 
+## Connecting to real devices
+
+Currently, this is only the source code to generate DMX512-data from the chip. To connect to a real DMX line and real fixtures, a RS-485 bus-driver / transceiver is needed. I'm currently using one [ADM2483 eval board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-adm2483.html). Maybe I will add a schematic + board layout for a 16-universe output board ;).
+
 
 ## Getting Started
 
@@ -39,4 +43,14 @@ This should result in a file called `rp2040-dongle.uf2` that can be copied to th
 
 ## License
 
-This source code is licensed under the GPL.
+This source code, schematics and board layouts is licensed under the GPL.
+
+Parts of the original example code (`stdio_usb.*`, ...) is:
+
+     * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+     * SPDX-License-Identifier: BSD-3-Clause
+
+Parts taken and modified from TinyUSB (`tusb_config.h`, `usb_descriptors.c`) is:
+
+     * The MIT License (MIT)
+     * Copyright (c) 2019 Ha Thach (tinyusb.org)
