@@ -28,8 +28,8 @@
 #include "pico/stdlib.h"
 #include "pico/unique_id.h"
 
-#define USB_VID 0x16C0
-#define USB_PID 0x088B
+#define USB_VID 0x1209
+#define USB_PID 0xACED
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -63,41 +63,43 @@ uint8_t const *tud_descriptor_device_cb(void) {
 }
 
 //--------------------------------------------------------------------+
-// HID Report Descriptor
-//--------------------------------------------------------------------+
-
-uint8_t const desc_hid_report[] =
-{
-    TUD_HID_REPORT_DESC_GENERIC_INOUT(CFG_TUD_HID_BUFSIZE)
-};
-
-// Invoked when received GET HID REPORT DESCRIPTOR
-// Application return pointer to descriptor
-// Descriptor contents must exist long enough for transfer to complete
-uint8_t const *tud_hid_descriptor_report_cb(void) {
-    return desc_hid_report;
-}
-
-//--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 enum {
-    ITF_NUM_HID,
     ITF_NUM_CDC_CMD,
     ITF_NUM_CDC_DATA,
+    ITF_NUM_PORT00,
+//    ITF_NUM_PORT01,
+//    ITF_NUM_PORT02,
+//    ITF_NUM_PORT03,
+//    ITF_NUM_PORT04,
+//    ITF_NUM_PORT05,
+//    ITF_NUM_PORT06,
+//    ITF_NUM_PORT07,
+//    ITF_NUM_PORT08,
+//    ITF_NUM_PORT09,
+//    ITF_NUM_PORT10,
+//    ITF_NUM_PORT11,
+//    ITF_NUM_PORT12,
+//    ITF_NUM_PORT13,
     ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN)
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_VENDOR_DESC_LEN)
 
-#define EPNUM_HID_OUT            0x02
-#define EPNUM_HID_IN             0x81
+// Endpoints 0x00 and 0x80 are for CONTROL transfers => do not use
 
-#define USBD_CDC_EP_CMD          0x83
-#define USBD_CDC_EP_OUT          0x04
-#define USBD_CDC_EP_IN           0x84
+#define USBD_CDC_EP_CMD          0x81
+#define USBD_CDC_EP_OUT          0x02
+#define USBD_CDC_EP_IN           0x82
 #define USBD_CDC_CMD_MAX_SIZE       8
 #define USBD_CDC_IN_OUT_MAX_SIZE   64
+
+#define USBD_PORT00_EP_OUT       0x03
+#define USBD_PORT00_EP_IN        0x83
+#define USBD_PORT01_EP_OUT       0x04
+#define USBD_PORT01_EP_IN        0x84
+
 
 uint8_t const desc_configuration[] =
 {
@@ -105,15 +107,20 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN,
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
 
-    // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_PROTOCOL_NONE,
-        sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
-        CFG_TUD_HID_BUFSIZE, 5),
-
     // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
     TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_CMD, 4, USBD_CDC_EP_CMD,
         USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN,
         USBD_CDC_IN_OUT_MAX_SIZE),
+
+    // Interface number, string index, EP Out & IN address, EP size
+    // However, cannot set SubClass and Protocol this way :(
+    //TUD_VENDOR_DESCRIPTOR(ITF_NUM_PORT00, 5, USBD_PORT00_EP_OUT, USBD_PORT00_EP_IN, 64),
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT00, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 5,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -135,7 +142,9 @@ char const *string_desc_arr[] =
     "DE/FX5/U1 Clone",           // 1: Manufacturer
     "16Tx 00Rx S",               // 2: Product
     "RP2040_0123456789ABCDEF",   // 3: Serial, fallback here, it's dynamically created later
-    "16Tx00RxS_000001"           // 4: CDC interface name
+    "16Tx00RxS_000001",          // 4: CDC interface name
+    "PORT00",
+    "PORT01"
 };
 
 static uint16_t _desc_str[32];
