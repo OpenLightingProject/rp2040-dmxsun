@@ -164,10 +164,10 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         char serial[33];
         str = serial;
 
-        snprintf(serial, 32, "RP2040_");
+        snprintf(serial, 32, "7a70:");
 
-        for (int i = 0; (i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES) && (i < 8); ++i) {
-            snprintf(serial + i*2 + 7, 32, "%02x", board_id.id[i]);
+        for (int i = 0; (i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES) && (i < 4); ++i) {
+            snprintf(serial + i*2 + 5, 32, "%02x", board_id.id[i+4]);
         }
     }
 
