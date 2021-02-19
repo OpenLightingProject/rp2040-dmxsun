@@ -81,7 +81,7 @@ extern "C" {
 #define CFG_TUD_HID             0
 #define CFG_TUD_MIDI            0
 #define CFG_TUD_MSC             0
-#define CFG_TUD_VENDOR          1
+#define CFG_TUD_VENDOR          9
 
 #define CFG_TUD_CDC_RX_BUFSIZE 256
 #define CFG_TUD_CDC_TX_BUFSIZE 256

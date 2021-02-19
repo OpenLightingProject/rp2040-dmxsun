@@ -68,24 +68,19 @@ uint8_t const *tud_descriptor_device_cb(void) {
 enum {
     ITF_NUM_CDC_CMD,
     ITF_NUM_CDC_DATA,
-    ITF_NUM_PORT00,
-//    ITF_NUM_PORT01,
-//    ITF_NUM_PORT02,
-//    ITF_NUM_PORT03,
-//    ITF_NUM_PORT04,
-//    ITF_NUM_PORT05,
-//    ITF_NUM_PORT06,
-//    ITF_NUM_PORT07,
-//    ITF_NUM_PORT08,
-//    ITF_NUM_PORT09,
-//    ITF_NUM_PORT10,
-//    ITF_NUM_PORT11,
-//    ITF_NUM_PORT12,
-//    ITF_NUM_PORT13,
+    ITF_NUM_PORT01,
+    ITF_NUM_PORT02,
+    ITF_NUM_PORT03,
+    ITF_NUM_PORT04,
+    ITF_NUM_PORT05,
+    ITF_NUM_PORT06,
+    ITF_NUM_PORT07,
+    ITF_NUM_PORT08,
+    ITF_NUM_PORT09,
     ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_VENDOR_DESC_LEN)
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + CFG_TUD_VENDOR * TUD_VENDOR_DESC_LEN)
 
 // Endpoints 0x00 and 0x80 are for CONTROL transfers => do not use
 
@@ -95,10 +90,8 @@ enum {
 #define USBD_CDC_CMD_MAX_SIZE       8
 #define USBD_CDC_IN_OUT_MAX_SIZE   64
 
-#define USBD_PORT00_EP_OUT       0x03
-#define USBD_PORT00_EP_IN        0x83
-#define USBD_PORT01_EP_OUT       0x04
-#define USBD_PORT01_EP_IN        0x84
+#define USBD_PORT00_EP_OUT       0x02
+#define USBD_PORT00_EP_IN        0x82
 
 
 uint8_t const desc_configuration[] =
@@ -116,11 +109,60 @@ uint8_t const desc_configuration[] =
     // However, cannot set SubClass and Protocol this way :(
     //TUD_VENDOR_DESCRIPTOR(ITF_NUM_PORT00, 5, USBD_PORT00_EP_OUT, USBD_PORT00_EP_IN, 64),
 
-    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT00, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 5,\
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT01, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 1 + 4,\
     /* Endpoint Out */\
-    7, TUSB_DESC_ENDPOINT, USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    7, TUSB_DESC_ENDPOINT, 1 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
     /* Endpoint In */\
-    7, TUSB_DESC_ENDPOINT, USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+    7, TUSB_DESC_ENDPOINT, 1 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT02, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 2 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 2 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 2 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT03, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 3 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 3 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 3 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT04, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 4 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 4 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 4 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT05, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 5 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 5 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 5 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT06, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 6 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 6 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 6 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT07, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 7 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 7 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 7 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT08, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 8 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 8 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 8 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
+    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT09, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 9 + 4,\
+    /* Endpoint Out */\
+    7, TUSB_DESC_ENDPOINT, 9 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
+    /* Endpoint In */\
+    7, TUSB_DESC_ENDPOINT, 9 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -143,8 +185,15 @@ char const *string_desc_arr[] =
     "16Tx 00Rx S",               // 2: Product
     "RP2040_0123456789ABCDEF",   // 3: Serial, fallback here, it's dynamically created later
     "16Tx00RxS_000001",          // 4: CDC interface name
-    "PORT00",
-    "PORT01"
+    "Port 01",
+    "Port 02",
+    "Port 03",
+    "Port 04",
+    "Port 05",
+    "Port 06",
+    "Port 07",
+    "Port 08",
+    "Port 09"
 };
 
 static uint16_t _desc_str[32];
