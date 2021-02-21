@@ -106,7 +106,9 @@ int main() {
     // time to sit and think about its early retirement -- maybe open a bakery?
     while (true) {
         tud_task();
-        led_blinking_task();
+
+        //jaruleproto_task();
+        //led_blinking_task();
     }
 };
 

@@ -11,6 +11,7 @@ pico_sdk_init()
 add_executable(rp2040-dongle
         dmahandler.c
         main.c
+        jaruleproto.c
         acminterface.c
         usb_descriptors.c
         stdio_usb.c
