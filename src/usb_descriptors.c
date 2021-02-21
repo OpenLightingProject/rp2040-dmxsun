@@ -90,6 +90,7 @@ enum {
 #define USBD_CDC_CMD_MAX_SIZE       8
 #define USBD_CDC_IN_OUT_MAX_SIZE   64
 
+// PORT00 doesn't exist. It's -1 here to make calculations further down easier
 #define USBD_PORT00_EP_OUT       0x02
 #define USBD_PORT00_EP_IN        0x82
 
@@ -108,9 +109,12 @@ uint8_t const desc_configuration[] =
     // Interface number, string index, EP Out & IN address, EP size
     // However, cannot set SubClass and Protocol this way :(
     //TUD_VENDOR_DESCRIPTOR(ITF_NUM_PORT00, 5, USBD_PORT00_EP_OUT, USBD_PORT00_EP_IN, 64),
+    // Instead we do this:
 
+    // Interface descriptor:
+    // Length, INTERFACE, iFaceNum, AlternateConfig, NumEndpoints, Class, Subclass, Protocol, StringIndex
     9, TUSB_DESC_INTERFACE, ITF_NUM_PORT01, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 1 + 4,\
-    /* Endpoint Out */\
+    /* Endpoint Out: ENDPOINT, NUM, TransferMask, Max transfer size, ??? */\
     7, TUSB_DESC_ENDPOINT, 1 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
     /* Endpoint In */\
     7, TUSB_DESC_ENDPOINT, 1 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
@@ -181,10 +185,10 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 char const *string_desc_arr[] =
 {
     (const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
-    "DE/FX5/U1 Clone",           // 1: Manufacturer
-    "16Tx 00Rx S",               // 2: Product
-    "RP2040_0123456789ABCDEF",   // 3: Serial, fallback here, it's dynamically created later
-    "16Tx00RxS_000001",          // 4: CDC interface name
+    "Open Lighting Project",     // 1: Manufacturer
+    "00Mx 09Tx",                 // 2: Possible Port config: 0 Mixed (= RDM capable OUT or IN) + 9 Tx only
+    "7a70:01234567",             // 3: Serial, fallback here, it's dynamically created later
+    "Debug Interface",           // 4: CDC interface name
     "Port 01",
     "Port 02",
     "Port 03",
