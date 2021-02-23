@@ -180,7 +180,7 @@ char const *string_desc_arr[] =
     (const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
     "Open Lighting Project",     // 1: Manufacturer
     "00Mx 09Tx",                 // 2: Possible Port config: 0 Mixed (= RDM capable OUT or IN) + 9 Tx only
-    "7a70:01234567",             // 3: Serial, fallback here, it's dynamically created later
+    "7a70:fffffe10",             // 3: Serial, fallback here, it's dynamically created later
     "Debug Interface",           // 4: CDC interface name
     "Port 01",
     "Port 02",
@@ -189,8 +189,7 @@ char const *string_desc_arr[] =
     "Port 05",
     "Port 06",
     "Port 07",
-    "Port 08",
-    "Port 09"
+    "Port 08"
 };
 
 static uint16_t _desc_str[32];
@@ -204,17 +203,28 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
 
     if (index == 3) {
         // Serial number has been requested, construct it from the unique board id
+        // This is not 100% collission-safe since the unique ID in the Pico's
+        // flash is 64 bit long and we just use the lowest 28 bit
+        // Range to be most probably used: 7a70:40000000 - 7a70:4fffffff
+
+#if 1   // TODO: TEMPORARY: Just return the placeholder: a development one!
+        str = string_desc_arr[3];
+#else
+
         pico_unique_board_id_t board_id;
         pico_get_unique_board_id(&board_id);
 
         char serial[33];
+        char uniqueid[20];
         str = serial;
 
-        snprintf(serial, 32, "7a70:");
+        snprintf(serial, 32, "7a70:4");
 
         for (int i = 0; (i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES) && (i < 4); ++i) {
-            snprintf(serial + i*2 + 5, 32, "%02x", board_id.id[i+4]);
+            snprintf(uniqueid + i*2 , 20 - i*2, "%02x", board_id.id[i+4]);
         }
+        snprintf(serial + 6, 32 - 6, "%s", uniqueid + 1);
+#endif
     }
 
     if (index == 0) {
