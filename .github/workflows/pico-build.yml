@@ -20,7 +20,7 @@ jobs:
     - name: Fetch pico-sdk
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/raspberrypi/pico-sdk
+        repository: raspberrypi/pico-sdk
         ref: 1.0.1
 
     - name: Create Build Environment
