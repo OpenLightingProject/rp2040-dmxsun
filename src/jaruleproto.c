@@ -11,13 +11,19 @@
 void tud_vendor_rx_cb(uint8_t itf) {
     static bool led_state = false;
 
-    led_state = !led_state;
-    board_led_write(led_state);
-
     uint8_t req[640];
     memset(req, 0x00, 64);
 
-    tud_vendor_n_read(itf, req, 640);
+    int size = tud_vendor_n_read(itf, req, 640);
+
+    printf("JaRule RX. Size: %d, Command: %02x%02x\n", size, req[1], req[2]);
+
+    // Basic sanity checks on the request we just got
+
+
+    // Toggle the LED just for visual indication
+    led_state = !led_state;
+    board_led_write(led_state);
 
     uint8_t resp[64];
     memset(resp, 0x00, 64);

@@ -107,8 +107,7 @@ int main() {
     while (true) {
         tud_task();
 
-        //jaruleproto_task();
-        //led_blinking_task();
+        led_blinking_task();
     }
 };
 
@@ -155,5 +154,4 @@ void led_blinking_task(void) {
     start_ms_debug += debug_refresh_interval_ms;
 
     debugPrintUniverse(0);
-    debugPrintUniverse(1);
 }
