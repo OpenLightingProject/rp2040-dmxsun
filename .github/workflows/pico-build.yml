@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: sudo apt update && sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
     
-    - name: Fetch pico-sdk
+    - name: Clone pico-sdk
       uses: actions/checkout@v2
       with:
         repository: raspberrypi/pico-sdk
@@ -28,7 +28,7 @@ jobs:
         path: pico-sdk
         clean: false
       
-    - name: pico-sdk submodules
+    - name: Clone pico-sdk submodules
       run: cd pico-sdk && git submodule update --init && cd ..
 
     - name: Create Build Environment
@@ -52,7 +52,7 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake --build . --config $BUILD_TYPE
       
-    - name: Save srtifact
+    - name: Save artifact
       uses: actions/upload-artifact@v2
       with:
         name: rp2040-dongle.uf2
