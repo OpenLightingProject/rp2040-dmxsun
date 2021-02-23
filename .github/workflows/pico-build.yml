@@ -51,4 +51,10 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake --build . --config $BUILD_TYPE
+      
+    - name: Save srtifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: rp2040-dongle.uf2
+        path: ${{github.workspace}}/build/*.uf2
 
