@@ -44,6 +44,8 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake $GITHUB_WORKSPACE/src
 
+    - uses: ammaraskar/gcc-problem-matcher@master
+
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
