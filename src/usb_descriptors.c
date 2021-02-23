@@ -66,8 +66,6 @@ uint8_t const *tud_descriptor_device_cb(void) {
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 enum {
-    ITF_NUM_CDC_CMD,
-    ITF_NUM_CDC_DATA,
     ITF_NUM_PORT01,
     ITF_NUM_PORT02,
     ITF_NUM_PORT03,
@@ -76,7 +74,8 @@ enum {
     ITF_NUM_PORT06,
     ITF_NUM_PORT07,
     ITF_NUM_PORT08,
-    ITF_NUM_PORT09,
+    ITF_NUM_CDC_CMD,
+    ITF_NUM_CDC_DATA,
     ITF_NUM_TOTAL
 };
 
@@ -84,15 +83,15 @@ enum {
 
 // Endpoints 0x00 and 0x80 are for CONTROL transfers => do not use
 
-#define USBD_CDC_EP_CMD          0x81
-#define USBD_CDC_EP_OUT          0x02
-#define USBD_CDC_EP_IN           0x82
+#define USBD_CDC_EP_CMD          0x8e
+#define USBD_CDC_EP_OUT          0x0f
+#define USBD_CDC_EP_IN           0x8f
 #define USBD_CDC_CMD_MAX_SIZE       8
 #define USBD_CDC_IN_OUT_MAX_SIZE   64
 
 // PORT00 doesn't exist. It's -1 here to make calculations further down easier
-#define USBD_PORT00_EP_OUT       0x02
-#define USBD_PORT00_EP_IN        0x82
+#define USBD_PORT00_EP_OUT       0x00
+#define USBD_PORT00_EP_IN        0x80
 
 
 uint8_t const desc_configuration[] =
@@ -100,11 +99,6 @@ uint8_t const desc_configuration[] =
     // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN,
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
-
-    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_CMD, 4, USBD_CDC_EP_CMD,
-        USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN,
-        USBD_CDC_IN_OUT_MAX_SIZE),
 
     // Interface number, string index, EP Out & IN address, EP size
     // However, cannot set SubClass and Protocol this way :(
@@ -161,11 +155,10 @@ uint8_t const desc_configuration[] =
     /* Endpoint In */\
     7, TUSB_DESC_ENDPOINT, 8 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
 
-    9, TUSB_DESC_INTERFACE, ITF_NUM_PORT09, 0, 2, TUSB_CLASS_VENDOR_SPECIFIC, 0xff, 0xff, 9 + 4,\
-    /* Endpoint Out */\
-    7, TUSB_DESC_ENDPOINT, 9 + USBD_PORT00_EP_OUT, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,\
-    /* Endpoint In */\
-    7, TUSB_DESC_ENDPOINT, 9 + USBD_PORT00_EP_IN, TUSB_XFER_BULK, U16_TO_U8S_LE(64), 0,
+    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_CMD, 4, USBD_CDC_EP_CMD,
+        USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN,
+        USBD_CDC_IN_OUT_MAX_SIZE),
 
 };
 
