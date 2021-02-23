@@ -55,6 +55,6 @@ jobs:
     - name: Save artifact
       uses: actions/upload-artifact@v2
       with:
-        name: rp2040-dongle.uf2
+        name: rp2040-dongle
         path: ${{github.workspace}}/build/*.uf2
 
