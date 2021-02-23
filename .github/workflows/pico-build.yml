@@ -44,11 +44,11 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: PICO_SDK=$GITHUB_WORKSPACE/pico-sdk cmake $GITHUB_WORKSPACE/src
+      run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake $GITHUB_WORKSPACE/src
 
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: PICO_SDK=$GITHUB_WORKSPACE/pico-sdk cmake --build . --config $BUILD_TYPE
+      run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake --build . --config $BUILD_TYPE
 
