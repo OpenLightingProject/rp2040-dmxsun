@@ -12,7 +12,7 @@
 void sendResponse(uint8_t itf, uint8_t token, uint16_t command, uint8_t *payload, uint16_t payloadSize, uint8_t returnCode, uint8_t status) {
     uint8_t resp[640];
 
-    printf("{type:\"log\", file: \"%s:%d\", text:\"sendResponse(%02x, %02x, %04x, %04x, %04x, %02x, %02x)\"}\n", "jaruleproto", __LINE__, itf, token, command, payload, payloadSize, returnCode, status);
+    printf("{type:\"log\", file: \"%s:%d\", text:\"sendResponse(%02x, %02x, %04x, %04x, %04x, %02x, %02x)\"}\n", "jaruleproto", __LINE__, itf, token, command, (uint)payload, payloadSize, returnCode, status);
 
     if (payloadSize > (640 - MINIMUM_RESPONSE_SIZE)) {
         return;
@@ -47,7 +47,7 @@ void sendResponse(uint8_t itf, uint8_t token, uint16_t command, uint8_t *payload
 
 void handleCommand(uint8_t itf, uint8_t token, uint16_t command, uint8_t *payload, uint16_t payloadSize) {
 
-    printf("{type:\"log\", file: \"%s:%d\", text:\"handleCommand(%02x, %02x, %04x, %04x, %04x)\"}\n", "jaruleproto", __LINE__, itf, token, command, payload, payloadSize);
+    printf("{type:\"log\", file: \"%s:%d\", text:\"handleCommand(%02x, %02x, %04x, %04x, %04x)\"}\n", "jaruleproto", __LINE__, itf, token, command, (uint)payload, payloadSize);
 
     if (command == TX_DMX) {
         memset(dmx_values[itf], 0x00, 512);
@@ -74,7 +74,7 @@ void tud_vendor_rx_cb(uint8_t itf) {
     memset(req, 0x00, 64);
 
     uint32_t bytesAvailable = tud_vendor_n_available(itf);
-    printf("{type:\"log\", file: \"%s:%d\", text:\"Data available on ITF %02x: %d\"}\n", "jaruleproto", __LINE__, itf, bytesAvailable);
+    printf("{type:\"log\", file: \"%s:%d\", text:\"Data available on ITF %02x: %ld\"}\n", "jaruleproto", __LINE__, itf, bytesAvailable);
 
     // TODO: Make sure bytesAvailable < sizeof(req) to avoid buffer overflow!
 
@@ -92,7 +92,7 @@ void tud_vendor_rx_cb(uint8_t itf) {
     tud_vendor_n_peek(itf, 0, req);
     if ((req[0] != START_OF_MESSAGE_ID) || (bytesAvailable < MINIMUM_REQUEST_SIZE)) {
         bytesAvailable = tud_vendor_n_read(itf, req, 640);
-        printf("{type:\"log\", file: \"%s:%d\", text:\"Start marker not found or frame too short => dropped %d byte\"}\n", "jaruleproto", __LINE__, bytesAvailable);
+        printf("{type:\"log\", file: \"%s:%d\", text:\"Start marker not found or frame too short => dropped %ld byte\"}\n", "jaruleproto", __LINE__, bytesAvailable);
         return;
     }
 
@@ -115,7 +115,7 @@ void tud_vendor_rx_cb(uint8_t itf) {
     tud_vendor_n_peek(itf, MINIMUM_REQUEST_SIZE + payloadSize - 1, req + MINIMUM_REQUEST_SIZE + payloadSize - 1);
     if (req[MINIMUM_REQUEST_SIZE + payloadSize - 1] != END_OF_MESSAGE_ID) {
         bytesAvailable = tud_vendor_n_read(itf, req, MINIMUM_REQUEST_SIZE + payloadSize);
-        printf("{type:\"log\", file: \"%s:%d\", text:\"END_OF_MESSAGE_ID not found, dropped %d byte ...\"}\n", "jaruleproto", __LINE__, bytesAvailable);
+        printf("{type:\"log\", file: \"%s:%d\", text:\"END_OF_MESSAGE_ID not found, dropped %ld byte ...\"}\n", "jaruleproto", __LINE__, bytesAvailable);
         return;
     }
 

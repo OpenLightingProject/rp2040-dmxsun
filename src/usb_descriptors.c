@@ -208,7 +208,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         // Range to be most probably used: 7a70:40000000 - 7a70:4fffffff
 
 #if 1   // TODO: TEMPORARY: Just return the placeholder: a development one!
-        str = string_desc_arr[3];
+        str = (char*)string_desc_arr[3];
 #else
 
         pico_unique_board_id_t board_id;
