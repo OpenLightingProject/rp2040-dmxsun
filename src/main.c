@@ -32,6 +32,8 @@
 #include "pico/stdlib.h"
 #include "stdio.h"
 
+#include "stdio_usb.h"
+
 #include "dmahandler.h"
 
 #include "acminterface.h"
