@@ -23,7 +23,7 @@ Currently, this is only the source code to generate DMX512-data from the chip. T
 
 ### Copying the binary
 
-If you just want to get started quickly, copy the file `bin/rp2040-dongle.uf2` to the Pico board when it's in bootloader mode.
+If you just want to get started quickly find the most recent action run from the branch you're interested in, extract the attached artifact zip file (from https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml ) and copy the rp2040-dongle.uf2 file to the Pico board when it's in bootloader mode.
 
 ### Building from source
 
