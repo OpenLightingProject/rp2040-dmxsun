@@ -63,7 +63,7 @@ void dma_handler() {
         // Usually, DMX needs a BREAK (LOW level) of at least 96µs before
         // MARK-AFTER-BREAK (MAB, HIGH LEVEL)
         // However, since the line is already at a defined LOW level
-        // and we need CPU time to preapre the wavetable (~3ms), we don't
+        // and we need CPU time to prepare the wavetable (~3ms), we don't
         // generate a BREAK. We start right away with the MAB
         bitoffset = 0;
 
