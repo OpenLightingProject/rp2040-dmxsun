@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 54)
+    (drawings 53)
     (tracks 597)
     (zones 0)
     (modules 37)
@@ -71,7 +71,7 @@
     (grid_origin 25 25)
     (visible_elements FFFFFF7F)
     (pcbplotparams
-      (layerselection 0x010fc_ffffffff)
+      (layerselection 0x010f0_ffffffff)
       (usegerberextensions false)
       (usegerberattributes true)
       (usegerberadvancedattributes true)
@@ -94,9 +94,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ""))
+      (outputdirectory "plots/"))
   )
 
   (net 0 "")
@@ -916,9 +916,9 @@
     (fp_text user %R (at 0 0) (layer F.Fab)
       (effects (font (size 0.5 0.5) (thickness 0.08)))
     )
-    (pad 2 smd roundrect (at 1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.208333)
+    (pad 2 smd roundrect (at 1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.2083325)
       (net 9 /SCL))
-    (pad 1 smd roundrect (at -1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.208333)
+    (pad 1 smd roundrect (at -1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.2083325)
       (net 3 +3V3))
     (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0805_2012Metric.wrl
       (at (xyz 0 0 0))
@@ -952,9 +952,9 @@
     (fp_text user %R (at 0 0) (layer F.Fab)
       (effects (font (size 0.5 0.5) (thickness 0.08)))
     )
-    (pad 2 smd roundrect (at 1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.208333)
+    (pad 2 smd roundrect (at 1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.2083325)
       (net 10 /SDA))
-    (pad 1 smd roundrect (at -1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.208333)
+    (pad 1 smd roundrect (at -1 0) (size 1.2 1.4) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.2083325)
       (net 3 +3V3))
     (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0805_2012Metric.wrl
       (at (xyz 0 0 0))
@@ -1936,7 +1936,7 @@
     (fp_text reference D1 (at 0.032 -2.54) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
-    (fp_text value D_Schottky (at 0 2.6) (layer F.Fab)
+    (fp_text value SS14 (at 0 2.6) (layer F.Fab)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_line (start -3.4 -1.65) (end 2 -1.65) (layer F.SilkS) (width 0.12))
@@ -2287,7 +2287,6 @@
   (gr_line (start 25 25) (end 25 25) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 25 85) (end 25 25) (layer Edge.Cuts) (width 0.1) (tstamp 605530A0))
   (gr_line (start 379 85) (end 25 85) (layer Edge.Cuts) (width 0.1))
-  (target plus (at 25 25) (size 5) (width 0.1) (layer Edge.Cuts))
 
   (via (at 234.804 54.972) (size 0.8) (drill 0.4) (layers F.Cu B.Cu) (net 1))
   (via (at 234.804 56.75) (size 0.8) (drill 0.4) (layers F.Cu B.Cu) (net 1))
@@ -2887,7 +2886,7 @@
   (segment (start 205.34 43.542) (end 205.848 43.542) (width 0.25) (layer F.Cu) (net 28))
   (segment (start 205.086 43.542) (end 205.34 43.542) (width 0.25) (layer F.Cu) (net 28))
 
-  (zone (net 1) (net_name GND) (layer B.Cu) (tstamp 0) (hatch edge 0.508)
+  (zone (net 1) (net_name GND) (layer B.Cu) (tstamp 605BCCB3) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
@@ -3734,7 +3733,7 @@
       )
     )
   )
-  (zone (net 1) (net_name GND) (layer F.Cu) (tstamp 0) (hatch edge 0.508)
+  (zone (net 1) (net_name GND) (layer F.Cu) (tstamp 605BCCB0) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
