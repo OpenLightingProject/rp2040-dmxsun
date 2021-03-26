@@ -9,12 +9,14 @@ on:
     paths:
     - '**.sch'
     - '**.kicad_pcb'
-    - '.github/workflows'
+    - '.github/workflows/kicad-exports.yml'
+    - 'hardware/docs.kibot.yaml'
   pull_request:
     paths:
       - '**.sch'
       - '**.kicad_pcb'
-      - '.github/workflows'
+      - '.github/workflows/kicad-exports.yml'
+      - 'hardware/docs.kibot.yaml'
 
 jobs:
   baseboard_4slots:
