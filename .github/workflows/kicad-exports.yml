@@ -30,9 +30,9 @@ jobs:
       # optional - prefix to output defined in config
         dir: docs
       # optional - schematic file
-        schema: 'hardware/baseboard 4slots/*.sch'
+        schema: 'hardware/baseboard\ 4slots/*.sch'
       # optional - PCB design file
-        board: 'hardware/baseboard 4slots/*.kicad_pcb'
+        board: 'hardware/baseboard\ 4slots/*.kicad_pcb'
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
@@ -50,9 +50,9 @@ jobs:
       # optional - prefix to output defined in config
         dir: docs
       # optional - schematic file
-        schema: 'hardware/ioboard 4ports isolated/*.sch'
+        schema: 'hardware/ioboard\ 4ports\ isolated/*.sch'
       # optional - PCB design file
-        board: 'hardware/ioboard 4ports isolated/*.kicad_pcb'
+        board: 'hardware/ioboard\ 4ports\ isolated/*.kicad_pcb'
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
