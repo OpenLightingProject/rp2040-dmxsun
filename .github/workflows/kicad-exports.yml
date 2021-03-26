@@ -30,9 +30,9 @@ jobs:
       # optional - prefix to output defined in config
         dir: docs
       # optional - schematic file
-        schema: 'hardware/baseboard\ 4slots/*.sch'
+        schema: '\"hardware/baseboard 4slots/*.sch\"'
       # optional - PCB design file
-        board: 'hardware/baseboard\ 4slots/*.kicad_pcb'
+        board: '\"hardware/baseboard 4slots/*.kicad_pcb\"'
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
