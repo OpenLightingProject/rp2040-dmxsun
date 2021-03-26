@@ -9,13 +9,15 @@ on:
     paths:
     - '**.sch'
     - '**.kicad_pcb'
+    - '.github/workflows'
   pull_request:
     paths:
       - '**.sch'
       - '**.kicad_pcb'
+      - '.github/workflows'
 
 jobs:
-  kicad-exports:
+  baseboard_4slots:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,9 +28,29 @@ jobs:
       # optional - prefix to output defined in config
         dir: docs
       # optional - schematic file
-        schema: '*.sch'
+        schema: 'hardware/baseboard 4slots/*.sch'
       # optional - PCB design file
-        board: '*.kicad_pcb'
+        board: 'hardware/baseboard 4slots/*.kicad_pcb'
+    - name: upload results
+      uses: actions/upload-artifact@v2
+      with:
+        name: docs
+        path: docs
+
+  ioboard_4ports_isolated:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: nerdyscout/kicad-exports@v2.2
+      with:
+      # Required - kibot config file
+        config: hardware/docs.kibot.yaml
+      # optional - prefix to output defined in config
+        dir: docs
+      # optional - schematic file
+        schema: 'hardware/ioboard 4ports isolated/*.sch'
+      # optional - PCB design file
+        board: 'hardware/ioboard 4ports isolated/*.kicad_pcb'
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
