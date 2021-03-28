@@ -28,7 +28,7 @@ jobs:
       # Required - kibot config file
         config: hardware/docs.kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: hardware
       # optional - schematic file
         schema: 'hardware/baseboard_4slots/*.sch'
       # optional - PCB design file
@@ -36,8 +36,8 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: docs
-        path: docs
+        name: hardware
+        path: hardware
 
   ioboard_2ports_rdm_isolated:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
       # Required - kibot config file
         config: hardware/docs.kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: hardware
       # optional - schematic file
         schema: 'hardware/ioboard_2ports_rdm_isolated/*.sch'
       # optional - PCB design file
@@ -56,8 +56,8 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: docs
-        path: docs
+        name: hardware
+        path: hardware
 
   ioboard_2ports_rdm_unisolated:
     runs-on: ubuntu-latest
@@ -68,7 +68,7 @@ jobs:
       # Required - kibot config file
         config: hardware/docs.kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: hardware
       # optional - schematic file
         schema: 'hardware/ioboard_2ports_rdm_unisolated/*.sch'
       # optional - PCB design file
@@ -76,8 +76,8 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: docs
-        path: docs
+        name: hardware
+        path: hardware
 
   ioboard_4ports_isolated:
     runs-on: ubuntu-latest
@@ -88,7 +88,7 @@ jobs:
       # Required - kibot config file
         config: hardware/docs.kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: hardware
       # optional - schematic file
         schema: 'hardware/ioboard_4ports_isolated/*.sch'
       # optional - PCB design file
@@ -96,8 +96,8 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: docs
-        path: docs
+        name: hardware
+        path: hardware
 
   ioboard_4ports_unisolated:
     runs-on: ubuntu-latest
@@ -108,7 +108,7 @@ jobs:
       # Required - kibot config file
         config: hardware/docs.kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: hardware
       # optional - schematic file
         schema: 'hardware/ioboard_4ports_unisolated/*.sch'
       # optional - PCB design file
@@ -116,5 +116,5 @@ jobs:
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: docs
-        path: docs
+        name: hardware
+        path: hardware
