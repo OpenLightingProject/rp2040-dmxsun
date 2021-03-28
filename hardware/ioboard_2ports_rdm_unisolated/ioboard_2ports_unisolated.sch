@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "rp2040_dongle_ioboard_2ports_rdm_unisolated"
 Date "2021-03-28"
-Rev "0.1"
+Rev "0.2"
 Comp "https://www.openlighting.org"
 Comment1 ""
 Comment2 ""
@@ -760,6 +760,7 @@ F 0 "U3" H 6750 1392 50  0000 C CNN
 F 1 "XC6206PxxxMR" H 6750 1301 50  0000 C CNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 6750 1375 50  0001 C CIN
 F 3 "https://www.torexsemi.com/file/xc6206/XC6206.pdf" H 6750 1150 50  0001 C CNN
+F 4 "C5446" H 6750 1150 50  0001 C CNN "LCSC"
 	1    6750 1150
 	1    0    0    -1  
 $EndComp

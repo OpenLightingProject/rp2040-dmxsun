@@ -4,9 +4,9 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "rp2040_dongle ioboard 4slots isolated xlr3"
-Date "2021-03-20"
-Rev ""
+Title "rp2040_dongle_ioboard_4ports_unisolated"
+Date "2021-03-28"
+Rev "0.2"
 Comp "https://www.openlighting.org"
 Comment1 ""
 Comment2 ""

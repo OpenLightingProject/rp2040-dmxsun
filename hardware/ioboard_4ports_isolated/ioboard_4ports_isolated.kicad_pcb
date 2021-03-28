@@ -11,9 +11,9 @@
 
   (page A4)
   (title_block
-    (title "rp2040_dongle ioboard 4slots cheap")
-    (date 2021-03-21)
-    (rev 0.1)
+    (title rp2040_dongle_ioboard_4ports_isolated)
+    (date 2021-03-28)
+    (rev 0.2)
     (company https://www.openlighting.org)
   )
 
@@ -2644,7 +2644,7 @@
   (gr_text "Mount only one:\nPort2: RX   TX" (at 53.594 25.781) (layer F.SilkS) (tstamp 605B1981)
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (gr_text "ioboard 4ports isolated XLR3; Rev 0.1; https://www.openlighting.org" (at 78.105 21.717) (layer F.SilkS)
+  (gr_text "ioboard_4ports_isolated XLR3; Rev 0.2; https://www.openlighting.org" (at 78.105 21.717) (layer F.SilkS)
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_text "Mount only one:\nPort4: RX   TX" (at 115.316 25.4) (layer F.SilkS) (tstamp 605B1B90)
