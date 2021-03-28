@@ -31,7 +31,7 @@ preflight:
   - filter: 'Do not complain about conflicting courtyards since only one converter will be installed'
     error: '45'
     regex: '(?s)Footprint U3 on F\.Cu(.*)Footprint PS2 on F\.Cu'
-    - filter: 'Do not complain about conflicting courtyards since only one connector will be installed'
+  - filter: 'Do not complain about conflicting courtyards since only one connector will be installed'
     error: '45'
     regex: '(?s)Footprint J9 on F\.Cu(.*)Footprint J8 on F\.Cu'
   - filter: 'Do not complain about conflicting courtyards since only one connector will be installed'
