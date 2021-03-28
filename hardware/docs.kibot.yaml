@@ -6,6 +6,10 @@ preflight:
   run_drc: true
   check_zone_fills: true
   ignore_unconnected: false
+  filters:
+  - filter: 'Do not complain about power pins driven twice since only one converter will be installed'
+    error: '5'
+    regex:  '(?s)\(Power output\) of component PS1(.*)\(Power output\) of component U2'
 
 outputs:
   # For more information: https://github.com/INTI-CMNB/KiBoM
