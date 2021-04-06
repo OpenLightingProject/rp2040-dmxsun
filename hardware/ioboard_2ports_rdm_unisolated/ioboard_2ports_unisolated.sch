@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "rp2040_dongle_ioboard_2ports_rdm_unisolated"
-Date "2021-03-28"
-Rev "0.2"
+Date "2021-04-06"
+Rev "0.3"
 Comp "https://www.openlighting.org"
 Comment1 ""
 Comment2 ""
@@ -753,18 +753,6 @@ F 4 "C22975" H 1050 5850 50  0001 C CNN "LCSC"
 	-1   0    0    1   
 $EndComp
 $Comp
-L Regulator_Linear:XC6206PxxxMR U3
-U 1 1 606AA3C4
-P 6750 1150
-F 0 "U3" H 6750 1392 50  0000 C CNN
-F 1 "XC6206PxxxMR" H 6750 1301 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 6750 1375 50  0001 C CIN
-F 3 "https://www.torexsemi.com/file/xc6206/XC6206.pdf" H 6750 1150 50  0001 C CNN
-F 4 "C5446" H 6750 1150 50  0001 C CNN "LCSC"
-	1    6750 1150
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:+5V #PWR012
 U 1 1 606AD98F
 P 6450 1150
@@ -780,14 +768,13 @@ L Device:C C1
 U 1 1 606B2F8D
 P 6450 1300
 F 0 "C1" V 6198 1300 50  0000 C CNN
-F 1 "1uF" V 6289 1300 50  0000 C CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 6488 1150 50  0001 C CNN
+F 1 "22uF" V 6289 1300 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 6488 1150 50  0001 C CNN
 F 3 "~" H 6450 1300 50  0001 C CNN
-F 4 "C15849" V 6450 1300 50  0001 C CNN "LCSC"
+F 4 "C45783" V 6450 1300 50  0001 C CNN "LCSC"
 	1    6450 1300
 	1    0    0    -1  
 $EndComp
-Connection ~ 6450 1150
 $Comp
 L power:GND #PWR013
 U 1 1 606B494F
@@ -802,24 +789,75 @@ $EndComp
 Wire Wire Line
 	6750 1450 6450 1450
 Connection ~ 6750 1450
-$Comp
-L Device:C C4
-U 1 1 606B6E82
-P 7050 1300
-F 0 "C4" V 6798 1300 50  0000 C CNN
-F 1 "1uF" V 6889 1300 50  0000 C CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 7088 1150 50  0001 C CNN
-F 3 "~" H 7050 1300 50  0001 C CNN
-F 4 "C15849" V 7050 1300 50  0001 C CNN "LCSC"
-	1    7050 1300
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	6750 1450 7050 1450
-Text Label 7050 1150 0    50   ~ 0
+Text Label 7100 1150 0    50   ~ 0
 +3V3_INT
 Text Label 1700 2800 0    50   ~ 0
 +3V3_INT
 Text Label 1950 5050 0    50   ~ 0
 +3V3_INT
+$Comp
+L Regulator_Linear:AMS1117-3.3 U3
+U 1 1 606CF145
+P 6750 1150
+F 0 "U3" H 6750 1392 50  0000 C CNN
+F 1 "AMS1117-3.3" H 6750 1301 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-223" H 6750 1350 50  0001 C CNN
+F 3 "http://www.advanced-monolithic.com/pdf/ds1117.pdf" H 6850 900 50  0001 C CNN
+F 4 "C6186" H 6750 1150 50  0001 C CNN "LCSC"
+	1    6750 1150
+	1    0    0    -1  
+$EndComp
+Connection ~ 6450 1150
+$Comp
+L Device:C C4
+U 1 1 606D62FA
+P 7100 1650
+F 0 "C4" V 6848 1650 50  0000 C CNN
+F 1 "22uF" V 6939 1650 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7138 1500 50  0001 C CNN
+F 3 "~" H 7100 1650 50  0001 C CNN
+F 4 "C45783" V 7100 1650 50  0001 C CNN "LCSC"
+	1    7100 1650
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:R R4
+U 1 1 606D850F
+P 7100 1350
+F 0 "R4" H 7030 1304 50  0000 R CNN
+F 1 "1R" H 7030 1395 50  0000 R CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 7030 1350 50  0001 C CNN
+F 3 "~" H 7100 1350 50  0001 C CNN
+F 4 "C25271" H 7100 1350 50  0001 C CNN "LCSC"
+	1    7100 1350
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7050 1150 7100 1150
+Wire Wire Line
+	7100 1150 7100 1200
+$Comp
+L power:GND #PWR014
+U 1 1 606DD4A5
+P 7100 1800
+F 0 "#PWR014" H 7100 1550 50  0001 C CNN
+F 1 "GND" V 7105 1672 50  0000 R CNN
+F 2 "" H 7100 1800 50  0001 C CNN
+F 3 "" H 7100 1800 50  0001 C CNN
+	1    7100 1800
+	1    0    0    -1  
+$EndComp
+Text Notes 7950 1300 0    50   ~ 0
+Dummy Net to connect to\nU3 - Pad4 for cooling
+$Comp
+L Connector_Generic:Conn_01x01 DO_NOT_MOUNT_J4
+U 1 1 606ED99D
+P 8300 1450
+F 0 "DO_NOT_MOUNT_J4" H 8380 1492 50  0000 L CNN
+F 1 "Conn_01x01_DO_NOT_MOUNT" H 8380 1401 50  0000 L CNN
+F 2 "Connector_PinHeader_1.00mm:PinHeader_1x02_P1.00mm_Vertical_SMD_Pin1Left" H 8300 1450 50  0001 C CNN
+F 3 "~" H 8300 1450 50  0001 C CNN
+	1    8300 1450
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
