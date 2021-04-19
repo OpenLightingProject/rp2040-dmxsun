@@ -19,6 +19,8 @@ add_executable(rp2040-dongle
 
 pico_generate_pio_header(rp2040-dongle ${CMAKE_CURRENT_LIST_DIR}/tx16.pio)
 
+pico_generate_pio_header(rp2040-dongle ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio)
+
 target_include_directories(rp2040-dongle PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(rp2040-dongle
