@@ -12,6 +12,24 @@
 #include "pico/binary_info.h"
 #include "hardware/irq.h"
 
+#include "pico/bootrom.h"
+#include "hardware/watchdog.h"
+
+// Allow resetting via USB CDC baudrate changes
+// 1200 = to bootloader / BOOTSEL mode
+// 2400 = to regular program / boot from flash
+// See https://www.raspberrypi.org/forums/viewtopic.php?f=145&t=305458
+// and https://github.com/raspberrypi/pico-sdk/commit/383e88ea165bc63e5755e042608bbc1164e75ab7
+void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* p_line_coding)
+{
+    if (p_line_coding->bit_rate == 1200) {
+        reset_usb_boot(0, 0);
+    }
+    if (p_line_coding->bit_rate == 2400) {
+        watchdog_reboot(0, 0, 0);
+    }
+}
+
 static_assert(PICO_STDIO_USB_LOW_PRIORITY_IRQ > RTC_IRQ, ""); // note RTC_IRQ is currently the last one
 static mutex_t stdio_usb_mutex;
 
