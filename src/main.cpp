@@ -38,7 +38,7 @@
 
 #include "acminterface.h"
 
-#include "bsp/board.h"          // LED timing
+#include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
 
 /* Blink pattern
@@ -47,9 +47,10 @@
  * - 2500 ms : Sending DMX, all universes are zero
  */
 enum {
-    BLINK_SENDING_ZERO         = 1000,
-    BLINK_SENDING_CONTENT_ONE  =  500,
-    BLINK_SENDING_CONTENT_MORE =  100,
+    BLINK_INIT                 =   50,
+    BLINK_READY_NO_DATA        = 1000,
+    BLINK_READY_SINGLE_UNI     =  500,
+    BLINK_READY_MULTI_UNI      =  200,
 };
 
 static uint32_t blink_interval_ms = BLINK_SENDING_ZERO;

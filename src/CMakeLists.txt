@@ -9,8 +9,8 @@ project(rp2040-dongle)
 pico_sdk_init()
 
 add_executable(rp2040-dongle
+        main.cpp
         dmahandler.c
-        main.c
         hidinterface.c
         acminterface.c
         usb_descriptors.c
