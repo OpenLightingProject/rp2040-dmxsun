@@ -1,5 +1,23 @@
 #include "dmahandler.h"
 
+// Show how to reconfigure and restart a channel in a channel completion
+// interrupt handler. Plus prepare a DMX-512 buffer for 16 univereses
+// before triggering each DMA transfer
+//
+// Our DMA channel will transfer data to a PIO state machine, which is
+// configured to serialise the raw bits that we push, one by one, 16 bits in
+// parallel to 16 GPIOs (16 DMX universes).
+//
+// Once the channel has sent a predetermined amount of data (1 DMX packet), it
+// will halt, and raise an interrupt flag. The processor will enter the
+// interrupt handler in response to this, where it will:
+// - Toggle GP28 LOW
+// - Zero the complete wave table
+// - Prepare the next DMX packet to be sent in the wavetable
+// - Sets GP28 HIGH (so we can trigger a scope on it)
+// - Restart the DMA channel
+// This repeats.
+
 // Appends one bit to the wavetable for universe "universe" at the position
 // bitoffset. The offset will be increased by 1!
 void wavetable_write_bit(int universe, uint16_t* bitoffset, uint8_t value) {
@@ -39,8 +57,10 @@ void dma_handler() {
     uint16_t bitoffset; // Current bit offset inside current universe
     uint16_t chan;      // Current channel in universe
 
+#ifdef PIN_TRIGGER
     // Drive the TRIGGER GPIO to LOW
     gpio_put(PIN_TRIGGER, 0);
+#endif // PIN_TRIGGER
 
     // Zero the wavetable
     memset(wavetable, 0x00, WAVETABLE_LENGTH*2);
@@ -91,6 +111,8 @@ void dma_handler() {
     // Give the channel a new wavetable-entry to read from, and re-trigger it
     dma_channel_set_read_addr(dma_chan, wavetable, true);
 
+#ifdef PIN_TRIGGER
     // Drive the TRIGGER GPIO to HIGH
     gpio_put(PIN_TRIGGER, 1);
+#endif // PIN_TRIGGER
 };

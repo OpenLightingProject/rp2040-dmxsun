@@ -1,36 +1,20 @@
 /**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+ * Copyright (c) 2021 Open Lighting Project
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-License-Identifier: GPL-3.0
  */
 
-// Show how to reconfigure and restart a channel in a channel completion
-// interrupt handler. Plus prepare a DMX-512 buffer for 16 univereses
-// before triggering each DMA transfer
-//
-// Our DMA channel will transfer data to a PIO state machine, which is
-// configured to serialise the raw bits that we push, one by one, 16 bits in
-// parallel to 16 GPIOs (16 DMX universes).
-//
-// Once the channel has sent a predetermined amount of data (1 DMX packet), it
-// will halt, and raise an interrupt flag. The processor will enter the 
-// interrupt handler in response to this, where it will:
-// - Toggle GP28 LOW
-// - Zero the complete wave table
-// - Prepare the next DMX packet to be sent in the wavetable
-// - Sets GP28 HIGH (so we can trigger a scope on it)
-// - Restart the DMA channel
-// This repeats.
-
+extern "C" {
 #include <stdio.h>
-#include "hardware/clocks.h"    // To derive our 250000bit/s from sys_clk
-#include "hardware/dma.h"       // To control the data transfer from mem to pio
-#include "hardware/gpio.h"      // To "manually" control the trigger pin
-#include "hardware/irq.h"       // To control the data transfer from mem to pio
+#include <hardware/clocks.h>    // To derive our 250000bit/s from sys_clk
+#include <hardware/dma.h>       // To control the data transfer from mem to pio
+#include <hardware/gpio.h>      // To "manually" control the trigger pin
+#include <hardware/irq.h>       // To control the data transfer from mem to pio
 #include "tx16.pio.h"           // Header file for the PIO program
 
-#include "pico/stdlib.h"
-#include "stdio.h"
+#include <pico/stdlib.h>
+
+#include "pins.h"
 
 #include "stdio_usb.h"
 
@@ -40,40 +24,57 @@
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
+}
 
-/* Blink pattern
- * - 250 ms  : Sending DMX, universe 1-15 has one value != 0
- * - 1000 ms : Sending DMX, universe 0 has one value != 0
- * - 2500 ms : Sending DMX, all universes are zero
+/* On-board LED blinking patterns
+ * The values here are clock dividers for the on-chip RTC-clock running at
+ * 46875Hz. Using that value gives a "PWM" with 1s cycle time and 50% duty cycle
+ *
+ * DIVIDER | Cycle time | Description
+ * 2000    |   ~43ms    | Init phase, board not ready
+ * 65535   | ~1.4s      | Board ready, all chans in all universes are 0
+ * 42188   | ~0.9s      | Board ready, one universe with at least one channel != 0
+ * 21094   | ~0.45s     | Board ready, multiple universes with at least one channel != 0
  */
 enum {
-    BLINK_INIT                 =   50,
-    BLINK_READY_NO_DATA        = 1000,
-    BLINK_READY_SINGLE_UNI     =  500,
-    BLINK_READY_MULTI_UNI      =  200,
+    BLINK_INIT                 =  2000,
+    BLINK_READY_NO_DATA        = 65535,
+    BLINK_READY_SINGLE_UNI     = 42188,
+    BLINK_READY_MULTI_UNI      = 21094,
 };
+#define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
-static uint32_t blink_interval_ms = BLINK_SENDING_ZERO;
-
-static uint32_t debug_refresh_interval_ms = 1000;
-
+// Super-globals (for all modules)
 int dma_chan;                          // The DMA channel we use to push data around
 uint8_t dmx_values[16][512];           // 16 universes with 512 byte each
 
 void led_blinking_task(void);
 
+// Board init sequence:
+// 1. Status LEDs
+// 2. Detect IO boards
+// 3. Read board configuration from "first" IO board
+// 4. Depending on config (IP addresses): USB-Network-Web-Server
+// 5. Depending on config: USB host-interface (style of emulation)
+// 6. tusb_init(), stdio_usb_init() and configure magic-baudrate-reboot
+// 7. nRF24 detection and init
+// 8. Depending on base boards and config: DMX PIOs and GPIO config
+
 int main() {
-    gpio_init(25);
-    gpio_set_dir(25, GPIO_OUT);
+    // Make the onboard-led blink like crazy during the INIT phase
+    // without having to do this in software because we're busy with other stuff
+    BLINK_LED(BLINK_INIT);
 
     tusb_init();
 
     stdio_usb_init();
 
-    // Set up our TRIGGER GPIO on GP28 and init it to LOW
+    // Set up our TRIGGER GPIO init it to LOW
+#ifdef PIN_TRIGGER
     gpio_init(PIN_TRIGGER);
     gpio_set_dir(PIN_TRIGGER, GPIO_OUT);
     gpio_put(PIN_TRIGGER, 0);
+#endif // PIN_TRIGGER
 
     // Set up a PIO state machine to serialise our bits at 250000 bit/s
     uint offset = pio_add_program(pio0, &tx16_program);
@@ -113,6 +114,7 @@ int main() {
     while (true) {
         tud_task();
         led_blinking_task();
+        sleep_ms(5);
     }
 };
 
@@ -123,41 +125,26 @@ void led_blinking_task(void) {
     // The following calculations take lots of time. However, this doesn't
     // matter since the DMX updating is done via IRQ handler
 
-    // Check which blinking pattern to use
-    blink_interval_ms = BLINK_SENDING_ZERO;
-
-    // Check if first universe is all zero
-    for (uint16_t i = 0; i < 512; i++) {
-        if (dmx_values[0][i]) {
-            blink_interval_ms = BLINK_SENDING_CONTENT_ONE;
-        }
-    }
-    // Check the other universes
-    for (uint16_t j = 1; j < 16; j++) {
+    uint universes_none_zero = 0;
+    // Check the universes for non-zero channels
+    for (uint16_t j = 0; j < 16; j++) {
         for (uint16_t i = 0; i < 512; i++) {
             if (dmx_values[j][i]) {
-                blink_interval_ms = BLINK_SENDING_CONTENT_MORE;
+                universes_none_zero++;
+                break;
             }
+        }
+        if (universes_none_zero >= 2) {
+            break;
         }
     }
 
-    static uint32_t start_ms = 0;
-    static bool led_state = false;
+    if (universes_none_zero == 0) {
+        BLINK_LED(BLINK_READY_NO_DATA);
+    } else if (universes_none_zero == 1) {
+        BLINK_LED(BLINK_READY_SINGLE_UNI);
+    } else if (universes_none_zero > 1) {
+        BLINK_LED(BLINK_READY_MULTI_UNI);
+    }
 
-    // Blink every interval ms
-    if (board_millis() - start_ms < blink_interval_ms) return; // not enough time
-    start_ms += blink_interval_ms;
-
-    board_led_write(led_state);
-    led_state = 1 - led_state; // toggle
-
-
-    // Output current DMX universe values periodically
-    static uint32_t start_ms_debug = 0;
-
-    if (board_millis() - start_ms_debug < debug_refresh_interval_ms) return; // not enough time
-    start_ms_debug += debug_refresh_interval_ms;
-
-    debugPrintUniverse(0);
-    debugPrintUniverse(1);
 }

@@ -6,7 +6,7 @@
 #include "hardware/dma.h"       // To control the data transfer from mem to pio
 #include "hardware/gpio.h"      // To "manually" control the trigger pin
 
-#define PIN_TRIGGER 28
+#include "pins.h"
 
 #define WAVETABLE_LENGTH 5648   // bits per DMX packet. Wavetable has 16*this bits in total
 

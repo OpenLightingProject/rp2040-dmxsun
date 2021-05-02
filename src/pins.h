@@ -42,12 +42,12 @@
 #define PIN_IO11_3     21
 
 // Pico's on-board, single-color status LED
-#defile PIN_LED        PICO_DEFAULT_LED_PIN // (=25)
+#define PIN_LED        PICO_DEFAULT_LED_PIN // = 25 on the pico
 
 // WS2812-based status LEDs
 #define PIN_LEDS       22
 
 // Helper pin for DMX TX (DriverEnable output)
-// this is mainly helpful to trigger an oscilloscope to check the
+// this is mainly useful to trigger an oscilloscope to check the
 // generated DMX frames
 #define PIN_TRIGGER    26
