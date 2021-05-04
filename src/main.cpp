@@ -51,7 +51,11 @@ enum {
 StatusLeds statusLeds;
 BoardConfig boardConfig;
 
+// TODO: Move to the class where it is used
 int dma_chan;                          // The DMA channel we use to push data around
+
+// TODO: Make a class so we can trigger data transfers via patchings
+//       and rename to DmxBuffer
 uint8_t dmx_values[16][512];           // 16 universes with 512 byte each
 
 void led_blinking_task(void);
@@ -60,7 +64,7 @@ void led_blinking_task(void);
 // 1. Status LEDs
 // 2. Detect IO boards
 // 3. Read board configuration from "first" IO board
-// 3b. If no IO board wasdetected: Read board confif from last sector of on-board flash
+// 3b. If no IO board was detected: Read board config from last sector of on-board flash
 //     (This could be the case for nRF24 mesh masters with attached PC and no local IO
 //      or nRF24 mesh repeaters with no local IO)
 // 4. Depending on config (IP addresses): USB-Network-Web-Server

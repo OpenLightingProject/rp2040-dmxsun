@@ -3,6 +3,16 @@
 
 #include "pins.h"
 
+// Status LEDs:
+// LED0: IO Board 00
+// LED1: IO Board 01
+// LED2: IO Board 10
+// LED3: IO Board 11
+// LED4: System/Config status (Default config, Everything okay)
+// LED5: USB host detected / activity
+// LED6: Wireless status / activity
+// LED7: 
+
 class StatusLeds {
   public:
     void init();

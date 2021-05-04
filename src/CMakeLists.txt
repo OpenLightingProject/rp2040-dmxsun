@@ -40,6 +40,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_dma
+    hardware_flash
     hardware_i2c
     hardware_irq
     hardware_pio
