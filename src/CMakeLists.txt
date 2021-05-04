@@ -10,6 +10,7 @@ pico_sdk_init()
 
 add_executable(rp2040-dongle
         main.cpp
+        statusleds.cpp
         dmahandler.c
         hidinterface.c
         acminterface.c

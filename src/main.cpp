@@ -22,6 +22,8 @@ extern "C" {
 
 #include "acminterface.h"
 
+#include "statusleds.h"
+
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
 }
@@ -45,6 +47,8 @@ enum {
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
 // Super-globals (for all modules)
+static StatusLeds statusLeds;
+
 int dma_chan;                          // The DMA channel we use to push data around
 uint8_t dmx_values[16][512];           // 16 universes with 512 byte each
 
@@ -67,6 +71,11 @@ int main() {
     // Make the onboard-led blink like crazy during the INIT phase
     // without having to do this in software because we're busy with other stuff
     BLINK_LED(BLINK_INIT);
+
+    // Phase 1: Init the status LEDs
+    statusLeds.init();
+    statusLeds.writeLeds();
+
 
     tusb_init();
 
