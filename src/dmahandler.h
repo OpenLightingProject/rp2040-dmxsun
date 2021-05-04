@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "hardware/dma.h"       // To control the data transfer from mem to pio
-#include "hardware/gpio.h"      // To "manually" control the trigger pin
+#include <hardware/dma.h>       // To control the data transfer from mem to pio
+#include <hardware/gpio.h>      // To "manually" control the trigger pin
 
 #include "pins.h"
 

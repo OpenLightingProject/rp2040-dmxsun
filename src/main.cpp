@@ -54,6 +54,9 @@ void led_blinking_task(void);
 // 1. Status LEDs
 // 2. Detect IO boards
 // 3. Read board configuration from "first" IO board
+// 3b. If no IO board wasdetected: Read board confif from last sector of on-board flash
+//     (This could be the case for nRF24 mesh masters with attached PC and no local IO
+//      or nRF24 mesh repeaters with no local IO)
 // 4. Depending on config (IP addresses): USB-Network-Web-Server
 // 5. Depending on config: USB host-interface (style of emulation)
 // 6. tusb_init(), stdio_usb_init() and configure magic-baudrate-reboot
