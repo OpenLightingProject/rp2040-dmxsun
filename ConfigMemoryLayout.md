@@ -109,7 +109,7 @@ Every buffer can be patched to one or more PORTs
 
 Patching info:
 one bit "enabled"
-merging: HTP, LTP, overwrite, avarage = 2 bit + 2 reserved
+merging: HTP, LTP, overwrite, average = 2 bit + 2 reserved
 PORT: 5 bit
 Buffer: 5 bit
 => 15 bit :D
