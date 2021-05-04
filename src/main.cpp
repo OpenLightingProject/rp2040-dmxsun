@@ -23,6 +23,7 @@ extern "C" {
 #include "acminterface.h"
 
 #include "statusleds.h"
+#include "boardconfig.h"
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
@@ -47,7 +48,8 @@ enum {
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
 // Super-globals (for all modules)
-static StatusLeds statusLeds;
+StatusLeds statusLeds;
+BoardConfig boardConfig;
 
 int dma_chan;                          // The DMA channel we use to push data around
 uint8_t dmx_values[16][512];           // 16 universes with 512 byte each
@@ -74,8 +76,13 @@ int main() {
 
     // Phase 1: Init the status LEDs
     statusLeds.init();
+    statusLeds.setBrightness(20);
+    sleep_ms(200);
     statusLeds.writeLeds();
 
+    // Phase 2: Detect and read IO boards
+    boardConfig.init();
+    boardConfig.readIOBoards();
 
     tusb_init();
 

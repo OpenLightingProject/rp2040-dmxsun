@@ -14,6 +14,7 @@ pico_sdk_init()
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     acminterface.c
+    boardconfig.cpp
     dmahandler.c
     hidinterface.c
     main.cpp
@@ -39,6 +40,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_dma
+    hardware_i2c
     hardware_irq
     hardware_pio
     pico_stdlib

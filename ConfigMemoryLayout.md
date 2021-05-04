@@ -89,6 +89,7 @@ struct BoardConfig {
   uint8_t     radioParams,     // 60 // Bit field. bit0: 0 = no compression, 1 = compression; bit1: 0 = send partial universes, 1 = send complete universes
   uint16_t[32] patchings,      // 124
   E131out[4] e131outs,         // 168
+  uint8_t     statusLedBrightness,
 };
 
 
