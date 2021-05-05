@@ -10,17 +10,6 @@
 // However, we are only using the first 256 byte of that sector.
 #define CONFIG_FLASH_OFFSET (2044 * 1024)
 
-class BoardConfig {
-  public:
-    void init();
-    void readIOBoards();
-    void prepareConfig();
-
-  private:
-    bool responding[4];       // True if the board resonded to the bus scan
-    uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each)
-};
-
 // Config data types and layout
 #define CONFIG_VERSION 1
 
@@ -117,10 +106,10 @@ struct ConfigData {
 // Section 2: System configuration stored in this board.
     uint8_t           configVersion; // values 0x00 and 0xff => invalid
     char              boardName[32];
-    uint8_t           ownIp[4];
-    uint8_t           ownMask[4];
-    uint8_t           hostIp[4];
-    uint8_t           hostMask[4];
+    uint32_t          ownIp;
+    uint32_t          ownMask;
+    uint32_t          hostIp;
+    uint32_t          hostMask;
     UsbProtocol       usbProtocol;
     uint8_t           usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
     RadioRole         radioRole;
@@ -130,6 +119,20 @@ struct ConfigData {
     Patching          patching[32];
     E131out           e131outs[8];
     uint8_t           statusLedBrightness;
+};
+
+class BoardConfig {
+  public:
+    ConfigData* activeConfig; // Pointer to the currently active configuration
+
+    void init();
+    void readIOBoards();
+    void prepareConfig();
+    ConfigData defaultConfig();
+
+  private:
+    bool responding[4];       // True if the board resonded to the bus scan
+    uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each
 };
 
 #endif // BOARDCONFIG_H

@@ -16,6 +16,7 @@
 class StatusLeds {
   public:
     void init();
+    void getLed(uint8_t index, uint8_t* r, uint8_t* g, uint8_t* b);
     void setLed(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
     void setBrightness(uint8_t brightness);
     void writeLeds();

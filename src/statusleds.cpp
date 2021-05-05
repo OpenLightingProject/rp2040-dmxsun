@@ -21,6 +21,12 @@ void StatusLeds::init() {
     memset(this->pixels, 0x00, 8*4);
 }
 
+void StatusLeds::getLed(uint8_t index, uint8_t* r, uint8_t* g, uint8_t* b) {
+    *r = this->pixels[index] >> 8;
+    *g = this->pixels[index] >> 16;
+    *b = this->pixels[index] & 0xFF;
+}
+
 void StatusLeds::setLed(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
     pixels[index] = g << 16 | r << 8 | b;
 }

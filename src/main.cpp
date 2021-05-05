@@ -88,6 +88,9 @@ int main() {
     boardConfig.init();
     boardConfig.readIOBoards();
 
+    // Phase 3: Make sure we have some configuration ready
+    boardConfig.prepareConfig();
+
     tusb_init();
 
     stdio_usb_init();
