@@ -124,12 +124,61 @@ ConfigData BoardConfig::defaultConfig() {
     cfg.configVersion = CONFIG_VERSION;
     cfg.ownIp = 0x0a800701UL; // 10.128.7.1 TODO: Derive last two bytes from unique ID
     cfg.ownMask = 0xffff0000UL; // 255.255.0.0
-    cfg.hostIp = 0x0a800702UL; // 10.128.7.2
-    cfg.hostMask = 0xffff0000UL;
+    cfg.hostIp = cfg.ownIp + 1;
+    cfg.hostMask = cfg.ownMask;
     cfg.usbProtocol = UsbProtocol::NodleU1;
     cfg.radioRole = RadioRole::sniffer;
     cfg.radioChannel = 0;
     cfg.statusLedBrightness = 100;
 
     return cfg;
+}
+
+int BoardConfig::saveConfig(uint8_t slot) {
+    ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
+
+    if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
+        // Save to an IO board, so check if it's connected and configured
+        if (
+            (this->responding[slot]) &&
+            (targetConfig->boardType > BoardType::invalid_00) &&
+            (targetConfig->boardType < BoardType::invalid_ff)
+        ) {
+            // Save only the non-board-specific part
+            uint8_t offset = sizeof(BoardType) + 4 * sizeof(PortParams);
+            memcpy(targetConfig + offset, activeConfig + offset, sizeof(ConfigData) - offset);
+            // TODO: EEPROM writing (page-wise!)
+            // TODO: Compare after writing
+            return 0;
+        } else if (!this->responding[slot]) {
+            // IO board is not connected
+            return 1;
+        } else {
+            // IO board is connected but not configured
+            return 2;
+        }
+    } else if (slot == 4) {
+        // Save to the base board
+        memcpy(targetConfig, activeConfig, sizeof(ConfigData));
+        targetConfig->boardType = BoardType::baseboard_fallback;
+
+        // Erase the flash sector
+        // Note that a whole number of sectors must be erased at a time.
+        flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
+
+        // Program the flash sector with the new values
+        flash_range_program(CONFIG_FLASH_OFFSET, (const uint8_t*)targetConfig, sizeof(ConfigData));
+
+        // Compare that what should have been written has been written
+        if (memcmp(targetConfig, config_flash_contents, sizeof(ConfigData))) {
+            // Comparison failed :-O
+            return 3;
+        }
+
+        // All good :)
+        return 0;
+    }
+
+    // Slot unknown
+    return 4;
 }

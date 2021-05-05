@@ -129,6 +129,7 @@ class BoardConfig {
     void readIOBoards();
     void prepareConfig();
     ConfigData defaultConfig();
+    int saveConfig(uint8_t slot);
 
   private:
     bool responding[4];       // True if the board resonded to the bus scan
