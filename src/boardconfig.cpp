@@ -118,18 +118,11 @@ void BoardConfig::prepareConfig() {
 
 ConfigData BoardConfig::defaultConfig() {
     ConfigData cfg;
-    memset(&cfg, 0, sizeof(cfg));
 
-    cfg.boardType = BoardType::baseboard_fallback;
-    cfg.configVersion = CONFIG_VERSION;
-    cfg.ownIp = 0x0a800701UL; // 10.128.7.1 TODO: Derive last two bytes from unique ID
-    cfg.ownMask = 0xffff0000UL; // 255.255.0.0
-    cfg.hostIp = cfg.ownIp + 1;
-    cfg.hostMask = cfg.ownMask;
-    cfg.usbProtocol = UsbProtocol::NodleU1;
-    cfg.radioRole = RadioRole::sniffer;
-    cfg.radioChannel = 0;
-    cfg.statusLedBrightness = 100;
+    memcpy(&cfg, &constDefaultConfig, sizeof(ConfigData));
+
+    // TODO: Overwrite ownIp and hostIP with values calculated
+    //       from the unique board id
 
     return cfg;
 }
