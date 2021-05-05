@@ -56,7 +56,7 @@
 #define LWIP_HTTPD_SSI_INCLUDE_TAG      0
 #endif
 #define HTTPD_USE_CUSTOM_FSDATA         1
-#define HTTPD_FSDATA_FILE               "../../../../fsdata.c"
+#define HTTPD_FSDATA_FILE               "../../../../../src/fsdata.c"
 
 #define LWIP_SINGLE_NETIF               1
 

@@ -44,7 +44,7 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME}
 set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/../lib/lwip)
 set (LWIP_INCLUDE_DIRS
     "${LWIP_DIR}/src/include"
-    #"${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 include(${LWIP_DIR}/src/Filelists.cmake)
 
@@ -62,6 +62,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_i2c
     hardware_irq
     hardware_pio
+    lwipallapps
+    lwipcore
     pico_stdlib
     pico_unique_id
     tinyusb_board
