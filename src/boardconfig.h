@@ -13,6 +13,8 @@
 // Config data types and layout
 #define CONFIG_VERSION 1
 
+#ifdef __cplusplus
+
 enum BoardType : uint8_t {
     invalid_00                = 0x00,
     dmx_4ports_unisolated     = 0x01,
@@ -135,7 +137,7 @@ static const ConfigData constDefaultConfig = {
 
 class BoardConfig {
   public:
-    ConfigData* activeConfig; // Pointer to the currently active configuration
+    static ConfigData* activeConfig; // Pointer to the currently active configuration
 
     void init();
     void readIOBoards();
@@ -147,5 +149,23 @@ class BoardConfig {
     bool responding[4];       // True if the board resonded to the bus scan
     uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each
 };
+
+#endif // __cplusplus
+
+// Helper getters for certain values that are required in C code
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+uint8_t  getUsbProtocol();
+
+uint32_t getOwnIp();
+uint32_t getOwnMask();
+uint32_t getHostIp();
+uint32_t getHostMask();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BOARDCONFIG_H

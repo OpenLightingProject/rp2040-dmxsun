@@ -9,6 +9,8 @@
 extern StatusLeds statusLeds;
 const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 
+ConfigData* BoardConfig::activeConfig;
+
 void BoardConfig::init() {
     i2c_init(i2c0, 100 * 1000);
     gpio_set_function(PIN_I2C_SCL, GPIO_FUNC_I2C);
@@ -69,7 +71,7 @@ void BoardConfig::prepareConfig() {
         (cfg00->boardType < BoardType::invalid_ff) &&
         (cfg00->configVersion == CONFIG_VERSION)
     ) {
-        this->activeConfig = cfg00;
+        BoardConfig::activeConfig = cfg00;
         statusLeds.getLed(0, &r, &g, &b);
         statusLeds.setLed(0, r, g, 255);
     } else if (
@@ -77,7 +79,7 @@ void BoardConfig::prepareConfig() {
         (cfg01->boardType < BoardType::invalid_ff) &&
         (cfg01->configVersion == CONFIG_VERSION)
     ) {
-        this->activeConfig = cfg01;
+        BoardConfig::activeConfig = cfg01;
         statusLeds.getLed(1, &r, &g, &b);
         statusLeds.setLed(1, r, g, 255);
     } else if (
@@ -85,7 +87,7 @@ void BoardConfig::prepareConfig() {
         (cfg10->boardType < BoardType::invalid_ff) &&
         (cfg10->configVersion == CONFIG_VERSION)
     ) {
-        this->activeConfig = cfg10;
+        BoardConfig::activeConfig = cfg10;
         statusLeds.getLed(2, &r, &g, &b);
         statusLeds.setLed(2, r, g, 255);
     } else if (
@@ -93,7 +95,7 @@ void BoardConfig::prepareConfig() {
         (cfg11->boardType < BoardType::invalid_ff) &&
         (cfg11->configVersion == CONFIG_VERSION)
     ) {
-        this->activeConfig = cfg11;
+        BoardConfig::activeConfig = cfg11;
         statusLeds.getLed(3, &r, &g, &b);
         statusLeds.setLed(3, r, g, 255);
     } else if (
@@ -101,7 +103,7 @@ void BoardConfig::prepareConfig() {
         (cfgbase->boardType < BoardType::invalid_ff) &&
         (cfgbase->configVersion == CONFIG_VERSION)
     ) {
-        this->activeConfig = cfgbase;
+        BoardConfig::activeConfig = cfgbase;
         statusLeds.getLed(4, &r, &g, &b);
         statusLeds.setLed(4, r, g, 255);
     } else {
@@ -110,9 +112,10 @@ void BoardConfig::prepareConfig() {
         // Since we don't know then nature of the IO boards, we save that
         // default config in the slot of the base board!
         *cfgbase = this->defaultConfig();
-        this->activeConfig = cfgbase;
+        BoardConfig::activeConfig = cfgbase;
         statusLeds.setLed(4, 255, 0, 255);
     }
+    sleep_ms(200);
     statusLeds.writeLeds();
 }
 
@@ -139,7 +142,7 @@ int BoardConfig::saveConfig(uint8_t slot) {
         ) {
             // Save only the non-board-specific part
             uint8_t offset = sizeof(BoardType) + 4 * sizeof(PortParams);
-            memcpy(targetConfig + offset, activeConfig + offset, sizeof(ConfigData) - offset);
+            memcpy(targetConfig + offset, BoardConfig::activeConfig + offset, sizeof(ConfigData) - offset);
             // TODO: EEPROM writing (page-wise!)
             // TODO: Compare after writing
             return 0;
@@ -152,7 +155,7 @@ int BoardConfig::saveConfig(uint8_t slot) {
         }
     } else if (slot == 4) {
         // Save to the base board
-        memcpy(targetConfig, activeConfig, sizeof(ConfigData));
+        memcpy(targetConfig, BoardConfig::activeConfig, sizeof(ConfigData));
         targetConfig->boardType = BoardType::baseboard_fallback;
 
         // Erase the flash sector
@@ -174,4 +177,24 @@ int BoardConfig::saveConfig(uint8_t slot) {
 
     // Slot unknown
     return 4;
+}
+
+uint8_t getUsbProtocol() {
+    return BoardConfig::activeConfig->usbProtocol;
+}
+
+uint32_t getOwnIp() {
+    return BoardConfig::activeConfig->ownIp;
+}
+
+uint32_t getOwnMask() {
+    return BoardConfig::activeConfig->ownMask;
+}
+
+uint32_t getHostIp() {
+    return BoardConfig::activeConfig->hostIp;
+}
+
+uint32_t getHostMask() {
+    return BoardConfig::activeConfig->hostMask;
 }

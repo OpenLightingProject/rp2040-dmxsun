@@ -27,6 +27,34 @@ extern "C" {
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
+
+
+
+
+#include "pico/bootrom.h"
+#include "hardware/watchdog.h"
+#include "hardware/structs/watchdog.h"
+
+#include "tusb_lwip_glue.h"
+
+
+static const char *html[1]={"/index.html"};
+
+static const char *cgi_reset_usb_boot(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    reset_usb_boot(0, 0);
+    return html[0];
+}
+
+static const tCGI cgi_handlers[] = {
+  {
+    "/reset_usb_boot",
+    cgi_reset_usb_boot
+  }
+};
+
+
+
 }
 
 /* On-board LED blinking patterns
@@ -91,9 +119,18 @@ int main() {
     // Phase 3: Make sure we have some configuration ready
     boardConfig.prepareConfig();
 
-    tusb_init();
 
-    stdio_usb_init();
+
+
+    // Initialize tinyusb, lwip, dhcpd and httpd
+    init_lwip();
+    wait_for_netif_is_up();
+    dhcpd_init();
+    httpd_init();
+    http_set_cgi_handlers(cgi_handlers, LWIP_ARRAYSIZE(cgi_handlers));
+
+    //tusb_init();
+    //stdio_usb_init();
 
     // Set up our TRIGGER GPIO init it to LOW
 #ifdef PIN_TRIGGER
@@ -139,6 +176,7 @@ int main() {
     // time to sit and think about its early retirement -- maybe open a bakery?
     while (true) {
         tud_task();
+        service_traffic();
         led_blinking_task();
         sleep_ms(5);
     }
