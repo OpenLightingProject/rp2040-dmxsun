@@ -28,7 +28,9 @@ add_executable(${CMAKE_PROJECT_NAME}
     main.cpp
     statusleds.cpp
     stdio_usb.c
+    tusb_lwip_glue.c
     usb_descriptors.c
+    webserver.cpp
 )
 
 ## Add our rp2040-PIO programs here
@@ -51,6 +53,7 @@ include(${LWIP_DIR}/src/Filelists.cmake)
 ## Needed so tusb_config.h is found by the tinyUSB-library included in the pico-sdk
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${LWIP_INCLUDE_DIRS}
+    ${PICO_TINYUSB_PATH}/lib/networking
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
