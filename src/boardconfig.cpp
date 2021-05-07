@@ -5,6 +5,7 @@
 #include <hardware/gpio.h>
 #include <hardware/i2c.h>
 #include <hardware/flash.h>
+#include <pico/unique_id.h>
 
 extern StatusLeds statusLeds;
 const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
@@ -124,8 +125,12 @@ ConfigData BoardConfig::defaultConfig() {
 
     memcpy(&cfg, &constDefaultConfig, sizeof(ConfigData));
 
-    // TODO: Overwrite ownIp and hostIP with values calculated
-    //       from the unique board id
+    // Compute the second and third byte of the IP with values from
+    // the unique board id: 10.X.Y.1 (board), 10.X.Y.2 (host)
+    pico_unique_board_id_t id;
+    pico_get_unique_board_id(&id);
+    memcpy(((void*)&(cfg.ownIp)) + 2, id.id, 1);
+    memcpy(((void*)&(cfg.hostIp)) + 2, id.id, 1);
 
     return cfg;
 }

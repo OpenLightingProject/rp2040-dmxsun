@@ -12,6 +12,8 @@
 #include <lwip/timeouts.h>
 #include <lwip/apps/httpd.h>
 
+#include "boardconfig.h"
+
 void init_lwip();
 void wait_for_netif_is_up();
 void dhcpd_init();

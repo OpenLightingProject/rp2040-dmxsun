@@ -126,9 +126,9 @@ struct ConfigData {
 static const ConfigData constDefaultConfig = {
     .boardType           = BoardType::baseboard_fallback,
     .configVersion       = CONFIG_VERSION,
-    .ownIp               = 0x0a800701UL, // 10.128.7.1 TODO: Derive last two bytes from unique ID
-    .ownMask             = 0xffff0000UL, // 255.255.0.0
-    .hostIp              = 0x0a800702UL, // 10.128.7.2 TODO: Derive last two bytes from unique ID
+    .ownIp               = 0x0100fea9UL, // 169.254.X.1
+    .ownMask             = 0x00ffffffUL, // 255.255.255.0
+    .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::NodleU1,
     .radioRole           = RadioRole::sniffer,
     .radioChannel        = 0,

@@ -25,8 +25,8 @@
 
 #include "tusb.h"
 
-#include "pico/stdlib.h"
-#include "pico/unique_id.h"
+#include <pico/stdlib.h>
+#include <pico/unique_id.h>
 
 #include "boardconfig.h"
 
@@ -225,16 +225,16 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 // array of pointer to string descriptors
 char const *string_desc_arr[] =
 {
-    [STRID_LANGID]         = (const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
-    [STRID_MANUFACTURER]   = "DE/FX5/U1 Clone",           // 1: Manufacturer
-    [STRID_PRODUCT]        = "16Tx 00Rx S",               // 2: Product
-    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",   // 3: Serial, fallback here, it's dynamically created later
-    [STRID_CDC_ACM_IFNAME] = "16Tx00RxS_000001",          // 4: CDC ACM interface name
-    [STRID_CDC_ECM_IFNAME] = "RP2040_NetworkInterface",   // 5: CDC ECM interface name
-    [STRID_MAC]            = "000000000000"               // 6: MAC address is handled in tud_descriptor_string_cb
+    [STRID_LANGID]         = (const char[]) {0x09, 0x04},           // 0: is supported language is English (0x0409)
+    [STRID_MANUFACTURER]   = "OpenLightingProject",                 // 1: Manufacturer
+    [STRID_PRODUCT]        = "rp2040-dongle http://255.255.255.255",// 2: Product
+    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",             // 3: Serial, fallback here, it's dynamically created later
+    [STRID_CDC_ACM_IFNAME] = "Debugging Console",                   // 4: CDC ACM interface name
+    [STRID_CDC_ECM_IFNAME] = "Network Interface",                   // 5: CDC ECM interface name, also handled in tud_descriptor_string_cb
+    [STRID_MAC]            = "000000000000"                         // 6: MAC address is handled in tud_descriptor_string_cb
 };
 
-static uint16_t _desc_str[32];
+static uint16_t _desc_str[128];
 
 // Invoked when received GET STRING DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to complete
@@ -256,6 +256,12 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         for (int i = 0; (i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES) && (i < 8); ++i) {
             snprintf(serial + i*2 + 7, 32, "%02x", board_id.id[i]);
         }
+    } else if (index == STRID_PRODUCT) {
+      // Network interface name has been requested. Get our IP there
+      char product[64];
+      uint32_t ip = getOwnIp();
+      str = product;
+      snprintf(product, 64, "Visit http://%d.%d.%d.%d/", (uint8_t)(ip& 0xff), (uint8_t)((ip >> 8) & 0xff), (uint8_t)((ip >> 16) & 0xff), (uint8_t)((ip >> 24) & 0xff));
     }
 
     if (index == 0) {
@@ -279,7 +285,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
 
         // Cap at max char
         chr_count = strlen(str);
-        if (chr_count > 31) chr_count = 31;
+        if (chr_count > 63) chr_count = 63;
 
         for (uint8_t i = 0; i < chr_count; i++) {
             _desc_str[1 + i] = str[i];

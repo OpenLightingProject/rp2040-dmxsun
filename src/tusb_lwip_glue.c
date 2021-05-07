@@ -40,29 +40,14 @@ static struct pbuf *received_frame;
 /* it is suggested that the first byte is 0x02 to indicate a link-local address */
 const uint8_t tud_network_mac_address[6] = {0x02,0x02,0x84,0x6A,0x96,0x00};
 
-/* network parameters of this MCU */
-static const ip_addr_t ipaddr  = IPADDR4_INIT_BYTES(192, 168, 7, 1);
-static const ip_addr_t netmask = IPADDR4_INIT_BYTES(255, 255, 255, 0);
-static const ip_addr_t gateway = IPADDR4_INIT_BYTES(0, 0, 0, 0);
+ip_addr_t ipaddr;
+ip_addr_t netmask;
+ip_addr_t gateway;
 
-/* database IP addresses that can be offered to the host; this must be in RAM to store assigned MAC addresses */
-static dhcp_entry_t entries[] =
-{
-    /* mac ip address                          lease time */
-    { {0}, IPADDR4_INIT_BYTES(192, 168, 7, 2), 24 * 60 * 60 },
-    { {0}, IPADDR4_INIT_BYTES(192, 168, 7, 3), 24 * 60 * 60 },
-    { {0}, IPADDR4_INIT_BYTES(192, 168, 7, 4), 24 * 60 * 60 },
-};
-
-static const dhcp_config_t dhcp_config =
-{
-    .router = IPADDR4_INIT_BYTES(0, 0, 0, 0),  /* router address (if any) */
-    .port = 67,                                /* listen port */
-    .dns = IPADDR4_INIT_BYTES(0, 0, 0, 0),     /* dns server (if any) */
-    "",                                        /* dns suffix */
-    TU_ARRAY_SIZE(entries),                    /* num entry */
-    entries                                    /* entries */
-};
+dhcp_entry_t entries[1];
+ip_addr_t hostIp;
+ip_addr_t anyIp;
+dhcp_config_t dhcp_config;
 
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
 {
@@ -123,6 +108,10 @@ void init_lwip(void)
     memcpy(netif->hwaddr+1, (id.id)+1, sizeof(tud_network_mac_address)-1);
     netif->hwaddr[0] = 0x02;
     netif->hwaddr[5] ^= 0x01;
+
+    ip4_addr_set_u32(&ipaddr, getOwnIp());
+    ip4_addr_set_u32(&netmask, getOwnMask());
+    ip4_addr_set_u32(&gateway, 0);
     
     netif = netif_add(netif, &ipaddr, &netmask, &gateway, NULL, netif_init_cb, ip_input);
     netif_set_default(netif);
@@ -197,6 +186,19 @@ void service_traffic(void)
 
 void dhcpd_init()
 {
+    /* database IP addresses that can be offered to the host; this must be in RAM to store assigned MAC addresses */
+    ip4_addr_set_u32(&hostIp, getHostIp());
+    entries[0].addr = hostIp;
+    entries[0].lease = 24 * 60 * 60;
+
+    ip4_addr_set_u32(&anyIp, 0);
+    dhcp_config.router = anyIp;    /* router address (if any) */
+    dhcp_config.port = 67;         /* listen port */
+    dhcp_config.dns = anyIp;       /* dns server (if any) */
+    dhcp_config.domain = "";       /* dns suffix */
+    dhcp_config.num_entry = 1;     /* num entry */
+    dhcp_config.entries = entries; /* entries */
+
     while (dhserv_init(&dhcp_config) != ERR_OK);    
 }
 
