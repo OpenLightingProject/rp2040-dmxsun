@@ -97,9 +97,6 @@ void init_lwip(void)
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
     
-    /* Initialize tinyUSB */
-    tusb_init();
-    
     /* Initialize lwip */
     lwip_init();
     

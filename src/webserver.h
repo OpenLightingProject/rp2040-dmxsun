@@ -25,7 +25,10 @@ class WebServer {
 extern "C" {
 #endif
 
-static const char *cgi_reset_usb_boot(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_system_reset_boot(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+
+static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
 
 
 #ifdef __cplusplus

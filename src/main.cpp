@@ -149,7 +149,7 @@ int main() {
     // time to sit and think about its early retirement -- maybe open a bakery?
     while (true) {
         tud_task();
-        service_traffic();
+        webServer.cyclicTask();
         led_blinking_task();
         sleep_ms(5);
     }
