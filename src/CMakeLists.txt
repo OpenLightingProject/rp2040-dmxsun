@@ -17,6 +17,12 @@ set(TINYUSB_LIBNETWORKING_SOURCES
     ${PICO_TINYUSB_PATH}/lib/networking/rndis_reports.c
 )
 
+## Convert the content of the "www" folder to "src/fsdata.c"
+execute_process(
+    COMMAND ./regen-fsdata.sh
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
+)
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}

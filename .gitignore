@@ -1,2 +1,3 @@
 build
 makefsdata
+src/fsdata.c
