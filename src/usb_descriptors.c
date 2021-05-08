@@ -261,7 +261,12 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
       char product[64];
       uint32_t ip = getOwnIp();
       str = product;
-      snprintf(product, 64, "Visit http://%d.%d.%d.%d/", (uint8_t)(ip& 0xff), (uint8_t)((ip >> 8) & 0xff), (uint8_t)((ip >> 16) & 0xff), (uint8_t)((ip >> 24) & 0xff));
+      snprintf(product, 64, "Visit http://%d.%d.%d.%d/",
+        (uint8_t)(ip& 0xff),
+        (uint8_t)((ip >> 8) & 0xff),
+        (uint8_t)((ip >> 16) & 0xff),
+        (uint8_t)((ip >> 24) & 0xff)
+      );
     }
 
     if (index == 0) {

@@ -18,43 +18,18 @@ extern "C" {
 
 #include "stdio_usb.h"
 
+// TODO: Rewrite and remove!
 #include "dmahandler.h"
 
+// TODO: Rewrite and remove!
 #include "acminterface.h"
 
 #include "statusleds.h"
 #include "boardconfig.h"
+#include "webserver.h"
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
-
-
-
-
-#include "pico/bootrom.h"
-#include "hardware/watchdog.h"
-#include "hardware/structs/watchdog.h"
-
-#include "tusb_lwip_glue.h"
-
-
-static const char *html[1]={"/index.html"};
-
-static const char *cgi_reset_usb_boot(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-    reset_usb_boot(0, 0);
-    return html[0];
-}
-
-static const tCGI cgi_handlers[] = {
-  {
-    "/reset_usb_boot",
-    cgi_reset_usb_boot
-  }
-};
-
-
-
 }
 
 /* On-board LED blinking patterns
@@ -78,6 +53,7 @@ enum {
 // Super-globals (for all modules)
 StatusLeds statusLeds;
 BoardConfig boardConfig;
+WebServer webServer;
 
 // TODO: Move to the class where it is used
 int dma_chan;                          // The DMA channel we use to push data around
@@ -95,9 +71,9 @@ void led_blinking_task(void);
 // 3b. If no IO board was detected: Read board config from last sector of on-board flash
 //     (This could be the case for nRF24 mesh masters with attached PC and no local IO
 //      or nRF24 mesh repeaters with no local IO)
-// 4. Depending on config (IP addresses): USB-Network-Web-Server
-// 5. Depending on config: USB host-interface (style of emulation)
-// 6. tusb_init(), stdio_usb_init() and configure magic-baudrate-reboot
+// 4. Depending on config: USB host-interface (style of emulation)
+// 5. tusb_init(), stdio_usb_init() and configure magic-baudrate-reboot
+// 6. Depending on config (IP addresses): USB-Network-Web-Server
 // 7. nRF24 detection and init
 // 8. Depending on base boards and config: DMX PIOs and GPIO config
 
@@ -116,21 +92,18 @@ int main() {
     boardConfig.init();
     boardConfig.readIOBoards();
 
-    // Phase 3: Make sure we have some configuration ready
+    // Phase 3: Make sure we have some configuration ready (includes Phase 3b)
     boardConfig.prepareConfig();
 
+    // Phase 4, USB configuration happens in usb_descriptors (boardConfig is queried)
+    //          However, we would need to instantiate the relevant class here
 
+    // Phase 5: Enable the USB interface, the debugging console, ...
+    tusb_init();
+    stdio_usb_init();
 
-
-    // Initialize tinyusb, lwip, dhcpd and httpd
-    init_lwip();
-    wait_for_netif_is_up();
-    dhcpd_init();
-    httpd_init();
-    http_set_cgi_handlers(cgi_handlers, LWIP_ARRAYSIZE(cgi_handlers));
-
-    //tusb_init();
-    //stdio_usb_init();
+    // Phase 6: Fire up the integrated web server
+    webServer.init();
 
     // Set up our TRIGGER GPIO init it to LOW
 #ifdef PIN_TRIGGER
