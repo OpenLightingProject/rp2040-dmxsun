@@ -129,8 +129,8 @@ ConfigData BoardConfig::defaultConfig() {
     // the unique board id: 10.X.Y.1 (board), 10.X.Y.2 (host)
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
-    memcpy(((void*)&(cfg.ownIp)) + 2, id.id, 1);
-    memcpy(((void*)&(cfg.hostIp)) + 2, id.id, 1);
+    cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
+    cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
 
     return cfg;
 }
