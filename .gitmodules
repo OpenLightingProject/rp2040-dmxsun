@@ -1,3 +1,12 @@
 [submodule "lib/lwip"]
 	path = lib/lwip
 	url = https://git.savannah.gnu.org/git/lwip.git
+[submodule "lib/RF24"]
+	path = lib/RF24
+	url = https://github.com/kripton/RF24.git
+[submodule "lib/RF24Network"]
+	path = lib/RF24Network
+	url = https://github.com/kripton/RF24Network.git
+[submodule "lib/RF24Mesh"]
+	path = lib/RF24Mesh
+	url = https://github.com/kripton/RF24Mesh.git
