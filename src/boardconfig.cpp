@@ -199,7 +199,3 @@ uint32_t getOwnMask() {
 uint32_t getHostIp() {
     return BoardConfig::activeConfig->hostIp;
 }
-
-uint32_t getHostMask() {
-    return BoardConfig::activeConfig->hostMask;
-}

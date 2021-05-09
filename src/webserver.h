@@ -13,6 +13,7 @@ class WebServer {
   public:
     void init();
     void cyclicTask();
+    static void ipToString(uint32_t ip, char* ipString);
 
   private:
 

@@ -111,7 +111,6 @@ struct ConfigData {
     uint32_t          ownIp;
     uint32_t          ownMask;
     uint32_t          hostIp;
-    uint32_t          hostMask;
     UsbProtocol       usbProtocol;
     uint8_t           usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
     RadioRole         radioRole;
@@ -132,7 +131,7 @@ static const ConfigData constDefaultConfig = {
     .usbProtocol         = UsbProtocol::NodleU1,
     .radioRole           = RadioRole::sniffer,
     .radioChannel        = 0,
-    .statusLedBrightness = 100,
+    .statusLedBrightness = 20,
 };
 
 class BoardConfig {
@@ -162,7 +161,6 @@ uint8_t  getUsbProtocol();
 uint32_t getOwnIp();
 uint32_t getOwnMask();
 uint32_t getHostIp();
-uint32_t getHostMask();
 
 #ifdef __cplusplus
 }
