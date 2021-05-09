@@ -22,7 +22,8 @@ static const tCGI cgi_handlers[] = {
 static const char* ssiTags[] = {};
 
 void WebServer::init() {
-    // Initialize tinyusb, lwip, dhcpd and httpd
+    // Initialize lwip, dhcpd and httpd
+    // TinyUSB already needs to be initialized at this point
     init_lwip();
     wait_for_netif_is_up();
     dhcpd_init();
@@ -36,7 +37,7 @@ void WebServer::cyclicTask() {
 }
 
 void WebServer::ipToString(uint32_t ip, char* ipString) {
-    sprintf(ipString, "%d.%d.%d.%d", (ip & 0xff), ((ip >> 8) & 0xff), ((ip >> 16) & 0xff), ((ip >> 24) & 0xff));
+    sprintf(ipString, "%ld.%ld.%ld.%ld", (ip & 0xff), ((ip >> 8) & 0xff), ((ip >> 16) & 0xff), ((ip >> 24) & 0xff));
 }
 
 static const char *cgi_system_reset_boot(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
