@@ -27,6 +27,7 @@ extern "C" {
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "webserver.h"
+#include "wireless.h"
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>

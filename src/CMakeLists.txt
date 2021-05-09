@@ -10,6 +10,11 @@ project(rp2040-dongle)
 ## Init the pico-sdk. Will instruct the user what to do if deps are missing
 pico_sdk_init()
 
+## Include the CMakeLists-files of (non-pico-sdk)-libraries we will be using
+include(../lib/RF24/CMakeLists.txt)
+include(../lib/RF24Network/CMakeLists.txt)
+include(../lib/RF24Mesh/CMakeLists.txt)
+
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
 set(TINYUSB_LIBNETWORKING_SOURCES
@@ -37,6 +42,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     tusb_lwip_glue.c
     usb_descriptors.c
     webserver.cpp
+    wireless.cpp
 )
 
 ## Add our rp2040-PIO programs here
@@ -45,6 +51,28 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME}
 )
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio
+)
+
+## Define the SPI pins we use for the RF24 library
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+    PUBLIC PICO_DEFAULT_SPI_SCK_PIN=2
+    PUBLIC PICO_DEFAULT_SPI_TX_PIN=3
+    PUBLIC PICO_DEFAULT_SPI_RX_PIN=4
+)
+
+## Config for the RF24Network library
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+    PUBLIC MAX_PAYLOAD_SIZE=514
+    ENABLE_NETWORK_STATS
+)
+
+## Config for the RF24Mesh library
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+    PUBLIC MESH_DEFAULT_CHANNEL=120
+    PUBLIC MESH_RENEWAL_TIMEOUT=2000
+    PUBLIC MESH_MEM_ALLOC_SIZE=16
+    PUBLIC MESH_LOOKUP_TIMEOUT=250
+    PUBLIC MESH_WRITE_TIMEOUT=100
 )
 
 ## LWIP works a little bit different than the other libraries since
@@ -71,10 +99,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_i2c
     hardware_irq
     hardware_pio
+    hardware_spi
     lwipallapps
     lwipcore
     pico_stdlib
     pico_unique_id
+    RF24
+    RF24Network
+    RF24Mesh
     tinyusb_board
     tinyusb_device
 )
