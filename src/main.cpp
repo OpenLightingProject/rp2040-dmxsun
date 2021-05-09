@@ -55,6 +55,7 @@ enum {
 StatusLeds statusLeds;
 BoardConfig boardConfig;
 WebServer webServer;
+Wireless wireless;
 
 // TODO: Move to the class where it is used
 int dma_chan;                          // The DMA channel we use to push data around
@@ -105,6 +106,9 @@ int main() {
 
     // Phase 6: Fire up the integrated web server
     webServer.init();
+
+    // Phase 7: Detect if there is a radio module and init it if so
+    wireless.init();
 
     // Set up our TRIGGER GPIO init it to LOW
 #ifdef PIN_TRIGGER

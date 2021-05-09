@@ -1,7 +1,13 @@
 #ifndef WIRELESS_H
 #define WIRELESS_H
 
+#include "pins.h"
+
 #ifdef __cplusplus
+
+#include <RF24.h>
+#include <RF24Network.h>
+#include <RF24Mesh.h>
 
 class Wireless {
   public:
@@ -9,7 +15,6 @@ class Wireless {
     void cyclicTask();
 
   private:
-
 };
 
 #endif // __cplusplus

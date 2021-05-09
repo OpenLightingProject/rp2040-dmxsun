@@ -116,7 +116,7 @@ struct ConfigData {
     RadioRole         radioRole;
     uint8_t           radioChannel; // 0-127; Higher values maybe FHSS?
     uint16_t          radioAddress; // RF24Mesh: "nodeId"
-    uint8_t           radioParams;  // Bit field: TODO: Compression, partial or full, ...
+    uint16_t          radioParams;  // Bit field: 0,1: Compression, 2: Partial or Full transfers, 3,4: Data rate, 5,6: TX power
     Patching          patching[32];
     E131out           e131outs[8];
     uint8_t           statusLedBrightness;
