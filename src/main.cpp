@@ -110,6 +110,20 @@ int main() {
     // Phase 7: Detect if there is a radio module and init it if so
     wireless.init();
 
+    // Phase 8: Set up PIOs and GPIOs according to the IO boards
+    // TODO
+
+    // Phase 9: Do all the patching between the internal DMX buffers and ports
+
+    // Finally, turn on the green component of the SYSTEM status LED
+    uint8_t r, g, b;
+    statusLeds.getLed(4, &r, &g, &b);
+    statusLeds.setLed(4, r, 255, b);
+    sleep_ms(10);
+    statusLeds.writeLeds();
+
+
+// TODO: Everything below is LEGACY code and needs to be re-written
     // Set up our TRIGGER GPIO init it to LOW
 #ifdef PIN_TRIGGER
     gpio_init(PIN_TRIGGER);
@@ -155,8 +169,9 @@ int main() {
     while (true) {
         tud_task();
         webServer.cyclicTask();
+        wireless.cyclicTask();
         led_blinking_task();
-        sleep_ms(5);
+        sleep_ms(2);
     }
 };
 
