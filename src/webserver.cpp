@@ -13,7 +13,7 @@ static const tCGI cgi_handlers[] = {
     cgi_system_reset_boot
   },
   {
-    "/config/statusLeds/brightness/set.html",
+    "/config/statusLeds/brightness/set.json",
     cgi_config_statusLeds_brightness_set
   }
 };
@@ -48,7 +48,7 @@ static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumPara
     uint8_t brightness = atoi(pcValue[0]);
     boardConfig.activeConfig->statusLedBrightness = brightness;
     statusLeds.setBrightness(brightness);
-    return "/null.html";
+    return "/empty.json";
 }
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen) {

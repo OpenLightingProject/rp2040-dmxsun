@@ -7,5 +7,5 @@ if [ ! -f makefsdata ]; then
 fi
 
 echo Regenerating fsdata.c
-./makefsdata www -f:src/fsdata.c
+./makefsdata www -11 -f:src/fsdata.c
 echo Done

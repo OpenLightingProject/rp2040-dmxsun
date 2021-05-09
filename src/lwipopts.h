@@ -56,6 +56,8 @@
 #define LWIP_HTTPD_MAX_TAG_NAME_LEN     64
 #define LWIP_HTTPD_SSI_INCLUDE_TAG      0
 
+#define LWIP_HTTPD_SUPPORT_11_KEEPALIVE 1
+
 #define HTTPD_USE_CUSTOM_FSDATA         1
 #define HTTPD_FSDATA_FILE               "../../../../../src/fsdata.c"
 
