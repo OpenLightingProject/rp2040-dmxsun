@@ -24,6 +24,7 @@ extern "C" {
 // TODO: Rewrite and remove!
 #include "acminterface.h"
 
+#include "dmxbuffer.h"
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "webserver.h"
@@ -52,6 +53,7 @@ enum {
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
 // Super-globals (for all modules)
+DmxBuffer dmxBuffer;
 StatusLeds statusLeds;
 BoardConfig boardConfig;
 WebServer webServer;
@@ -93,6 +95,9 @@ int main() {
     // Phase 2: Detect and read IO boards
     boardConfig.init();
     boardConfig.readIOBoards();
+
+    // Phase 2b: Init our DMX buffers
+    dmxBuffer.init();
 
     // Phase 3: Make sure we have some configuration ready (includes Phase 3b)
     boardConfig.prepareConfig();

@@ -35,6 +35,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     acminterface.c
     boardconfig.cpp
     dmahandler.c
+    dmxbuffer.cpp
     hidinterface.c
     main.cpp
     statusleds.cpp
