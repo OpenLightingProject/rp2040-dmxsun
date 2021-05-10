@@ -17,8 +17,12 @@ class Wireless {
     void init();
     void cyclicTask();
 
-  private:
     uint16_t signalStrength[MAXCHANNEL]; // Used for spectrum analyser mode
+
+  private:
+    uint8_t lastScannedChannel = 0;
+    void scanChannel(uint8_t channel);
+
 };
 
 #endif // __cplusplus

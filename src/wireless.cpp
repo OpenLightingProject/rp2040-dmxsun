@@ -18,6 +18,8 @@ void Wireless::init() {
     SPI spi;
     int i = 0;
 
+    memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
+
     spi.begin(spi0);
     bool result = rf24radio.begin(&spi);
     while (!result) {
@@ -44,5 +46,28 @@ void Wireless::init() {
 }
 
 void Wireless::cyclicTask() {
+    switch (boardConfig.activeConfig->radioRole) {
+        case RadioRole::sniffer:
+            lastScannedChannel++;
+            if (lastScannedChannel >= MAXCHANNEL) {
+                lastScannedChannel = 0;
+            }
+            scanChannel(lastScannedChannel);
+            break;
+    }
+}
 
+void Wireless::scanChannel(uint8_t channel) {
+    rf24radio.setChannel(channel);
+    sleep_us(130); // Let the radio tune
+    rf24radio.startListening();
+    sleep_us(200); // Listen for some time
+    // TODO: Sleep time should ne random between 150 and 230 to
+    //       avoid strobe effects from FHSS devices
+    if (rf24radio.testRPD()) { // signal detected so increase signalStrength unless already maxed out
+      signalStrength[channel] += (0x7FFF - signalStrength[channel]) >> 5; // increase rapidly when previous value was low, with increase reducing exponentially as value approaches maximum
+    } else { // no signal detected so reduce signalStrength unless already at minimum
+      signalStrength[channel] -= signalStrength[channel] >> 5; // decrease rapidly when previous value was high, with decrease reducing exponentially as value approaches zero
+    }
+    rf24radio.stopListening();
 }

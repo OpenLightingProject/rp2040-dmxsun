@@ -3,9 +3,11 @@
 
 #include "statusleds.h"
 #include "boardconfig.h"
+#include "wireless.h"
 
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
+extern Wireless wireless;
 
 static const tCGI cgi_handlers[] = {
   {
@@ -57,8 +59,10 @@ static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumPara
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen) {
     // Called once per Tag, no matter which file has been requested
+
     if (!strcmp(ssi_tag_name, "ConfigStatusLedsBrightnessGet")) {
         return snprintf(pcInsert, iInsertLen, "{value:%d}", boardConfig.activeConfig->statusLedBrightness);
+
     } else if (!strcmp(ssi_tag_name, "ConfigWebSeverIpGet")) {
         char ownIp[16];
         char ownMask[16];
@@ -68,6 +72,20 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
         return snprintf(pcInsert, iInsertLen, "{ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
           ownIp, ownMask, hostIp);
+
+    } else if (!strcmp(ssi_tag_name, "ConfigWirelessSpectrumGet")) {
+        uint8_t channel;
+        uint32_t offset = 0;
+
+        offset += sprintf(pcInsert + offset, "[");
+
+        for (uint8_t channel = 0; channel < MAXCHANNEL; channel++) {
+            offset += sprintf(pcInsert + offset, "%d,", wireless.signalStrength[channel]);
+        }
+        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
+
+        return offset;
+
     } else {
         return HTTPD_SSI_TAG_UNKNOWN;
     }
