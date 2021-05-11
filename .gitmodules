@@ -1,6 +1,6 @@
 [submodule "lib/lwip"]
 	path = lib/lwip
-	url = https://git.savannah.gnu.org/git/lwip.git
+	url = https://github.com/kripton/lwip.git
 [submodule "lib/RF24"]
 	path = lib/RF24
 	url = https://github.com/kripton/RF24.git
