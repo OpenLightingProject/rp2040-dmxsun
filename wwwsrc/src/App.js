@@ -6,20 +6,23 @@ import {
   Link
 } from "react-router-dom";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 export default function App() {
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <span class="navbar-brand">ICON</span>
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <Link to="/" class="nav-link">Home</Link>
             </li>
-            <li>
-              <Link to="/about">About</Link>
+            <li class="nav-item">
+              <Link to="/config" class="nav-link">Config</Link>
             </li>
-            <li>
-              <Link to="/users">Users</Link>
+            <li class="nav-item">
+              <Link to="/wireless" class="nav-link">Wireless</Link>
             </li>
           </ul>
         </nav>
@@ -27,11 +30,11 @@ export default function App() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
-          <Route path="/about">
-            <About />
+          <Route path="/config">
+            <Config />
           </Route>
-          <Route path="/users">
-            <Users />
+          <Route path="/wireless">
+            <Wireless />
           </Route>
           <Route path="/">
             <Home />
@@ -46,11 +49,11 @@ function Home() {
   return <h2>Home</h2>;
 }
 
-function About() {
-  return <h2>About</h2>;
+function Config() {
+  return <h2>Config</h2>;
 }
 
-function Users() {
-  return <h2>Users</h2>;
+function Wireless() {
+  return <h2>Wireless</h2>;
 }
 
