@@ -1,3 +1,5 @@
 build
 makefsdata
 src/fsdata.c
+wwwsrc/build
+wwwsrc/node_modules
