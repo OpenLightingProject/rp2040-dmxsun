@@ -3,3 +3,7 @@ makefsdata
 src/fsdata.c
 wwwsrc/build
 wwwsrc/node_modules
+www/asset-manifest.json
+www/favicon.ico
+www/index.html
+www/static

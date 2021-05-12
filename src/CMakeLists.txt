@@ -22,7 +22,13 @@ set(TINYUSB_LIBNETWORKING_SOURCES
     ${PICO_TINYUSB_PATH}/lib/networking/rndis_reports.c
 )
 
-## Convert the content of the "www" folder to "src/fsdata.c"
+## Build the "www" folder from the content of "wwwsrc"
+execute_process(
+    COMMAND ./build-webui.sh
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
+)
+
+## Build "src/fsdata.c" from the content of the "www" folder
 execute_process(
     COMMAND ./regen-fsdata.sh
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
