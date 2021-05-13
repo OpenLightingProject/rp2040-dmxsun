@@ -40,3 +40,28 @@ bool DmxBuffer::setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLeng
 
     return true;
 }
+
+bool DmxBuffer::getChannel(uint8_t bufferId, uint16_t channel, uint8_t* value) {
+    if ((bufferId >= DMXBUFFER_COUNT) || (channel >= 512) || (value == nullptr)) {
+        return false;
+    }
+    // Shall we lock that buffer to avoid that it changes while we copy it away?
+
+    *value = this->buffer[bufferId][channel];
+
+    return true;
+}
+
+bool DmxBuffer::setChannel(uint8_t bufferId, uint16_t channel, uint8_t value) {
+    if ((bufferId >= DMXBUFFER_COUNT) || (channel >= 512)) {
+        return false;
+    }
+    // Shall we lock the buffer so two sources don't write at the same time?
+    // TODO: Merge modes. For HTP and LTP we might need to remember the source that last wrote here?
+
+    this->buffer[bufferId][channel] = value;
+
+    // TODO: Trigger patchings, wireless and sACN
+
+    return true;
+}

@@ -15,6 +15,8 @@ class DmxBuffer {
     void init();
     bool getBuffer(uint8_t bufferId, uint8_t* dest, uint16_t destLength);
     bool setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLength);
+    bool getChannel(uint8_t bufferId, uint16_t channel, uint8_t* value);
+    bool setChannel(uint8_t bufferId, uint16_t channel, uint8_t value);
 
   private:
 

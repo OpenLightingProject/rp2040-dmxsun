@@ -27,6 +27,9 @@ export default function App() {
             <li class="nav-item">
               <Link to="/wireless" class="nav-link">Wireless</Link>
             </li>
+            <li class="nav-item">
+              <Link to="/log" class="nav-link">Log</Link>
+            </li>
           </ul>
         </nav>
 
@@ -38,6 +41,9 @@ export default function App() {
           </Route>
           <Route path="/wireless">
             <Wireless />
+          </Route>
+          <Route path="/log">
+            <Log />
           </Route>
           <Route path="/">
             <Home />
@@ -60,3 +66,6 @@ function Wireless() {
   return <h2>Wireless</h2>;
 }
 
+function Log() {
+  return <h2>Log</h2>;
+}
