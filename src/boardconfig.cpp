@@ -11,6 +11,7 @@ extern StatusLeds statusLeds;
 const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 
 ConfigData* BoardConfig::activeConfig;
+ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
 
 void BoardConfig::init() {
     i2c_init(i2c0, 100 * 1000);
@@ -73,6 +74,7 @@ void BoardConfig::prepareConfig() {
         (cfg00->configVersion == CONFIG_VERSION)
     ) {
         BoardConfig::activeConfig = cfg00;
+        BoardConfig::configSource = ConfigSource::IOBoard00;
         statusLeds.getLed(0, &r, &g, &b);
         statusLeds.setLed(0, r, g, 255);
     } else if (
@@ -81,6 +83,7 @@ void BoardConfig::prepareConfig() {
         (cfg01->configVersion == CONFIG_VERSION)
     ) {
         BoardConfig::activeConfig = cfg01;
+        BoardConfig::configSource = ConfigSource::IOBoard01;
         statusLeds.getLed(1, &r, &g, &b);
         statusLeds.setLed(1, r, g, 255);
     } else if (
@@ -89,6 +92,7 @@ void BoardConfig::prepareConfig() {
         (cfg10->configVersion == CONFIG_VERSION)
     ) {
         BoardConfig::activeConfig = cfg10;
+        BoardConfig::configSource = ConfigSource::IOBoard10;
         statusLeds.getLed(2, &r, &g, &b);
         statusLeds.setLed(2, r, g, 255);
     } else if (
@@ -97,6 +101,7 @@ void BoardConfig::prepareConfig() {
         (cfg11->configVersion == CONFIG_VERSION)
     ) {
         BoardConfig::activeConfig = cfg11;
+        BoardConfig::configSource = ConfigSource::IOBoard11;
         statusLeds.getLed(3, &r, &g, &b);
         statusLeds.setLed(3, r, g, 255);
     } else if (
@@ -105,6 +110,7 @@ void BoardConfig::prepareConfig() {
         (cfgbase->configVersion == CONFIG_VERSION)
     ) {
         BoardConfig::activeConfig = cfgbase;
+        BoardConfig::configSource = ConfigSource::BaseBoard;
         statusLeds.getLed(4, &r, &g, &b);
         statusLeds.setLed(4, r, g, 255);
     } else {
@@ -113,7 +119,9 @@ void BoardConfig::prepareConfig() {
         // Since we don't know then nature of the IO boards, we save that
         // default config in the slot of the base board!
         *cfgbase = this->defaultConfig();
+        sprintf(cfgbase->boardName, "Fallback config");
         BoardConfig::activeConfig = cfgbase;
+        BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setLed(4, 255, 0, 255);
     }
     sleep_ms(200);

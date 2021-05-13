@@ -87,6 +87,15 @@ enum Patching : uint16_t {
     buffer                    = 0 << 11,
 };
 
+enum ConfigSource : uint8_t {
+    IOBoard00                 = 0,
+    IOBoard01                 = 1,
+    IOBoard10                 = 2,
+    IOBoard11                 = 3,
+    BaseBoard                 = 4,
+    Fallback                  = 5
+};
+
 // An optional E131 output that can be assigned to a DMX buffer
 struct E131out {
     uint8_t           source; // Highest bit = 0 => inactive. Lowest 5 bits: buffer
@@ -137,6 +146,7 @@ static const ConfigData constDefaultConfig = {
 class BoardConfig {
   public:
     static ConfigData* activeConfig; // Pointer to the currently active configuration
+    static ConfigSource configSource;
 
     void init();
     void readIOBoards();
