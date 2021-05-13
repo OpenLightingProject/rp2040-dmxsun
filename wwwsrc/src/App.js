@@ -6,6 +6,8 @@ import {
   Link
 } from "react-router-dom";
 
+import Wireless from "./Wireless.js";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // TODO: I'm not yet sure if this is really required
@@ -60,10 +62,6 @@ function Home() {
 
 function Config() {
   return <h2>Config</h2>;
-}
-
-function Wireless() {
-  return <h2>Wireless</h2>;
 }
 
 function Log() {
