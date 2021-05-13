@@ -7,6 +7,8 @@
 
 #include "tusb_lwip_glue.h"
 
+#include "version.h"
+
 #ifdef __cplusplus
 
 class WebServer {

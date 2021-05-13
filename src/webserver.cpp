@@ -73,6 +73,19 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
         return snprintf(pcInsert, iInsertLen, "{ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
           ownIp, ownMask, hostIp);
 
+    } else if (!strcmp(ssi_tag_name, "OverviewGet")) {
+        char ownIp[16];
+        char ownMask[16];
+        char hostIp[16];
+        WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
+        WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
+        WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
+        return snprintf(pcInsert, iInsertLen, "{boardName:\"%s\",configSource:\"%d\",version:\"%s\",ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
+          boardConfig.activeConfig->boardName,
+          boardConfig.configSource,
+          VERSION,
+          ownIp, ownMask, hostIp);
+
     } else if (!strcmp(ssi_tag_name, "ConfigWirelessSpectrumGet")) {
         uint8_t channel;
         uint32_t offset = 0;
