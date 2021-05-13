@@ -8,6 +8,9 @@ import {
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// TODO: I'm not yet sure if this is really required
+//import 'bootstrap/dist/js/bootstrap.min.js';
+
 export default function App() {
   return (
     <Router>

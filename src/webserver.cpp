@@ -84,7 +84,7 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
         }
         offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
 
-        return offset;
+        return offset - 1;
 
     } else {
         return HTTPD_SSI_TAG_UNKNOWN;
