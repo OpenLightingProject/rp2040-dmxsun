@@ -3,10 +3,12 @@
 
 #include "statusleds.h"
 #include "boardconfig.h"
+#include "dmxbuffer.h"
 #include "wireless.h"
 
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
+extern DmxBuffer dmxBuffer;
 extern Wireless wireless;
 
 static const tCGI cgi_handlers[] = {
@@ -17,7 +19,11 @@ static const tCGI cgi_handlers[] = {
   {
     "/config/statusLeds/brightness/set.json",
     cgi_config_statusLeds_brightness_set
-  }
+  },
+  {
+    "/dmxBuffer/set.json",
+    cgi_dmxBuffer_set
+  },
 };
 
 // This array doesn't need elements since we are using LWIP_HTTPD_SSI_RAW
@@ -57,6 +63,36 @@ static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumPara
     return "/empty.json";
 }
 
+static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t bufferId = 0;
+    uint16_t channel = 0;
+    uint8_t value = 0;
+    char* data = nullptr;    // Sets the complete buffer
+
+    // Parse all arguments. // TODO: std::map ?
+    for (int i = 0; i < iNumParams; i++) {
+        if (!strcmp(pcParam[i], "buffer")) {
+            bufferId = atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "channel")) {
+            channel = atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "value")) {
+            value = atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "data")) {
+            data = pcValue[i];
+        }
+    }
+
+    if (data == nullptr) {
+        // Set a single channel
+        dmxBuffer.setChannel(bufferId, channel, value);
+    } else {
+        // TODO: requires libb64 and heatshrink
+    }
+
+    return "/empty.json";
+}
+
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen) {
     // Called once per Tag, no matter which file has been requested
 
@@ -85,6 +121,38 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
           boardConfig.configSource,
           VERSION,
           ownIp, ownMask, hostIp);
+
+    } else if (!strcmp(ssi_tag_name, "DmxBuffer00Get")) {
+        uint16_t channel;
+        uint32_t offset = 0;
+
+        offset += sprintf(pcInsert + offset, "[");
+
+        // TODO: 
+        // For the moment, do it with a for-loop. Later: Compress and Base64
+        // the whole dmxBuffer
+        for (uint16_t channel = 0; channel < 10; channel++) {
+            offset += sprintf(pcInsert + offset, "%d,", dmxBuffer.buffer[0][channel]);
+        }
+        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
+
+        return offset - 1;
+
+    } else if (!strcmp(ssi_tag_name, "DmxBuffer01Get")) {
+        uint16_t channel;
+        uint32_t offset = 0;
+
+        offset += sprintf(pcInsert + offset, "[");
+
+        // TODO: 
+        // For the moment, do it with a for-loop. Later: Compress and Base64
+        // the whole dmxBuffer
+        for (uint16_t channel = 0; channel < 10; channel++) {
+            offset += sprintf(pcInsert + offset, "%d,", dmxBuffer.buffer[1][channel]);
+        }
+        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
+
+        return offset - 1;
 
     } else if (!strcmp(ssi_tag_name, "ConfigWirelessSpectrumGet")) {
         uint8_t channel;

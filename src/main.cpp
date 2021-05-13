@@ -191,7 +191,7 @@ void led_blinking_task(void) {
     // Check the universes for non-zero channels
     for (uint16_t j = 0; j < 16; j++) {
         for (uint16_t i = 0; i < 512; i++) {
-            if (dmx_values[j][i]) {
+            if (dmxBuffer.buffer[j][i]) {
                 universes_none_zero++;
                 break;
             }
