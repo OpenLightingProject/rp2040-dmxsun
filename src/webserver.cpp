@@ -1,5 +1,7 @@
 #include "webserver.h"
 
+#include <heatshrink_encoder.h>
+#include <heatshrink_decoder.h>
 
 #include "statusleds.h"
 #include "boardconfig.h"
