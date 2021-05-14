@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
 const options = {
     scales: {
@@ -62,7 +62,7 @@ class Wireless extends React.Component {
     render() {
         return (
             <div className="wireless">
-                <Line ref={(reference) => this.chartReference = reference } data={this.state.spectrumData} options={options} />
+                <Bar ref={(reference) => this.chartReference = reference } data={this.state.spectrumData} options={options} />
             </div>
         );
     }
