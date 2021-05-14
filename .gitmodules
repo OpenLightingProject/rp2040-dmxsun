@@ -13,3 +13,6 @@
 [submodule "lib/heatshrink"]
 	path = lib/heatshrink
 	url = https://github.com/kripton/heatshrink.git
+[submodule "lib/libb64"]
+	path = lib/libb64
+	url = https://github.com/kripton/libb64.git
