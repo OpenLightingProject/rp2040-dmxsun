@@ -15,6 +15,7 @@ include(../lib/RF24/CMakeLists.txt)
 include(../lib/RF24Network/CMakeLists.txt)
 include(../lib/RF24Mesh/CMakeLists.txt)
 include(../lib/heatshrink/CMakeLists.txt)
+include(../lib/libb64/CMakeLists.txt)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
@@ -117,6 +118,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_irq
     hardware_pio
     hardware_spi
+    libb64
     lwipallapps
     lwipcore
     pico_stdlib

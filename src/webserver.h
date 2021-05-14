@@ -5,6 +5,13 @@
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
 
+extern "C" {
+  #include <heatshrink_encoder.h>
+  #include <heatshrink_decoder.h>
+  #include <b64/cencode.h>
+  #include <b64/cdecode.h>
+}
+
 #include "tusb_lwip_glue.h"
 
 #include "version.h"
@@ -17,8 +24,13 @@ class WebServer {
     void cyclicTask();
     static void ipToString(uint32_t ip, char* ipString);
 
-  private:
+    static heatshrink_encoder heatshrinkEncoder;
+    static heatshrink_decoder heatshrinkDecoder;
+    static base64_encodestate b64Encode;
+    static base64_decodestate b64Decode;
+    static uint8_t tmpBuf[800];
 
+  private:
 };
 
 #endif // __cplusplus

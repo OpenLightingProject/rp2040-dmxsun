@@ -1,8 +1,5 @@
 #include "webserver.h"
 
-#include <heatshrink_encoder.h>
-#include <heatshrink_decoder.h>
-
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "dmxbuffer.h"
@@ -12,6 +9,12 @@ extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 extern Wireless wireless;
+
+heatshrink_encoder WebServer::heatshrinkEncoder;
+heatshrink_decoder WebServer::heatshrinkDecoder;
+base64_encodestate WebServer::b64Encode;
+base64_decodestate WebServer::b64Decode;
+uint8_t WebServer::tmpBuf[800];
 
 static const tCGI cgi_handlers[] = {
   {
@@ -128,17 +131,28 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
         uint16_t channel;
         uint32_t offset = 0;
 
-        offset += sprintf(pcInsert + offset, "[");
+        offset += sprintf(pcInsert + offset, "{value:\"");
 
         // TODO: 
         // For the moment, do it with a for-loop. Later: Compress and Base64
         // the whole dmxBuffer
-        for (uint16_t channel = 0; channel < 10; channel++) {
-            offset += sprintf(pcInsert + offset, "%d,", dmxBuffer.buffer[0][channel]);
-        }
-        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
+        heatshrink_encoder_reset(&WebServer::heatshrinkEncoder);
+        size_t actuallyRead = 0;
+        size_t actuallyWritten = 0;
+        HSE_sink_res res = heatshrink_encoder_sink(&WebServer::heatshrinkEncoder,
+            dmxBuffer.buffer[0], 512, &actuallyRead);
+        heatshrink_encoder_finish(&WebServer::heatshrinkEncoder);
+        // TODO: Check res and actuallyRead
+        HSE_poll_res res2 = heatshrink_encoder_poll(&WebServer::heatshrinkEncoder,
+            WebServer::tmpBuf, 800, &actuallyWritten);
 
-        return offset - 1;
+        base64_init_encodestate(&WebServer::b64Encode);
+        offset += base64_encode_block(WebServer::tmpBuf, actuallyWritten, pcInsert + offset, &WebServer::b64Encode);
+        offset += base64_encode_blockend(pcInsert + offset, &WebServer::b64Encode);
+
+        offset += sprintf(pcInsert + offset, "\"}");
+
+        return offset;
 
     } else if (!strcmp(ssi_tag_name, "DmxBuffer01Get")) {
         uint16_t channel;
