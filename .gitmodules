@@ -10,3 +10,6 @@
 [submodule "lib/RF24Mesh"]
 	path = lib/RF24Mesh
 	url = https://github.com/kripton/RF24Mesh.git
+[submodule "lib/heatshrink"]
+	path = lib/heatshrink
+	url = https://github.com/kripton/heatshrink.git
