@@ -28,6 +28,7 @@
 #include <pico/stdlib.h>
 #include <pico/unique_id.h>
 
+#include "version.h"
 #include "boardconfig.h"
 
 // TODO: Get a USB ID for the "native" protocol
@@ -87,7 +88,7 @@ tusb_desc_device_t desc_device =
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
     .idVendor           = DEFAULT_VID,
     .idProduct          = DEFAULT_PID,
-    .bcdDevice          = 0x0100,
+    .bcdDevice          = VERSION_BCD,
     .iManufacturer      = STRID_MANUFACTURER,
     .iProduct           = STRID_PRODUCT,
     .iSerialNumber      = STRID_SERIAL,

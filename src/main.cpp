@@ -15,6 +15,7 @@ extern "C" {
 #include <pico/stdlib.h>
 
 #include "pins.h"
+#include "picotool_binary_information.h"
 
 #include "stdio_usb.h"
 
