@@ -1,5 +1,7 @@
 #include "webserver.h"
 
+#include <string>
+
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "dmxbuffer.h"
@@ -99,12 +101,18 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
 }
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen) {
+    return WebServer::ssi_handler(ssi_tag_name, pcInsert, iInsertLen);
+}
+
+u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen) {
     // Called once per Tag, no matter which file has been requested
 
-    if (!strcmp(ssi_tag_name, "ConfigStatusLedsBrightnessGet")) {
+    std::string tagName(ssi_tag_name);
+
+    if (tagName == "ConfigStatusLedsBrightnessGet") {
         return snprintf(pcInsert, iInsertLen, "{value:%d}", boardConfig.activeConfig->statusLedBrightness);
 
-    } else if (!strcmp(ssi_tag_name, "ConfigWebSeverIpGet")) {
+    } else if (tagName == "ConfigWebSeverIpGet") {
         char ownIp[16];
         char ownMask[16];
         char hostIp[16];
@@ -114,7 +122,7 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
         return snprintf(pcInsert, iInsertLen, "{ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
           ownIp, ownMask, hostIp);
 
-    } else if (!strcmp(ssi_tag_name, "OverviewGet")) {
+    } else if (tagName == "OverviewGet") {
         char ownIp[16];
         char ownMask[16];
         char hostIp[16];
@@ -127,20 +135,19 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
           VERSION,
           ownIp, ownMask, hostIp);
 
-    } else if (!strcmp(ssi_tag_name, "DmxBuffer00Get")) {
+    } else if (tagName.rfind("DmxBuffer", 0) == 0) {
+        int buffer = 0;
+        sscanf(ssi_tag_name, "DmxBuffer%dGet", &buffer);
         uint16_t channel;
         uint32_t offset = 0;
 
-        offset += sprintf(pcInsert + offset, "{value:\"");
+        offset += sprintf(pcInsert + offset, "{buffer:%d,value:\"", buffer);
 
-        // TODO: 
-        // For the moment, do it with a for-loop. Later: Compress and Base64
-        // the whole dmxBuffer
         heatshrink_encoder_reset(&WebServer::heatshrinkEncoder);
         size_t actuallyRead = 0;
         size_t actuallyWritten = 0;
         HSE_sink_res res = heatshrink_encoder_sink(&WebServer::heatshrinkEncoder,
-            dmxBuffer.buffer[0], 512, &actuallyRead);
+            dmxBuffer.buffer[buffer], 512, &actuallyRead);
         heatshrink_encoder_finish(&WebServer::heatshrinkEncoder);
         // TODO: Check res and actuallyRead
         HSE_poll_res res2 = heatshrink_encoder_poll(&WebServer::heatshrinkEncoder,
@@ -154,23 +161,7 @@ static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLe
 
         return offset;
 
-    } else if (!strcmp(ssi_tag_name, "DmxBuffer01Get")) {
-        uint16_t channel;
-        uint32_t offset = 0;
-
-        offset += sprintf(pcInsert + offset, "[");
-
-        // TODO: 
-        // For the moment, do it with a for-loop. Later: Compress and Base64
-        // the whole dmxBuffer
-        for (uint16_t channel = 0; channel < 10; channel++) {
-            offset += sprintf(pcInsert + offset, "%d,", dmxBuffer.buffer[1][channel]);
-        }
-        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
-
-        return offset - 1;
-
-    } else if (!strcmp(ssi_tag_name, "ConfigWirelessSpectrumGet")) {
+    } else if (tagName == "ConfigWirelessSpectrumGet") {
         uint8_t channel;
         uint32_t offset = 0;
 

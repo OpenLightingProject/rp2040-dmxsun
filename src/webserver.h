@@ -23,6 +23,7 @@ class WebServer {
     void init();
     void cyclicTask();
     static void ipToString(uint32_t ip, char* ipString);
+    static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
 
     static heatshrink_encoder heatshrinkEncoder;
     static heatshrink_decoder heatshrinkDecoder;
