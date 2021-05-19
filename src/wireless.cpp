@@ -21,13 +21,14 @@ void Wireless::init() {
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 
     spi.begin(spi0);
+
     bool result = rf24radio.begin(&spi);
     while (!result) {
         i++;
         if (i > 5) {
             break;
         }
-        sleep_ms(5000);
+        sleep_ms(100);
         result = rf24radio.begin(&spi);
     }
 
@@ -36,6 +37,8 @@ void Wireless::init() {
         statusLeds.writeLeds();
         return;
     }
+
+    moduleAvailable = true;
 
     statusLeds.setLed(6, 255, 0, 0);
     if (!rf24radio.isPVariant()) {

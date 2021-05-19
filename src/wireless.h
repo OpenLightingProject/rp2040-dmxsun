@@ -17,6 +17,7 @@ class Wireless {
     void init();
     void cyclicTask();
 
+    bool moduleAvailable = false;
     uint16_t signalStrength[MAXCHANNEL]; // Used for spectrum analyser mode
 
   private:
