@@ -6,8 +6,6 @@
 #include "hardware/structs/watchdog.h"
 
 extern "C" {
-  #include <heatshrink_encoder.h>
-  #include <heatshrink_decoder.h>
   #include <b64/cencode.h>
   #include <b64/cdecode.h>
 }
@@ -25,8 +23,6 @@ class WebServer {
     static void ipToString(uint32_t ip, char* ipString);
     static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
 
-    static heatshrink_encoder heatshrinkEncoder;
-    static heatshrink_decoder heatshrinkDecoder;
     static base64_encodestate b64Encode;
     static base64_decodestate b64Decode;
     static uint8_t tmpBuf[800];

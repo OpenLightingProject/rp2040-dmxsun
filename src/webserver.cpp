@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "snappy.h"
+
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "dmxbuffer.h"
@@ -12,8 +14,6 @@ extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 extern Wireless wireless;
 
-heatshrink_encoder WebServer::heatshrinkEncoder;
-heatshrink_decoder WebServer::heatshrinkDecoder;
 base64_encodestate WebServer::b64Encode;
 base64_decodestate WebServer::b64Decode;
 uint8_t WebServer::tmpBuf[800];
@@ -94,7 +94,7 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
         // Set a single channel
         dmxBuffer.setChannel(bufferId, channel, value);
     } else {
-        // TODO: requires libb64 and heatshrink
+        // TODO: requires libb64 and some compression
     }
 
     return "/empty.json";
@@ -143,15 +143,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
         offset += sprintf(pcInsert + offset, "{buffer:%d,value:\"", buffer);
 
-        heatshrink_encoder_reset(&WebServer::heatshrinkEncoder);
         size_t actuallyRead = 0;
-        size_t actuallyWritten = 0;
-        HSE_sink_res res = heatshrink_encoder_sink(&WebServer::heatshrinkEncoder,
-            dmxBuffer.buffer[buffer], 512, &actuallyRead);
-        heatshrink_encoder_finish(&WebServer::heatshrinkEncoder);
-        // TODO: Check res and actuallyRead
-        HSE_poll_res res2 = heatshrink_encoder_poll(&WebServer::heatshrinkEncoder,
-            WebServer::tmpBuf, 800, &actuallyWritten);
+        size_t actuallyWritten = 800;
+        snappy::RawCompress((const char *)dmxBuffer.buffer[buffer], 512, (char*)WebServer::tmpBuf, &actuallyWritten);
 
         base64_init_encodestate(&WebServer::b64Encode);
         offset += base64_encode_block(WebServer::tmpBuf, actuallyWritten, pcInsert + offset, &WebServer::b64Encode);

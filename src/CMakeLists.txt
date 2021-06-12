@@ -14,7 +14,7 @@ pico_sdk_init()
 include(../lib/RF24/CMakeLists.txt)
 include(../lib/RF24Network/CMakeLists.txt)
 include(../lib/RF24Mesh/CMakeLists.txt)
-include(../lib/heatshrink/CMakeLists.txt)
+include(../lib/snappy/interfaceLibForPicoSDK.cmake)
 include(../lib/libb64/CMakeLists.txt)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
@@ -84,14 +84,6 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
     PUBLIC MESH_WRITE_TIMEOUT=100
 )
 
-## Config for the heatshrink library
-target_compile_definitions(${CMAKE_PROJECT_NAME}
-    PUBLIC HEATSHRINK_DYNAMIC_ALLOC=0
-    PUBLIC HEATSHRINK_STATIC_INPUT_BUFFER_SIZE=600
-    PUBLIC HEATSHRINK_STATIC_WINDOW_BITS=9
-    PUBLIC HEATSHRINK_STATIC_LOOKAHEAD_BITS=6
-)
-
 ## LWIP works a little bit different than the other libraries since
 ## it ships its onw FileList
 set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/../lib/lwip)
@@ -111,7 +103,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
-    heatshrink
     hardware_dma
     hardware_flash
     hardware_i2c
@@ -126,6 +117,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     RF24
     RF24Network
     RF24Mesh
+    snappy
     tinyusb_board
     tinyusb_device
 )
