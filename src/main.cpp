@@ -182,7 +182,7 @@ int main() {
         webServer.cyclicTask();
         wireless.cyclicTask();
         led_blinking_task();
-        sleep_ms(2);
+        sleep_ms(1);
     }
 };
 

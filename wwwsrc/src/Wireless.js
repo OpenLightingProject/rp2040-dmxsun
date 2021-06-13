@@ -1,5 +1,8 @@
 import React from 'react';
 
+import couch64 from 'couch64';
+import snappyjs from 'snappyjs';
+
 import { Bar } from 'react-chartjs-2';
 
 const options = {
@@ -50,9 +53,12 @@ class Wireless extends React.Component {
             .then(
                 (result) => {
                     if (result) {
+                        // TODO: Helper function to base64decode + snappy decompress
+                        let compressed = couch64.base64DecToArr(result.spectrum);
+                        let uncompressed = snappyjs.uncompress(compressed);
                         let newSpectrumData = this.state.spectrumData;
                         newSpectrumData.datasets[0].data.length = 0;
-                        Array.prototype.push.apply(newSpectrumData.datasets[0].data, result);
+                        Array.prototype.push.apply(newSpectrumData.datasets[0].data, new Uint16Array(uncompressed.buffer));
                         this.chartReference.data = newSpectrumData;
                         this.chartReference.update();
                     }

@@ -16,7 +16,8 @@ extern Wireless wireless;
 
 base64_encodestate WebServer::b64Encode;
 base64_decodestate WebServer::b64Decode;
-uint8_t WebServer::tmpBuf[800];
+uint8_t WebServer::tmpBuf[800]; // Used to store compressed data
+uint8_t WebServer::tmpBuf2[1200]; // Used as a general scratch buffer
 
 static const tCGI cgi_handlers[] = {
   {
@@ -110,7 +111,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
     std::string tagName(ssi_tag_name);
 
     if (tagName == "ConfigStatusLedsBrightnessGet") {
-        return snprintf(pcInsert, iInsertLen, "{value:%d}", boardConfig.activeConfig->statusLedBrightness);
+        return snprintf(pcInsert, iInsertLen, "{\"value\":%d}", boardConfig.activeConfig->statusLedBrightness);
 
     } else if (tagName == "ConfigWebSeverIpGet") {
         char ownIp[16];
@@ -119,7 +120,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
-        return snprintf(pcInsert, iInsertLen, "{ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
+        return snprintf(pcInsert, iInsertLen, "{\"ownIp\":\"%s\",\"ownMask\":\"%s\",\"hostIp\":\"%s\"}",
           ownIp, ownMask, hostIp);
 
     } else if (tagName == "OverviewGet") {
@@ -129,7 +130,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
-        return snprintf(pcInsert, iInsertLen, "{boardName:\"%s\",configSource:\"%d\",version:\"%s\",ownIp:\"%s\",ownMask:\"%s\",hostIp:\"%s\"}",
+        return snprintf(pcInsert, iInsertLen, "{\"boardName\":\"%s\",\"configSource\":\"%d\",\"version\":\"%s\",\"ownIp\":\"%s\",\"ownMask\":\"%s\",\"hostIp\":\"%s\"}",
           boardConfig.activeConfig->boardName,
           boardConfig.configSource,
           VERSION,
@@ -141,7 +142,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         uint16_t channel;
         uint32_t offset = 0;
 
-        offset += sprintf(pcInsert + offset, "{buffer:%d,value:\"", buffer);
+        offset += sprintf(pcInsert + offset, "{\"buffer\":%d,\"value\":\"", buffer);
 
         size_t actuallyRead = 0;
         size_t actuallyWritten = 800;
@@ -158,15 +159,22 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
     } else if (tagName == "ConfigWirelessSpectrumGet") {
         uint8_t channel;
         uint32_t offset = 0;
+        uint32_t offset2 = 0;
 
-        offset += sprintf(pcInsert + offset, "[");
+        offset += sprintf(pcInsert + offset, "{\"spectrum\":\"");
 
-        for (uint8_t channel = 0; channel < MAXCHANNEL; channel++) {
-            offset += sprintf(pcInsert + offset, "%d,", wireless.signalStrength[channel]);
-        }
-        offset += sprintf(pcInsert + offset - 1, "]"); // overwrite the last comma
+        // Compress the array using snappy
+        size_t actuallyRead = 0;
+        size_t actuallyWritten = 1000;
+        snappy::RawCompress((const char *)wireless.signalStrength, MAXCHANNEL*sizeof(uint16_t), (char*)WebServer::tmpBuf, &actuallyWritten);
 
-        return offset - 1;
+        base64_init_encodestate(&WebServer::b64Encode);
+        offset += base64_encode_block(WebServer::tmpBuf, actuallyWritten, pcInsert + offset, &WebServer::b64Encode);
+        offset += base64_encode_blockend(pcInsert + offset, &WebServer::b64Encode);
+
+        offset += sprintf(pcInsert + offset, "\"}");
+
+        return offset;
 
     } else {
         return HTTPD_SSI_TAG_UNKNOWN;
