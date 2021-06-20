@@ -136,7 +136,7 @@ uint8_t const desc_hid_report[] =
 // Invoked when received GET HID REPORT DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
-uint8_t const *tud_hid_descriptor_report_cb(void) {
+uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
     return desc_hid_report;
 }
 
@@ -167,7 +167,7 @@ uint8_t const rndis_configuration[] =
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
 
     // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_PROTOCOL_NONE,
+    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
         sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
         CFG_TUD_HID_BUFSIZE, 5),
 
@@ -187,7 +187,7 @@ uint8_t const ecm_configuration[] =
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
 
     // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_PROTOCOL_NONE,
+    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
         sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
         CFG_TUD_HID_BUFSIZE, 5),
 
