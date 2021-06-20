@@ -36,6 +36,11 @@ execute_process(
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
+## I'd like to use LTO but it doesn't yet work
+## https://github.com/raspberrypi/pico-sdk/issues/97
+#add_compile_options(-flto -fno-fat-lto-objects -flto-partition=1to1 -fuse-ld=bfd -v)
+#add_link_options(-Wl,-v -v -t -t)
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
