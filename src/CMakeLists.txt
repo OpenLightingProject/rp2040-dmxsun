@@ -16,6 +16,7 @@ include(../lib/RF24Network/CMakeLists.txt)
 include(../lib/RF24Mesh/CMakeLists.txt)
 include(../lib/snappy/interfaceLibForPicoSDK.cmake)
 include(../lib/libb64/CMakeLists.txt)
+include(../lib/jsconcpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
@@ -89,6 +90,11 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
     PUBLIC MESH_WRITE_TIMEOUT=100
 )
 
+## Config for the jsoncpp library
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+    PUBLIC JSON_USE_EXCEPTION=0
+)
+
 ## LWIP works a little bit different than the other libraries since
 ## it ships its onw FileList
 set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/../lib/lwip)
@@ -114,6 +120,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_irq
     hardware_pio
     hardware_spi
+    jsoncpp
     libb64
     lwipallapps
     lwipcore

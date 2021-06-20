@@ -4,6 +4,8 @@
 
 #include "snappy.h"
 
+#include "json/json.h"
+
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "dmxbuffer.h"
