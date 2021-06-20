@@ -111,6 +111,11 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
     // Called once per Tag, no matter which file has been requested
 
     std::string tagName(ssi_tag_name);
+    Json::Value output;
+    Json::StreamWriterBuilder wbuilder;
+    std::string output_string;
+
+    wbuilder["indentation"] = "";
 
     if (tagName == "ConfigStatusLedsBrightnessGet") {
         return snprintf(pcInsert, iInsertLen, "{\"value\":%d}", boardConfig.activeConfig->statusLedBrightness);
@@ -122,8 +127,11 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
-        return snprintf(pcInsert, iInsertLen, "{\"ownIp\":\"%s\",\"ownMask\":\"%s\",\"hostIp\":\"%s\"}",
-          ownIp, ownMask, hostIp);
+        output["ownIp"] = ownIp;
+        output["ownMask"] = ownMask;
+        output["hostIp"] = hostIp;
+        output_string = Json::writeString(wbuilder, output);
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName == "OverviewGet") {
         char ownIp[16];
@@ -132,11 +140,14 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
-        return snprintf(pcInsert, iInsertLen, "{\"boardName\":\"%s\",\"configSource\":\"%d\",\"version\":\"%s\",\"ownIp\":\"%s\",\"ownMask\":\"%s\",\"hostIp\":\"%s\"}",
-          boardConfig.activeConfig->boardName,
-          boardConfig.configSource,
-          VERSION,
-          ownIp, ownMask, hostIp);
+        output["boardName"] = boardConfig.activeConfig->boardName;
+        output["configSource"] = boardConfig.configSource;
+        output["version"] = VERSION;
+        output["ownIp"] = ownIp;
+        output["ownMask"] = ownMask;
+        output["hostIp"] = hostIp;
+        output_string = Json::writeString(wbuilder, output);
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName.rfind("DmxBuffer", 0) == 0) {
         int buffer = 0;
