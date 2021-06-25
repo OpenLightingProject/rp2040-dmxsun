@@ -26,7 +26,6 @@ class WebServer {
     static base64_encodestate b64Encode;
     static base64_decodestate b64Decode;
     static uint8_t tmpBuf[800];
-    static uint8_t tmpBuf2[1200];
 
   private:
 };

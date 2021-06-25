@@ -19,7 +19,6 @@ extern Wireless wireless;
 base64_encodestate WebServer::b64Encode;
 base64_decodestate WebServer::b64Decode;
 uint8_t WebServer::tmpBuf[800]; // Used to store compressed data
-uint8_t WebServer::tmpBuf2[1200]; // Used as a general scratch buffer
 
 static const tCGI cgi_handlers[] = {
   {
@@ -150,11 +149,13 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName.rfind("DmxBuffer", 0) == 0) {
+        // Don't use jsoncpp here for performance reasons, write directly to pcInsert
+
         int buffer = 0;
-        sscanf(ssi_tag_name, "DmxBuffer%dGet", &buffer);
         uint16_t channel;
         uint32_t offset = 0;
 
+        sscanf(ssi_tag_name, "DmxBuffer%dGet", &buffer);
         offset += sprintf(pcInsert + offset, "{\"buffer\":%d,\"value\":\"", buffer);
 
         size_t actuallyRead = 0;
@@ -170,6 +171,8 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         return offset;
 
     } else if (tagName == "ConfigWirelessSpectrumGet") {
+        // Don't use jsoncpp here for performance reasons, write directly to pcInsert
+
         uint8_t channel;
         uint32_t offset = 0;
         uint32_t offset2 = 0;
