@@ -9,17 +9,22 @@
 
 #ifdef __cplusplus
 
+// Class that stores and manages ALL internal "main" DMX buffers
 class DmxBuffer {
   public:
     static uint8_t buffer[DMXBUFFER_COUNT][512];
     void init();
-    bool getBuffer(uint8_t bufferId, uint8_t* dest, uint16_t destLength);
-    bool setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLength);
+    void zero(uint8_t bufferId);
+    bool getBuffer(uint8_t bufferId, uint8_t* dest, uint16_t destLength); // alias "copyTo"
+    bool setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLength); // alias "copyFrom"
     bool getChannel(uint8_t bufferId, uint16_t channel, uint8_t* value);
     bool setChannel(uint8_t bufferId, uint16_t channel, uint8_t value);
 
-  private:
+    bool isAllZero(uint8_t bufferId);
 
+  private:
+    void triggerPatchings(uint8_t bufferId);
+    bool allZeroBuffers[DMXBUFFER_COUNT];
 };
 
 #endif // __cplusplus

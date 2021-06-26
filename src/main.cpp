@@ -6,11 +6,10 @@
 
 extern "C" {
 #include <stdio.h>
-#include <hardware/clocks.h>    // To derive our 250000bit/s from sys_clk
+#include <hardware/clocks.h>    // Needed for the onboard LED blinking patterns
 #include <hardware/dma.h>       // To control the data transfer from mem to pio
 #include <hardware/gpio.h>      // To "manually" control the trigger pin
-#include <hardware/irq.h>       // To control the data transfer from mem to pio
-#include "tx16.pio.h"           // Header file for the PIO program
+//#include <hardware/irq.h>       // To control the data transfer from mem to pio
 
 #include <pico/stdlib.h>
 
@@ -20,9 +19,6 @@ extern "C" {
 #include "stdio_usb.h"
 
 // TODO: Rewrite and remove!
-#include "dmahandler.h"
-
-// TODO: Rewrite and remove!
 #include "acminterface.h"
 
 #include "dmxbuffer.h"
@@ -30,6 +26,7 @@ extern "C" {
 #include "boardconfig.h"
 #include "webserver.h"
 #include "wireless.h"
+#include "localdmx.h"
 
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
@@ -55,17 +52,11 @@ enum {
 
 // Super-globals (for all modules)
 DmxBuffer dmxBuffer;
+LocalDmx localDmx;
 StatusLeds statusLeds;
 BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
-
-// TODO: Move to the class where it is used
-int dma_chan;                          // The DMA channel we use to push data around
-
-// TODO: Make a class so we can trigger data transfers via patchings
-//       and rename to DmxBuffer
-uint8_t dmx_values[16][512];           // 16 universes with 512 byte each
 
 void led_blinking_task(void);
 
@@ -133,47 +124,7 @@ int main() {
     sleep_ms(10);
     statusLeds.writeLeds();
 
-
-// TODO: Everything below is LEGACY code and needs to be re-written
-    // Set up our TRIGGER GPIO init it to LOW
-#ifdef PIN_TRIGGER
-    gpio_init(PIN_TRIGGER);
-    gpio_set_dir(PIN_TRIGGER, GPIO_OUT);
-    gpio_put(PIN_TRIGGER, 0);
-#endif // PIN_TRIGGER
-
-    // Set up a PIO state machine to serialise our bits at 250000 bit/s
-    uint offset = pio_add_program(pio0, &tx16_program);
-    float div = (float)clock_get_hz(clk_sys) / 250000;
-    tx16_program_init(pio0, 0, offset, div);
-
-    // Configure a channel to write the wavetable to PIO0
-    // SM0's TX FIFO, paced by the data request signal from that peripheral.
-    dma_chan = dma_claim_unused_channel(true);
-    dma_channel_config c = dma_channel_get_default_config(dma_chan);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
-    channel_config_set_read_increment(&c, true); // TODO: is by default. Line needed?
-    channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-
-    dma_channel_configure(
-        dma_chan,
-        &c,
-        &pio0_hw->txf[0], // Write address (only need to set this once)
-        NULL,             // Don't provide a read address yet
-        WAVETABLE_LENGTH/2, // Write one complete DMX packet, then halt and interrupt
-                          // It's WAVETABLE_LENGTH/2 since we transfer 32 bit per transfer
-        false             // Don't start yet
-    );
-
-    // Tell the DMA to raise IRQ line 0 when the channel finishes a block
-    dma_channel_set_irq0_enabled(dma_chan, true);
-
-    // Configure the processor to run dma_handler() when DMA IRQ 0 is asserted
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
-    irq_set_enabled(DMA_IRQ_0, true);
-
-    // Manually call the handler once, to trigger the first transfer
-    dma_handler();
+    // SETUP COMPLETE
 
     // Everything else from this point is interrupt-driven. The processor has
     // time to sit and think about its early retirement -- maybe open a bakery?
@@ -192,6 +143,10 @@ int main() {
 void led_blinking_task(void) {
     // The following calculations take lots of time. However, this doesn't
     // matter since the DMX updating is done via IRQ handler
+
+    // TODO: This iteration through all universes takes quite much time.
+    //       Make the DmxBuffer remember for each universe if it's all 0s
+    //       and read that property here
 
     uint universes_none_zero = 0;
     // Check the universes for non-zero channels

@@ -1,5 +1,7 @@
 #include <tusb.h>
-#include "dmahandler.h"
+
+
+//#include "dmahandler.h"
 
 //--------------------------------------------------------------------+
 // USB HID
@@ -40,7 +42,7 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
         if ((bufsize - 1) < datasize) {
             datasize = bufsize - 1;
         }
-        memcpy(dmx_values[0] + (32 * buffer[0]), buffer + 1, datasize);
+        //memcpy(dmx_values[0] + (32 * buffer[0]), buffer + 1, datasize);
     } else if (buffer[0] == 32) {
         uint8_t uni = (buffer[1] >> 4) & 0xF;
         uint8_t offset = buffer[1] & 0xF;
@@ -49,6 +51,6 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
         if ((bufsize - 2) < datasize) {
             datasize = bufsize - 1;
         }
-        memcpy(dmx_values[uni] + (60 * offset), buffer + 2, datasize);
+        //memcpy(dmx_values[uni] + (60 * offset), buffer + 2, datasize);
     }
 }

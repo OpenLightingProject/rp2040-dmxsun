@@ -12,7 +12,7 @@ void debugPrintUniverse(uint8_t universe) {
         printf("%03d ", offset);
         for (chan = offset; chan < (offset + 20); chan++) {
             if (chan < 512) {
-                printf("%02x ", dmx_values[universe][chan]);
+                //printf("%02x ", dmx_values[universe][chan]);
             }
         }
         printf("\n");

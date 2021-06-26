@@ -1,6 +1,8 @@
 #ifndef STATUSLEDS_H
 #define STATUSLEDS_H
 
+// The status LEDs use PIO1, SM3 (the last one available)
+
 #include "pins.h"
 
 // Status LEDs:

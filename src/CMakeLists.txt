@@ -48,9 +48,9 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
     acminterface.c
     boardconfig.cpp
-    dmahandler.c
     dmxbuffer.cpp
     hidinterface.c
+    localdmx.cpp
     main.cpp
     statusleds.cpp
     stdio_usb.c
