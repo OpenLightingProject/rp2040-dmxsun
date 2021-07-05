@@ -58,7 +58,7 @@ BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
 
-// Array of 512 zero-bytes to be used with memcmp for peformance
+// Array of 512 zero-bytes to be used with memcmp for performance
 static uint8_t allZeroes[512];
 
 void led_blinking_task(void);

@@ -77,7 +77,7 @@ enum RadioRole : uint8_t {
 };
 
 // Bit 0: 0 = inactive, 1 = active
-// Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somwhere to buffer
+// Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somewhere to buffer
 // Bit 2-6: Buffer: One of the 24 internal DMX buffers
 // Bit 7: RESERVED / padding
 
