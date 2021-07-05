@@ -23,7 +23,7 @@ class DmxBuffer {
     bool isAllZero(uint8_t bufferId);
 
   private:
-    void triggerPatchings(uint8_t bufferId);
+    void triggerPatchings(uint8_t bufferId, bool allZero = false);
     bool allZeroBuffers[DMXBUFFER_COUNT];
 };
 

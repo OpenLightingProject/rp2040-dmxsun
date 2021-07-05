@@ -10,6 +10,8 @@
 // However, we are only using the first 256 byte of that sector.
 #define CONFIG_FLASH_OFFSET (2044 * 1024)
 
+#define MAX_PATCHINGS 32
+
 // Config data types and layout
 #define CONFIG_VERSION 1
 
@@ -27,20 +29,28 @@ enum BoardType : uint8_t {
     invalid_ff                = 0xff
 };
 
+enum PortParamsDirection: uint8_t {
+    unknown                   = 0, // or: port doesn't exist on board
+    out                       = 1, // DMX sending port
+    in                        = 2, // DMX receiving port
+    switchable                = 3
+};
+
+enum PortParamsConnector: uint8_t {
+    xlr_5_female              = 0,
+    xlr_5_male                = 1,
+    xlr_3_female              = 2,
+    xlr_3_male                = 3,
+    rj45                      = 4,
+    screws                    = 5
+};
+
 // Bits 0-1: Data direction
 // Bits 2-4: Connector type
-enum PortParams : uint8_t {
-    directionUnknown          = 0, // or: port doesn't exist on board
-    directionOut              = 1,
-    directionIn               = 2,
-    directionSwitchable       = 3,
-
-    connectorXLR5F            = 0 << 2,
-    connectorXLR5M            = 1 << 2,
-    connectorXLR3F            = 2 << 2,
-    connectorXLR3M            = 3 << 2,
-    connectorRJ45             = 4 << 2,
-    connectorSCREW            = 5 << 2,
+struct PortParams {
+    PortParamsDirection direction : 2;
+    PortParamsConnector connector : 4;
+    uint8_t UNUSED                : 2;
 };
 
 enum UsbProtocol : uint8_t {
@@ -67,24 +77,29 @@ enum RadioRole : uint8_t {
 };
 
 // Bit 0: 0 = inactive, 1 = active
-// Bit 1-2: Merge mode
-// Bit 3-5: Reserved
-// Bit 6-10: Port:
+// Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somwhere to buffer
+// Bit 2-6: Buffer: One of the 24 internal DMX buffers
+// Bit 7: RESERVED / padding
+
+// Bit 8-9: Merge mode
+// Bit 10: Reserved
+// Bit 11-15: Port:
 //   Ports 0-15 are the 16 physical ports of the IO boards
 //              Their direction is in the PortParams of the IO board config
 //   Ports 16-23 are the ports of the USB host interface
 //              Their direction is in the usbProtocolDirections member of the active system config
 //   Ports 24-27 are 4 wireless-DMX ports IN to this board
 //   Ports 28-31 are 4 wireless-DMX ports OUT of this board
-// Bit 11-15: Buffer: One of the 24 internal DMX buffers
-enum Patching : uint16_t {
-    active                    = 1 << 0,
-    mergeModeHTP              = 0 << 1,
-    mergeModeLTP              = 1 << 1,
-    mergeModeOverwrite        = 2 << 1,
-    mergeModeAvarage          = 3 << 1,
-    port                      = 0 << 6,
-    buffer                    = 0 << 11,
+struct Patching {
+    // First byte:
+    uint8_t active            : 1;
+    uint8_t direction         : 1;
+    uint8_t buffer            : 5;
+    uint8_t RESERVED1         : 1;
+    // Second byte:
+    uint8_t mergeMode         : 2;
+    uint8_t RESERVED2         : 1;
+    uint8_t port              : 5;
 };
 
 enum ConfigSource : uint8_t {
@@ -98,21 +113,23 @@ enum ConfigSource : uint8_t {
 
 // An optional E131 output that can be assigned to a DMX buffer
 struct E131out {
-    uint8_t           source; // Highest bit = 0 => inactive. Lowest 5 bits: buffer
+    uint8_t           active : 1;
+    uint8_t           buffer : 5;
+    uint8_t           transmissionMode: 1; // 0 = partial, 1 = full
+    uint8_t           RESVD1 : 1;
     uint8_t           dstIp[4];
     uint16_t          dstPort; // network byte order I assume? depends on lwip
     uint16_t          universeId;
-    uint8_t           transmissionMode; // 0 = partial, 1 = full
     uint8_t           priority;
 };
 
 struct ConfigData {
 // Section 1: Area describing the individual IO board.
     BoardType         boardType;
-    PortParams        port0params;
-    PortParams        port1params;
-    PortParams        port2params;
-    PortParams        port3params;
+    struct PortParams port0params;
+    struct PortParams port1params;
+    struct PortParams port2params;
+    struct PortParams port3params;
 
 // Section 2: System configuration stored in this board.
     uint8_t           configVersion; // values 0x00 and 0xff => invalid
@@ -126,8 +143,8 @@ struct ConfigData {
     uint8_t           radioChannel; // 0-127; Higher values maybe FHSS?
     uint16_t          radioAddress; // RF24Mesh: "nodeId"
     uint16_t          radioParams;  // Bit field: 0,1: Compression, 2: Partial or Full transfers, 3,4: Data rate, 5,6: TX power
-    Patching          patching[32];
-    E131out           e131outs[8];
+    struct Patching   patching[MAX_PATCHINGS];
+    struct E131out    e131out[8];
     uint8_t           statusLedBrightness;
 };
 

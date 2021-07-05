@@ -96,6 +96,22 @@ void LocalDmx::init() {
 
 }
 
+bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
+    // TODO: Check portId for validity (exisitng on local IO board), configured as an OUT, ...
+    if ((portId >= LOCALDMX_COUNT) || (source == nullptr) || sourceLength == 0) {
+        return false;
+    }
+    // Shall we lock the buffer so two sources don't write at the same time?
+    // TODO: Don't change the buffer while the conversion to the wavetable is running
+
+    uint8_t length = MAX(sourceLength, 512);
+
+    memset(this->buffer[portId], 0x00, 512);
+    memcpy(this->buffer[portId], source, length);
+
+    return true;
+}
+
 // Appends one bit to the wavetable for port "port" at the position
 // bitoffset. The offset will be increased by 1!
 void LocalDmx::wavetable_write_bit(int port, uint16_t* bitoffset, uint8_t value) {
@@ -149,19 +165,6 @@ void LocalDmx::dma_handler_0_0() {
 
     // Loop through all 16 universes
     for (universe = 0; universe < 16; universe++) {
-
-        // TESTING, only on universe 0
-        /*
-        if (!universe) {
-            // TEMPORARY: INcreasing counter on chan 0 and 509
-            dmx_values[universe][0]++;
-            dmx_values[universe][509]++;
-            // TEMPORARY: DEcreasing counter on chan 1 and 519
-            dmx_values[universe][1]--;
-            dmx_values[universe][510]--;
-        }
-        */
-
         // Usually, DMX needs a BREAK (LOW level) of at least 96µs before
         // MARK-AFTER-BREAK (MAB, HIGH LEVEL)
         // However, since the line is already at a defined LOW level

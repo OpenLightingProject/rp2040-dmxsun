@@ -13,10 +13,11 @@
 
 #ifdef __cplusplus
 
-// Class that stores and manages ALL internal "main" DMX buffers
+// Class that stores and manages ALL local DMX ports
 class LocalDmx {
   public:
     static uint8_t buffer[LOCALDMX_COUNT][512];
+    bool setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength); // alias "copyFrom"
     void init();
 
     // 7 DMA handlers, one for each state machine

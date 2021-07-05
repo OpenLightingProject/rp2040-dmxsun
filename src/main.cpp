@@ -58,6 +58,9 @@ BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
 
+// Array of 512 zero-bytes to be used with memcmp for peformance
+static uint8_t allZeroes[512];
+
 void led_blinking_task(void);
 
 // Board init sequence:
@@ -92,6 +95,9 @@ int main() {
     // Phase 2: Detect and read IO boards
     boardConfig.init();
     boardConfig.readIOBoards();
+
+    // Phase 2a: Init the allZeroes array
+    memset(allZeroes, 0x00, 512);
 
     // Phase 2b: Init our DMX buffers
     dmxBuffer.init();

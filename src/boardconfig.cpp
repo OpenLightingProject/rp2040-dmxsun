@@ -116,10 +116,9 @@ void BoardConfig::prepareConfig() {
     } else {
         // We don't have any valid configuration at all :-O
         // Create a default one and use it for now
-        // Since we don't know then nature of the IO boards, we save that
+        // Since we don't know the nature of the IO boards, we save that
         // default config in the slot of the base board!
         *cfgbase = this->defaultConfig();
-        sprintf(cfgbase->boardName, "Fallback config");
         BoardConfig::activeConfig = cfgbase;
         BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setLed(4, 255, 0, 255);
@@ -133,12 +132,29 @@ ConfigData BoardConfig::defaultConfig() {
 
     memcpy(&cfg, &constDefaultConfig, sizeof(ConfigData));
 
+    snprintf(cfg.boardName, 32, "! Fallback config !");
+
     // Compute the second and third byte of the IP with values from
     // the unique board id: 10.X.Y.1 (board), 10.X.Y.2 (host)
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
     cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
     cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
+
+    // Map internal DMX buffer 0 to the 1st physical output port
+    cfg.patching[0].active = 1;
+    cfg.patching[0].buffer = 0;
+    cfg.patching[0].port = 0;
+
+    // Map internal DMX buffer 1 to the 2nd physical output port
+    cfg.patching[1].active = 1;
+    cfg.patching[1].buffer = 1;
+    cfg.patching[1].port = 1;
+
+    // Map internal DMX buffer 0 to wireless OUT 0
+    cfg.patching[2].active = 1;
+    cfg.patching[2].buffer = 0;
+    cfg.patching[2].port = 28;
 
     return cfg;
 }
