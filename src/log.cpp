@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <iterator>
+#include <regex>
 
 #include <string.h>
 
@@ -21,11 +22,15 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     vsnprintf(buf, 1024, text, args);
     va_end(args);
 
+    std::string bufSanitized = std::string(buf);
+    bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
+    bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
+
     std::string fname = std::string(file);
     auto const pos = fname.find_last_of('/');
     fname = fname.substr(pos + 1);
 
-    printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, buf);
+    printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
 
 /*
     logBuffer.push_back(
