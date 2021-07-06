@@ -85,24 +85,25 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
 
     // TODO: Patchings
     for (uint8_t i = 0; i < MAX_PATCHINGS; i++) {
-        if ((!boardConfig.activeConfig->patching[i].active) ||
-            (boardConfig.activeConfig->patching[i].buffer != bufferId) ||
-            (boardConfig.activeConfig->patching[i].direction))
+        Patching patching = boardConfig.activeConfig->patching[i];
+        if ((!patching.active) ||
+            (patching.buffer != bufferId) ||
+            (patching.direction))
         {
             continue;
         }
 
         // patching is active, matches requested bufferId and goes FROM BUFFER
 
-        if (boardConfig.activeConfig->patching[i].port <= 15) {
+        if (patching.port <= 15) {
             // local DMX port
-            memcpy(LocalDmx::buffer[boardConfig.activeConfig->patching[i].port], DmxBuffer::buffer[bufferId], 512);
-        } else if (boardConfig.activeConfig->patching[i].port <= 23) {
+            localDmx.setPort(patching.port, DmxBuffer::buffer[bufferId], 512);
+        } else if (patching.port <= 23) {
             // local USB interface to host
             // TODO
-        } else if (boardConfig.activeConfig->patching[i].port <= 27) {
+        } else if (patching.port <= 27) {
             // Wireless INs
-        } else if (boardConfig.activeConfig->patching[i].port <= 31) {
+        } else if (patching.port <= 31) {
             // Wireless OUTs
             // TODO
         }

@@ -119,9 +119,10 @@ int main() {
     wireless.init();
 
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
-    // TODO
+    localDmx.init();
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
+    // Patching is read from BoardConfig and actually nothing needs to be done here
 
     // Finally, turn on the green component of the SYSTEM status LED
     uint8_t r, g, b;
