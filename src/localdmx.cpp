@@ -1,6 +1,8 @@
+#include "log.h"
 #include "localdmx.h"
 
 #include <string.h>
+
 #include <hardware/clocks.h>    // To derive our 250000bit/s from sys_clk
 #include <hardware/dma.h>       // To control the data transfer from mem to pio
 #include <hardware/gpio.h>      // To "manually" control the trigger pin
@@ -97,6 +99,8 @@ void LocalDmx::init() {
 }
 
 bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
+    LOG("LocalDmx::setPort. Setting localDmx port %d, sourceLength %d", portId, sourceLength);
+
     // TODO: Check portId for validity (existing on local IO board), configured as an OUT, ...
     if ((portId >= LOCALDMX_COUNT) || (source == nullptr) || sourceLength == 0) {
         return false;
@@ -104,10 +108,28 @@ bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
     // Shall we lock the buffer so two sources don't write at the same time?
     // TODO: Don't change the buffer while the conversion to the wavetable is running
 
-    uint8_t length = MAX(sourceLength, 512);
+    uint16_t length = MAX(sourceLength, 512);
+
+    uint universes_none_zero = 0;
+    // Check the universes for non-zero channels
+    for (uint16_t i = 0; i < 512; i++) {
+        if (source[i]) {
+            universes_none_zero++;
+        }
+    }
+    LOG("LocalDmx::setPort. Doing memcpy SIZE: %d. Source NonZeroChannels: %d", length, universes_none_zero);
 
     memset(this->buffer[portId], 0x00, 512);
     memcpy(this->buffer[portId], source, length);
+
+    universes_none_zero = 0;
+    // Check the universes for non-zero channels
+    for (uint16_t i = 0; i < 512; i++) {
+        if (this->buffer[portId][i]) {
+            universes_none_zero++;
+        }
+    }
+    LOG("LocalDmx::setPort. Did memcpy. BUFFER NonZeroChannels: %d", universes_none_zero);
 
     return true;
 }
@@ -161,7 +183,7 @@ void LocalDmx::dma_handler_0_0() {
 #endif // PIN_TRIGGER
 
     // Zero the wavetable
-    memset(wavetable, 0x00, WAVETABLE_LENGTH*2);
+    memset(wavetable, 0x00, WAVETABLE_LENGTH); // TODO: was WAVETABLE_LENGTH*2 ???
 
     // Loop through all 16 universes
     for (universe = 0; universe < 16; universe++) {
@@ -183,7 +205,7 @@ void LocalDmx::dma_handler_0_0() {
 
         // Write the data (channel values) from the universe's buffer
         for (chan = 0; chan < 512; chan++) {
-            wavetable_write_byte(universe, &bitoffset, buffer[universe][chan]);
+            wavetable_write_byte(universe, &bitoffset, this->buffer[universe][chan]);
         }
 
         // Leave the line at a defined LOW level (BREAK) until the next packet starts

@@ -51,6 +51,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     dmxbuffer.cpp
     hidinterface.c
     localdmx.cpp
+    log.cpp
     main.cpp
     statusleds.cpp
     stdio_usb.c

@@ -1,5 +1,6 @@
 #include "dmxbuffer.h"
 
+#include "log.h"
 #include "boardconfig.h"
 #include "localdmx.h"
 
@@ -41,7 +42,7 @@ bool DmxBuffer::setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLeng
     // Shall we lock the buffer so two sources don't write at the same time?
     // TODO: Merge modes. For HTP and LTP we might need to remember the source that last wrote here?
 
-    uint8_t length = MAX(sourceLength, 512);
+    uint16_t length = MAX(sourceLength, 512);
 
     memset(this->buffer[bufferId], 0x00, 512);
     memcpy(this->buffer[bufferId], source, length);
@@ -83,7 +84,11 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
     }
     DmxBuffer::allZeroBuffers[bufferId] = false;
 
+    LOG("DmxBuffer::triggerPatchings. bufferId: %d, allZeroes: %d", bufferId, DmxBuffer::allZeroBuffers[bufferId]);
+
     for (uint8_t i = 0; i < MAX_PATCHINGS; i++) {
+        LOG("DmxBuffer::triggerPatchings. Checking patching %d", i);
+
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
             (patching.buffer != bufferId) ||
@@ -92,11 +97,14 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
             continue;
         }
 
+        LOG("DmxBuffer::triggerPatchings. BUFFER MATCHED");
+
         // patching is active, matches requested bufferId and goes FROM BUFFER
 
         if (patching.port <= 15) {
             // local DMX port
             localDmx.setPort(patching.port, DmxBuffer::buffer[bufferId], 512);
+            LOG("DmxBuffer::triggerPatchings. Setting localDmx port %d", patching.port);
         } else if (patching.port <= 23) {
             // local USB interface to host
             // TODO
