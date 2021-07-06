@@ -6,13 +6,16 @@
 
 extern BoardConfig boardConfig;
 extern LocalDmx localDmx;
-extern uint8_t allZeroes[512];
 
 uint8_t DmxBuffer::buffer[DMXBUFFER_COUNT][512];
+uint8_t DmxBuffer::allZeroes[512];
 
 void DmxBuffer::init() {
     // Init the complete area to 0
     memset(this->buffer, 0x00, DMXBUFFER_COUNT * 512);
+
+    // Init the allZeroes array
+    memset(this->allZeroes, 0x00, 512);
 }
 
 void DmxBuffer::zero(uint8_t bufferId) {

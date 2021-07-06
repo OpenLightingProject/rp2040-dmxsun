@@ -13,6 +13,7 @@
 class DmxBuffer {
   public:
     static uint8_t buffer[DMXBUFFER_COUNT][512];
+    static uint8_t allZeroes[512]; // Array of 512 zero-bytes to be used with memcmp for performance
     void init();
     void zero(uint8_t bufferId);
     bool getBuffer(uint8_t bufferId, uint8_t* dest, uint16_t destLength); // alias "copyTo"
