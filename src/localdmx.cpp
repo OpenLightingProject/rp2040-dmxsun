@@ -25,7 +25,7 @@ uint16_t LocalDmx::wavetable[WAVETABLE_LENGTH];  // 16 universes (data type) wit
 // - DMX OUTs (consecutive ports) can be done with ONE STATE MACHINE
 
 // FOR NOW we are NOT respecting the connected IO modules and just assume
-// we have 16 outputs. This will make RDM ports FAIL!
+// we have 16 outputs. This will make RDM ports FAILto send properly
 
 
 
@@ -93,7 +93,7 @@ void LocalDmx::init() {
 
     // Manually call the handler once, to trigger the first transfer
     //dma_handler();
-
+    this->dma_handler_0_0();
 }
 
 bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {

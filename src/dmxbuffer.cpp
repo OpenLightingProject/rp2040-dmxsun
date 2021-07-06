@@ -71,7 +71,7 @@ bool DmxBuffer::setChannel(uint8_t bufferId, uint16_t channel, uint8_t value) {
 
     this->buffer[bufferId][channel] = value;
 
-    // TODO: Trigger patchings, wireless and sACN
+    this->triggerPatchings(bufferId);
 
     return true;
 }
@@ -83,7 +83,6 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
     }
     DmxBuffer::allZeroBuffers[bufferId] = false;
 
-    // TODO: Patchings
     for (uint8_t i = 0; i < MAX_PATCHINGS; i++) {
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
