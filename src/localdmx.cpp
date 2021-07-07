@@ -110,26 +110,8 @@ bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
 
     uint16_t length = MAX(sourceLength, 512);
 
-    uint universes_none_zero = 0;
-    // Check the universes for non-zero channels
-    for (uint16_t i = 0; i < 512; i++) {
-        if (source[i]) {
-            universes_none_zero++;
-        }
-    }
-    LOG("LocalDmx::setPort. Doing memcpy SIZE: %d. Source NonZeroChannels: %d", length, universes_none_zero);
-
     memset(this->buffer[portId], 0x00, 512);
     memcpy(this->buffer[portId], source, length);
-
-    universes_none_zero = 0;
-    // Check the universes for non-zero channels
-    for (uint16_t i = 0; i < 512; i++) {
-        if (this->buffer[portId][i]) {
-            universes_none_zero++;
-        }
-    }
-    LOG("LocalDmx::setPort. Did memcpy. BUFFER NonZeroChannels: %d", universes_none_zero);
 
     return true;
 }

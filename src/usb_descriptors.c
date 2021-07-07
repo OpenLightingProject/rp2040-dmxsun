@@ -242,7 +242,7 @@ static uint16_t _desc_str[128];
 uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     (void) langid;
     char *str = NULL;
-    uint8_t chr_count;
+    uint8_t chr_count = 0;
 
     if (index == STRID_SERIAL) {
         // Serial number has been requested, construct it from the unique board id

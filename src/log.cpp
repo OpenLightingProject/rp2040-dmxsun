@@ -22,6 +22,7 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     vsnprintf(buf, 1024, text, args);
     va_end(args);
 
+    // Input sanitation so that one cannot make it invalid JSON
     std::string bufSanitized = std::string(buf);
     bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
     bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
@@ -29,6 +30,9 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     std::string fname = std::string(file);
     auto const pos = fname.find_last_of('/');
     fname = fname.substr(pos + 1);
+
+    // TODO: If ACM console is not connected, append to log buffer (of course size-limitig it)
+    //       If ACM console IS connected, just print it
 
     printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
 
