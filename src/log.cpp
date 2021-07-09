@@ -7,6 +7,7 @@
 #include <string.h>
 
 static std::vector<std::string> logBuffer;
+static uint32_t logLineCount = 0;
 
 extern "C" {
 #include "log.h"
@@ -35,17 +36,25 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     // If ACM console is not connected, append to log buffer (of course size-limitig it)
     // If ACM console IS connected, just print it
     if (tud_cdc_connected()) {
-        printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
+        printf("{type: \"log\", count: %ld, file: \"%s\", line: %ld, text: \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
     } else {
         if (logBuffer.size() >= 30) {
             logBuffer.erase(logBuffer.begin());
         }
         logBuffer.push_back(
-            std::string("{type: \"log\", file: \"" + fname +
-            std::string("\", line: ") + std::to_string(line) +
-            std::string(", text: \"") + bufSanitized + std::string("\"}")
-        ));
+            std::string(
+                "{" +
+                std::string("type: \"log\", ") +
+                std::string("count: " + std::to_string(logLineCount) + ", ") +
+                std::string("file: \"" + fname + "\", ") +
+                std::string("line: " + std::to_string(line) + ", ") +
+                std::string("text: \"" + bufSanitized + "\"") +
+                "}"
+            )
+        );
     }
+
+    logLineCount++;
 }
 
 uint32_t getLogBuffer(char* buf, uint32_t sizeOfBuf) {

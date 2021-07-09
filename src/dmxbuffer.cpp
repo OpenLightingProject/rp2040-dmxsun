@@ -90,8 +90,6 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
     LOG("DmxBuffer::triggerPatchings. bufferId: %d, allZeroes: %d", bufferId, DmxBuffer::allZeroBuffers[bufferId]);
 
     for (uint8_t i = 0; i < MAX_PATCHINGS; i++) {
-        LOG("DmxBuffer::triggerPatchings. Checking patching %d", i);
-
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
             (patching.buffer != bufferId) ||
@@ -99,8 +97,6 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
         {
             continue;
         }
-
-        LOG("DmxBuffer::triggerPatchings. BUFFER MATCHED");
 
         // patching is active, matches requested bufferId and goes FROM BUFFER
 

@@ -99,8 +99,6 @@ void LocalDmx::init() {
 }
 
 bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
-    LOG("LocalDmx::setPort. Setting localDmx port %d, sourceLength %d", portId, sourceLength);
-
     // TODO: Check portId for validity (existing on local IO board), configured as an OUT, ...
     if ((portId >= LOCALDMX_COUNT) || (source == nullptr) || sourceLength == 0) {
         return false;
