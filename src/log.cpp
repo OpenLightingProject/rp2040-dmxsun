@@ -52,6 +52,10 @@ void Log::dlog(char* file, uint32_t line, char* text) {
     Log::logLineCount++;
 }
 
+size_t Log::getLogBufferNumEntries() {
+    return Log::logBuffer.size();
+}
+
 std::string Log::getLogBuffer(int maxSize) {
     std::string output;
     uint16_t elements = 0;

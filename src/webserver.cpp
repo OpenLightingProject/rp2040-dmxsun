@@ -200,10 +200,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         uint32_t offset = 0;
 
         offset += sprintf(pcInsert + offset, "{\"log\":[");
-
-        offset += sprintf(pcInsert + offset, "%s", Log::getLogBuffer(iInsertLen - 20).c_str());
-
-        offset += sprintf(pcInsert + offset, "]}");
+        offset += sprintf(pcInsert + offset, "%s", Log::getLogBuffer(iInsertLen - 40).c_str());
+        size_t remaining = Log::getLogBufferNumEntries();
+        offset += sprintf(pcInsert + offset, "], \"remaining\": %d}", remaining);
 
         return offset;
 
