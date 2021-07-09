@@ -1,31 +1,26 @@
-#include <vector>
-#include <string>
+#include "log.h"
+
 #include <sstream>
 #include <iterator>
 #include <regex>
 
 #include <string.h>
-
-static std::vector<std::string> logBuffer;
-static uint32_t logLineCount = 0;
-
-extern "C" {
-#include "log.h"
-
-#include <tusb.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-void dlog(char* file, uint32_t line, char* text, ...) {
-    va_list args;
-    char buf[1024];
+#include <tusb.h>
 
-    va_start(args, text);
-    vsnprintf(buf, 1024, text, args);
-    va_end(args);
+std::vector<std::string> Log::logBuffer;
+uint32_t Log::logLineCount;
 
+void Log::init() {
+    Log::logBuffer.clear();
+    Log::logLineCount = 0;
+}
+
+void Log::dlog(char* file, uint32_t line, char* text) {
     // Input sanitation so that one cannot make it invalid JSON
-    std::string bufSanitized = std::string(buf);
+    std::string bufSanitized = std::string(text);
     bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
     bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
 
@@ -38,10 +33,10 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     if (tud_cdc_connected()) {
         printf("{type: \"log\", count: %ld, file: \"%s\", line: %ld, text: \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
     } else {
-        if (logBuffer.size() >= 30) {
-            logBuffer.erase(logBuffer.begin());
+        if (Log::logBuffer.size() >= 30) {
+            Log::logBuffer.erase(Log::logBuffer.begin());
         }
-        logBuffer.push_back(
+        Log::logBuffer.push_back(
             std::string(
                 "{" +
                 std::string("type: \"log\", ") +
@@ -54,30 +49,30 @@ void dlog(char* file, uint32_t line, char* text, ...) {
         );
     }
 
-    logLineCount++;
+    Log::logLineCount++;
 }
 
-uint32_t getLogBuffer(char* buf, uint32_t sizeOfBuf) {
+std::string Log::getLogBuffer() {
     std::string output;
-    for (const auto& value: logBuffer) {
-        output += value + "\n";
+    for (const auto& value: Log::logBuffer) {
+        output += value + ",\n";
     }
 
-    uint32_t size = output.length() + 1;
-    if (sizeOfBuf < size) {
-        size = sizeOfBuf - 2;
-    }
-
-    if (buf) {
-        memset(buf, 0, sizeOfBuf);
-        memcpy(buf, output.c_str(), size);
-    }
-
-    return size;
+    return output;
 }
 
-void clearLugBuffer() {
-    logBuffer.clear();
+void Log::clearLogBuffer() {
+    Log::logBuffer.clear();
 }
 
+// C helper functions
+void dlog(char* file, uint32_t line, char* text, ...) {
+    va_list args;
+    char buf[1024];
+
+    va_start(args, text);
+    vsnprintf(buf, 1024, text, args);
+    va_end(args);
+
+    Log::dlog(file, line, buf);
 }

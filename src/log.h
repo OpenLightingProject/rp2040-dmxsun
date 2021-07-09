@@ -4,6 +4,26 @@
 #include "pico/stdlib.h"
 
 #ifdef __cplusplus
+
+#include <string>
+#include <vector>
+
+class Log {
+  public:
+    void init();
+    static void dlog(char* file, uint32_t line, char* text);
+    static std::string getLogBuffer();
+    static void clearLogBuffer();
+
+  private:
+    static std::vector<std::string> logBuffer;
+    static uint32_t logLineCount;
+};
+
+#endif // __cplusplus
+
+// Helper methods which are called from C code
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -14,8 +34,6 @@ extern "C" {
 #define LOG(text, ...) dlog((char*)__FILE__, __LINE__, (char*)text, ##__VA_ARGS__)
 
 void dlog(char* file, uint32_t line, char* text, ...);
-uint32_t getLogBuffer(char* buf, uint32_t sizeOfBuf);
-void clearLugBuffer();
 
 #ifdef __cplusplus
 }
