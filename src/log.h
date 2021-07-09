@@ -7,7 +7,9 @@
 extern "C" {
 #endif
 
-// TODO: Instead of heaving just a (nice) macro, wrap printf (which is already wrapped by the pico-sdk)
+// TODO: Instead of heaving just a (nice) macro, wrap printf (which is already
+//       wrapped by the pico-sdk). If possible ...
+//       https://www.raspberrypi.org/forums/viewtopic.php?f=145&t=315365
 
 #define LOG(text, ...) dlog((char*)__FILE__, __LINE__, (char*)text, ##__VA_ARGS__)
 

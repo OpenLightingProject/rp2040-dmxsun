@@ -31,23 +31,23 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     auto const pos = fname.find_last_of('/');
     fname = fname.substr(pos + 1);
 
-    // TODO: If ACM console is not connected, append to log buffer (of course size-limitig it)
-    //       If ACM console IS connected, just print it
-
-    printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
-
-/*
-    logBuffer.push_back(
-        std::string("{type: \"log\", file: \"" + fname +
-        std::string("\", line: ") + std::to_string(line) +
-        std::string(", text: \"") + std::string(text) + std::string("\"}")
-    ));
-*/
+    // If ACM console is not connected, append to log buffer (of course size-limitig it)
+    // If ACM console IS connected, just print it
+    if (tud_cdc_connected()) {
+        printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
+    } else {
+        if (logBuffer.size >= 30) {
+            logBuffer.erase(logBuffer.begin());
+        }
+        logBuffer.push_back(
+            std::string("{type: \"log\", file: \"" + fname +
+            std::string("\", line: ") + std::to_string(line) +
+            std::string(", text: \"") + bufSanitized + std::string("\"}")
+        ));
+    }
 }
 
 uint32_t getLogBuffer(char* buf, uint32_t sizeOfBuf) {
-    const char* const delim = "\n";
-
     std::string output;
     for (const auto& value: logBuffer) {
         output += value + "\n";
