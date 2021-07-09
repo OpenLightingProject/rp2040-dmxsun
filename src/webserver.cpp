@@ -12,7 +12,6 @@
 #include "dmxbuffer.h"
 #include "wireless.h"
 
-extern Log logger;
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;

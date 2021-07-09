@@ -109,6 +109,7 @@ int main() {
     // Phase 5: Enable the USB interface, the debugging console, ...
     tusb_init();
     stdio_usb_init();
+    logger.init();
 
     // Phase 6: Fire up the integrated web server
     webServer.init();
