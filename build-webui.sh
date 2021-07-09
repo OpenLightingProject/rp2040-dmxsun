@@ -7,5 +7,6 @@ npm i
 export GENERATE_SOURCEMAP=false
 npm run build
 cd ..
+mkdir www
 cp -rv wwwsrc/build/* www/
 echo Done
