@@ -12,7 +12,7 @@ class Log {
   public:
     void init();
     static void dlog(char* file, uint32_t line, char* text);
-    static std::string getLogBuffer();
+    static std::string getLogBuffer(int maxSize);
     static void clearLogBuffer();
 
   private:

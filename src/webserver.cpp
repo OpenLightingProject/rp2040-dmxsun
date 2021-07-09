@@ -6,11 +6,13 @@
 
 #include "json/json.h"
 
+#include "log.h"
 #include "statusleds.h"
 #include "boardconfig.h"
 #include "dmxbuffer.h"
 #include "wireless.h"
 
+extern Log logger;
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
@@ -189,6 +191,19 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         offset += base64_encode_blockend(pcInsert + offset, &WebServer::b64Encode);
 
         offset += sprintf(pcInsert + offset, "\"}");
+
+        return offset;
+
+    } else if (tagName == "LogGet") {
+        // Don't use jsoncpp here for performance reasons, write directly to pcInsert
+
+        uint32_t offset = 0;
+
+        offset += sprintf(pcInsert + offset, "{\"log\":[");
+
+        offset += sprintf(pcInsert + offset, "%s", Log::getLogBuffer(iInsertLen - 20).c_str());
+
+        offset += sprintf(pcInsert + offset, "]}");
 
         return offset;
 

@@ -31,7 +31,7 @@ void Log::dlog(char* file, uint32_t line, char* text) {
     // If ACM console is not connected, append to log buffer (of course size-limitig it)
     // If ACM console IS connected, just print it
     if (tud_cdc_connected()) {
-        printf("{type: \"log\", count: %ld, file: \"%s\", line: %ld, text: \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
+        printf("{\"type\": \"log\", \"count\": %ld, \"file\": \"%s\", \"line\": %ld, \"text\": \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
     } else {
         if (Log::logBuffer.size() >= 30) {
             Log::logBuffer.erase(Log::logBuffer.begin());
@@ -39,11 +39,11 @@ void Log::dlog(char* file, uint32_t line, char* text) {
         Log::logBuffer.push_back(
             std::string(
                 "{" +
-                std::string("type: \"log\", ") +
-                std::string("count: " + std::to_string(logLineCount) + ", ") +
-                std::string("file: \"" + fname + "\", ") +
-                std::string("line: " + std::to_string(line) + ", ") +
-                std::string("text: \"" + bufSanitized + "\"") +
+                std::string("\"type\": \"log\", ") +
+                std::string("\"count\": " + std::to_string(logLineCount) + ", ") +
+                std::string("\"file\": \"" + fname + "\", ") +
+                std::string("\"line\": " + std::to_string(line) + ", ") +
+                std::string("\"text\": \"" + bufSanitized + "\"") +
                 "}"
             )
         );
@@ -52,10 +52,29 @@ void Log::dlog(char* file, uint32_t line, char* text) {
     Log::logLineCount++;
 }
 
-std::string Log::getLogBuffer() {
+std::string Log::getLogBuffer(int maxSize) {
     std::string output;
+    uint16_t elements = 0;
+
+    // Avoid an underflow later
+    if (maxSize < 6) {
+        return output;
+    }
+
     for (const auto& value: Log::logBuffer) {
-        output += value + ",\n";
+        if (output.size() < (maxSize - 5)) {
+            output += value + ",\n";
+            elements++;
+        }
+    }
+
+    // Drop the elements we have in output from the logBuffer
+    Log::logBuffer.erase(Log::logBuffer.begin(), Log::logBuffer.begin() + elements);
+
+    // Remove the last comma and line break
+    if (output.size() > 5) {
+        output.pop_back();
+        output.pop_back();
     }
 
     return output;

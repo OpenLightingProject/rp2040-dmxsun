@@ -17,10 +17,12 @@ extern "C" {
 #include "picotool_binary_information.h"
 
 #include "stdio_usb.h"
+}
 
 // TODO: Rewrite and remove!
 #include "acminterface.h"
 
+#include "log.h"
 #include "dmxbuffer.h"
 #include "statusleds.h"
 #include "boardconfig.h"
@@ -28,6 +30,7 @@ extern "C" {
 #include "wireless.h"
 #include "localdmx.h"
 
+extern "C" {
 #include <bsp/board.h>          // On-board-LED
 #include <tusb.h>
 }
@@ -51,6 +54,7 @@ enum {
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
 // Super-globals (for all modules)
+Log logger;
 DmxBuffer dmxBuffer;
 LocalDmx localDmx;
 StatusLeds statusLeds;
