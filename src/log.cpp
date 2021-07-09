@@ -11,6 +11,7 @@ static std::vector<std::string> logBuffer;
 extern "C" {
 #include "log.h"
 
+#include <tusb.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -36,7 +37,7 @@ void dlog(char* file, uint32_t line, char* text, ...) {
     if (tud_cdc_connected()) {
         printf("{type: \"log\", file: \"%s\", line: %ld, text: \"%s\"}\n", fname.c_str(), line, bufSanitized.c_str());
     } else {
-        if (logBuffer.size >= 30) {
+        if (logBuffer.size() >= 30) {
             logBuffer.erase(logBuffer.begin());
         }
         logBuffer.push_back(
