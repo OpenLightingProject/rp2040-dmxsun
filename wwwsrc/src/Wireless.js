@@ -46,6 +46,13 @@ class Wireless extends React.Component {
             updateSpectrumInterval: interval
         });
     }
+
+    componentWillUnmount() {
+        if (this.state.updateSpectrumInterval) {
+            window.clearInterval(this.state.updateSpectrumInterval);
+        }
+    }
+
     updateSpectrum() {
         //fetch('http://169.254.230.1/config/wireless/spectrum/get.json')
         fetch("/config/wireless/spectrum/get.json")

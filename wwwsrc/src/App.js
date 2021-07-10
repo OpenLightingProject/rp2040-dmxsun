@@ -1,11 +1,12 @@
 import React from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Link
 } from "react-router-dom";
 
+import Log from "./Log.js";
 import Wireless from "./Wireless.js";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -62,8 +63,4 @@ function Home() {
 
 function Config() {
   return <h2>Config</h2>;
-}
-
-function Log() {
-  return <h2>Log</h2>;
 }
