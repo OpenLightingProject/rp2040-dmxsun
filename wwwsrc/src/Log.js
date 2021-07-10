@@ -52,14 +52,14 @@ class Log extends React.Component {
                 <table class="table">
                     <thead><tr><th>Location</th><th>Text</th></tr></thead>
                     <tbody>
-                {Object.entries(this.state.logEntries).reverse().map((entry, index) => {
-                        return (
-                            <tr key={entry[0]}>
-                                <td>{entry[1].file}:{entry[1].line}</td>
-                                <td>{entry[1].text}</td>
-                            </tr>
-                        )
-                    })}
+                        {Object.entries(this.state.logEntries).reverse().map((entry, index) => {
+                            return (
+                                <tr key={entry[0]}>
+                                    <td>{entry[1].file}:{entry[1].line}</td>
+                                    <td>{entry[1].text}</td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             </div>

@@ -6,6 +6,7 @@ import {
   Link
 } from "react-router-dom";
 
+import Console from "./Console.js";
 import Log from "./Log.js";
 import Wireless from "./Wireless.js";
 
@@ -24,6 +25,9 @@ export default function App() {
             <li class="nav-item active">
               <Link to="/" class="nav-link">Home</Link>
             </li>
+            <li class="nav-item active">
+              <Link to="/console" class="nav-link">Console</Link>
+            </li>
             <li class="nav-item">
               <Link to="/config" class="nav-link">Config</Link>
             </li>
@@ -39,6 +43,9 @@ export default function App() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
+        <Route path="/console">
+            <Console />
+          </Route>
           <Route path="/config">
             <Config />
           </Route>
