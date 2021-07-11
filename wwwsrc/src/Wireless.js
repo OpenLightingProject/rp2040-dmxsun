@@ -54,8 +54,7 @@ class Wireless extends React.Component {
     }
 
     updateSpectrum() {
-        //fetch('http://169.254.230.1/config/wireless/spectrum/get.json')
-        fetch("/config/wireless/spectrum/get.json")
+        fetch(window.urlPrefix + '/config/wireless/spectrum/get.json')
             .then(res => res.json())
             .then(
                 (result) => {

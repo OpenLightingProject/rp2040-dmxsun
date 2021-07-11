@@ -11,6 +11,7 @@ class Console extends React.Component {
             selectedBuffer: 0,
             updateValuesInterval: undefined,
             values: [],
+            channelOffset: 0,
         };
         this.setValueTimeout = undefined;
     }
@@ -33,8 +34,7 @@ class Console extends React.Component {
         if (buffer <= 9) {
             buffer = '0' + buffer;
         }
-        //let url = 'http://169.254.230.1' + '/dmxBuffer/' + buffer + '/get.json';
-        let url = '/dmxBuffer/'+ buffer + '/get.json';
+        const url = window.urlPrefix + '/dmxBuffer/'+ buffer + '/get.json';
         fetch(url)
             .then(res => res.json())
             .then(
@@ -56,7 +56,9 @@ class Console extends React.Component {
 
     setValue(channel, newValue) {
         console.log('SETVALUE CHANNEL: ' + channel + ' TO ' + newValue);
-        // TODO: holdoff / rate limit in order to not overload the device!
+        // We do the writing behind a "timeout" so we only write
+        // once every 100ms in order not to overload the device
+        // TODO: Does this work when one channel's timeout is running and a request to change another one comes in?
         if (this.setValueTimeout) {
             window.clearTimeout(this.setValueTimeout);
         }
@@ -64,8 +66,7 @@ class Console extends React.Component {
     }
 
     realSetValue(buffer, channel, newValue) {
-        //let url = 'http://169.254.230.1' + '/dmxBuffer/set.json?buffer=' + buffer + '&channel=' + channel + '&value=' + newValue;
-        let url = '/dmxBuffer/set.json?buffer=' + buffer + '&channel=' + channel + '&value=' + newValue;
+        const url = window.urlPrefix + '/dmxBuffer/set.json?buffer=' + buffer + '&channel=' + channel + '&value=' + newValue;
         fetch(url);
     }
 

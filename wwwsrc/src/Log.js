@@ -23,8 +23,7 @@ class Log extends React.Component {
     }
 
     updateLog() {
-        //fetch('http://169.254.230.1/log/get.json')
-        fetch("/log/get.json")
+        fetch(window.urlPrefix + '/log/get.json')
             .then(res => res.json())
             .then(
                 (result) => {

@@ -16,6 +16,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 //import 'bootstrap/dist/js/bootstrap.min.js';
 
 export default function App() {
+  // Have a global, optional URL "prefix" so one can have the App
+  // served by localhost during development but talk to the API of
+  // a REAL dongle
+  window.urlPrefix = '';
+  //window.urlPrefix = 'http://169.254.230.1'; // comment line if not used
+
   return (
     <Router>
       <div>
@@ -43,7 +49,7 @@ export default function App() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
-        <Route path="/console">
+          <Route path="/console">
             <Console />
           </Route>
           <Route path="/config">
