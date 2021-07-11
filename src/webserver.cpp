@@ -20,6 +20,7 @@ extern Wireless wireless;
 base64_encodestate WebServer::b64Encode;
 base64_decodestate WebServer::b64Decode;
 uint8_t WebServer::tmpBuf[800]; // Used to store compressed data
+uint8_t WebServer::tmpBuf2[800]; // Used to store UNcompressed data
 
 static const tCGI cgi_handlers[] = {
   {
@@ -78,6 +79,9 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
     uint8_t bufferId = 0;
     uint16_t channel = 0;
     uint8_t value = 0;
+    size_t decodedLength = 0;
+    size_t uncompressedLength = 0;
+    bool compStatus = false;
     char* data = nullptr;    // Sets the complete buffer
 
     // Parse all arguments. // TODO: std::map ?
@@ -98,6 +102,18 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
         dmxBuffer.setChannel(bufferId, channel, value);
     } else {
         // TODO: requires libb64 and some compression
+        LOG("Set complete buffer: %s", data);
+        base64_init_decodestate(&WebServer::b64Decode);
+        decodedLength = base64_decode_block(data, strlen(data), WebServer::tmpBuf, &WebServer::b64Decode);
+        LOG("decodedLength: %d", decodedLength);
+
+        if (snappy::GetUncompressedLength((const char*)WebServer::tmpBuf, decodedLength, &uncompressedLength) == true) {
+            LOG("uncompressedLength: %d", uncompressedLength);
+            if (snappy::RawUncompress((const char*)WebServer::tmpBuf, decodedLength, (char*)WebServer::tmpBuf2) == true) {
+                dmxBuffer.setBuffer(bufferId, WebServer::tmpBuf2, uncompressedLength);
+            }
+        }
+
     }
 
     return "/empty.json";

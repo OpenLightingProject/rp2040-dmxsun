@@ -162,8 +162,8 @@ void LocalDmx::dma_handler_0_0() {
     gpio_put(PIN_TRIGGER, 0);
 #endif // PIN_TRIGGER
 
-    // Zero the wavetable
-    memset(wavetable, 0x00, WAVETABLE_LENGTH); // TODO: was WAVETABLE_LENGTH*2 ???
+    // Zero the wavetable. *2 because of the data type: uint16_t = 2 byte per element
+    memset(wavetable, 0x00, WAVETABLE_LENGTH * sizeof(uint16_t));
 
     // Loop through all 16 universes
     for (universe = 0; universe < 16; universe++) {

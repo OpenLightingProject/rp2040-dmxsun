@@ -7,6 +7,7 @@
     "chart.js": "^3.4.1",
     "couch64": "^1.0.2",
     "react": "^17.0.2",
+    "react-bootstrap-icons": "^1.5.0",
     "react-chartjs-2": "^3.0.3",
     "react-dom": "^17.0.2",
     "react-input-slider": "^6.0.1",
