@@ -46,7 +46,6 @@ execute_process(
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
-    acminterface.c
     boardconfig.cpp
     dmxbuffer.cpp
     hidinterface.c

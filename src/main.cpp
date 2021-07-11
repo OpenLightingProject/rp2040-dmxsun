@@ -19,8 +19,14 @@ extern "C" {
 #include "stdio_usb.h"
 }
 
-// TODO: Rewrite and remove!
-#include "acminterface.h"
+// TODO: Should we have some human- or machine-friendly, interactive console
+//       via CDC ACM "serial" terminal? We could at least get/set the buffer values
+//       and request all info as JSON or better readable that the web server 
+//       provides via the API. However, the user could just use the web API
+//       right away.
+//       For now, logs are printed to the CDC ACM terminal
+//       Was: acminterface.c/.h
+//#include "acminterface.h"
 
 #include "log.h"
 #include "dmxbuffer.h"
