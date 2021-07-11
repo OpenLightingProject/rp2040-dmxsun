@@ -25,6 +25,7 @@ enum BoardType : uint8_t {
     dmx_2ports_rdm_isolated   = 0x04,
     led_4ports                = 0x05,
 
+    config_only_dongle        = 0xfd,
     baseboard_fallback        = 0xfe,
     invalid_ff                = 0xff
 };

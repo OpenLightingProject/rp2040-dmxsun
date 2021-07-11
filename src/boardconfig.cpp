@@ -135,7 +135,8 @@ ConfigData BoardConfig::defaultConfig() {
     snprintf(cfg.boardName, 32, "! Fallback config !");
 
     // Compute the second and third byte of the IP with values from
-    // the unique board id: 10.X.Y.1 (board), 10.X.Y.2 (host)
+    // the unique board id: 169.254.X.1 (board), 169.254.X.2 (host)
+    // FIXME: This returns 230 on two of my boards. Coincidence or error?
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
     cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
