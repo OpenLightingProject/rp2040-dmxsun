@@ -5,6 +5,8 @@ import Slider from 'react-input-slider';
 import couch64 from 'couch64';
 import snappyjs from 'snappyjs';
 
+// TODO: Display the status to the user (up-to-date, fetching, error)
+
 class Console extends React.Component {
     constructor() {
         super();

@@ -86,8 +86,8 @@ tusb_desc_device_t desc_device =
     .bDeviceProtocol    = MISC_PROTOCOL_IAD,
 
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
-    .idVendor           = DEFAULT_VID,
-    .idProduct          = DEFAULT_PID,
+    .idVendor           = DEFAULT_VID, // Possibly overwritten by function below
+    .idProduct          = DEFAULT_PID, // Possibly overwritten by function below
     .bcdDevice          = VERSION_BCD,
     .iManufacturer      = STRID_MANUFACTURER,
     .iProduct           = STRID_PRODUCT,

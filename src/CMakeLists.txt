@@ -48,7 +48,6 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
     boardconfig.cpp
     dmxbuffer.cpp
-    hidinterface.c
     localdmx.cpp
     log.cpp
     main.cpp
@@ -56,6 +55,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     stdio_usb.c
     tusb_lwip_glue.c
     usb_descriptors.c
+    usb_generic.cpp
+    usb_NodleU1.cpp
     webserver.cpp
     wireless.cpp
 )

@@ -142,20 +142,21 @@ ConfigData BoardConfig::defaultConfig() {
     cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
     cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
 
-    // Map internal DMX buffer 0 to the 1st physical output port
-    cfg.patching[0].active = 1;
-    cfg.patching[0].buffer = 0;
-    cfg.patching[0].port = 0;
+    // Patch the first 16 internal DMX buffers to the first 16 phyiscal outputs
+    // TODO: Needs to depend on boards connected!
+    for (int i = 0; i < 16; i++) {
+        cfg.patching[i].active = 1;
+        cfg.patching[i].buffer = i;
+        cfg.patching[i].port = i;
+    }
 
-    // Map internal DMX buffer 1 to the 2nd physical output port
-    cfg.patching[1].active = 1;
-    cfg.patching[1].buffer = 1;
-    cfg.patching[1].port = 1;
-
-    // Map internal DMX buffer 0 to wireless OUT 0
-    cfg.patching[2].active = 1;
-    cfg.patching[2].buffer = 0;
-    cfg.patching[2].port = 28;
+    // Patch internal buffers 0 to 3 to the wireless OUTs as well
+    // TODO: This needs to depend on the wireless module being present
+    for (int i = 0; i < 4; i++) {
+        cfg.patching[i+16].active = 1;
+        cfg.patching[i+16].buffer = i;
+        cfg.patching[i+16].port = i + 28;
+    }
 
     return cfg;
 }

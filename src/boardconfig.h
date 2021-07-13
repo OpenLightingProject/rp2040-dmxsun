@@ -60,9 +60,11 @@ enum UsbProtocol : uint8_t {
     uDMX                      = 2, // One TX only, via CONTROL endpoint
     OpenDMX                   = 3, // Multiple (8?) serial endpoints
     NodleU1                   = 4, // Digital Enlightenment / DMXControl Projects e.V.
-                                   // 1 universe standard, 8 with protocol modifications
+                                   // 1 universe standard, 16 with protocol modifications
     UsbPro                    = 5, // ENTTEC USB Pro. One in OR out
                                    // Not sure if we can actually do this
+                                   // since we would need to properly emulate a
+                                   // FT*I chip for that
 };
 
 enum RadioRole : uint8_t {
@@ -80,14 +82,15 @@ enum RadioRole : uint8_t {
 // Bit 0: 0 = inactive, 1 = active
 // Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somewhere to buffer
 // Bit 2-6: Buffer: One of the 24 internal DMX buffers
-// Bit 7: RESERVED / padding
+// Bit 7: 0 = "normal" mapping, 1 = "buffer-to-buffer"
+//        If 1, the "buffer" is the source, the "port" is the destination
 
 // Bit 8-9: Merge mode
 // Bit 10: Reserved
 // Bit 11-15: Port:
 //   Ports 0-15 are the 16 physical ports of the IO boards
 //              Their direction is in the PortParams of the IO board config
-//   Ports 16-23 are the ports of the USB host interface
+//   Ports 16-23 are the (at most) 8  IN ports of the USB host interface (board to host)
 //              Their direction is in the usbProtocolDirections member of the active system config
 //   Ports 24-27 are 4 wireless-DMX ports IN to this board
 //   Ports 28-31 are 4 wireless-DMX ports OUT of this board
@@ -96,7 +99,7 @@ struct Patching {
     uint8_t active            : 1;
     uint8_t direction         : 1;
     uint8_t buffer            : 5;
-    uint8_t RESERVED1         : 1;
+    uint8_t buffer_to_buffer  : 1;
     // Second byte:
     uint8_t mergeMode         : 2;
     uint8_t RESERVED2         : 1;

@@ -101,7 +101,7 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
         // Set a single channel
         dmxBuffer.setChannel(bufferId, channel, value);
     } else {
-        // TODO: requires libb64 and some compression
+        // TODO: Common, global methods for Base64-decode + Snappy decompress!
         LOG("Set complete buffer: %s", data);
         base64_init_decodestate(&WebServer::b64Decode);
         decodedLength = base64_decode_block(data, strlen(data), WebServer::tmpBuf, &WebServer::b64Decode);
