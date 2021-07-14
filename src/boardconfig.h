@@ -69,8 +69,9 @@ enum UsbProtocol : uint8_t {
 
 enum RadioRole : uint8_t {
     sniffer                   = 0, // rx only for spectrum scanning
-    meshMaster                = 1, // RF24Mesh, can RX and TX universes
-    meshNode                  = 2, // RF24Mesh, can RX and TX universes
+    broadcast                 = 1, // simple broadcast sender and receiver
+    mesh                      = 2, // RF24Mesh, can RX and TX universes
+                                   // role in mesh (master / node) is set by radioAdress
     // QuickDMX_TX               = 3,
     // QuickDMX_RX               = 4,
     // APE_TX                    = 5,
@@ -159,8 +160,9 @@ static const ConfigData constDefaultConfig = {
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::NodleU1,
-    .radioRole           = RadioRole::sniffer,
+    .radioRole           = RadioRole::broadcast,
     .radioChannel        = 0,
+    .radioAddress        = 0,
     .statusLedBrightness = 20,
 };
 

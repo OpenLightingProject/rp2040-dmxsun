@@ -20,9 +20,16 @@ class Wireless {
     bool moduleAvailable = false;
     uint16_t signalStrength[MAXCHANNEL]; // Used for spectrum analyser mode
 
+    void sendData(uint8_t universeId, uint8_t* source, uint16_t sourceLength);
+
   private:
     uint8_t lastScannedChannel = 0;
     void scanChannel(uint8_t channel);
+    bool sendQueueValid[4];
+    uint8_t sendQueueData[4][512];
+
+    void handleReceivedData();
+    void doSendData();
 
 };
 

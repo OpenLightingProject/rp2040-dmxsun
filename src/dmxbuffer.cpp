@@ -3,9 +3,11 @@
 #include "log.h"
 #include "boardconfig.h"
 #include "localdmx.h"
+#include "wireless.h"
 
 extern BoardConfig boardConfig;
 extern LocalDmx localDmx;
+extern Wireless wireless;
 
 uint8_t DmxBuffer::buffer[DMXBUFFER_COUNT][512];
 uint8_t DmxBuffer::allZeroes[512];
@@ -111,7 +113,8 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
             // Wireless INs
         } else if (patching.port <= 31) {
             // Wireless OUTs
-            // TODO
+            // TODO: Correctly calculate the universe ID
+            wireless.sendData(bufferId, DmxBuffer::buffer[bufferId], 512);
         }
     }
 }
