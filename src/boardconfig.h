@@ -95,6 +95,7 @@ enum RadioRole : uint8_t {
 //              Their direction is in the usbProtocolDirections member of the active system config
 //   Ports 24-27 are 4 wireless-DMX ports IN to this board
 //   Ports 28-31 are 4 wireless-DMX ports OUT of this board
+// TODO: Create an enum for the "ports"
 struct Patching {
     // First byte:
     uint8_t active            : 1;
@@ -160,7 +161,7 @@ static const ConfigData constDefaultConfig = {
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::NodleU1,
-    .radioRole           = RadioRole::broadcast,
+    .radioRole           = RadioRole::sniffer,
     .radioChannel        = 0,
     .radioAddress        = 0,
     .statusLedBrightness = 20,

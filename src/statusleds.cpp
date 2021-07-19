@@ -15,8 +15,8 @@ static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
 
 void StatusLeds::init() {
     // Create the program for the status LEDS in PIO1, SM3
-    program = pio_add_program(pio1, &ws2812_program);
-    ws2812_program_init(pio1, 3, program, PIN_LEDS, 800000, false);
+    pio_program = pio_add_program(pio1, &ws2812_program);
+    ws2812_program_init(pio1, 3, pio_program, PIN_LEDS, 800000, false);
 
     memset(this->pixels, 0x00, 8*4);
 }

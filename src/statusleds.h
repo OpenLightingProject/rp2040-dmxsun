@@ -21,11 +21,11 @@ class StatusLeds {
     void getLed(uint8_t index, uint8_t* r, uint8_t* g, uint8_t* b);
     void setLed(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
     void setBrightness(uint8_t brightness);
-    void writeLeds();
+    void writeLeds(); // TODO: Replace by cyclicTask so clients don't need to call this
 
   private:
     uint32_t pixels[8];
-    uint program;
+    uint pio_program;
     uint8_t brightness = 127;
 };
 
