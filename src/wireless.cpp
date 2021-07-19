@@ -168,6 +168,9 @@ void Wireless::handleReceivedData() {
         rf24radio.read(buffer, 3);       // get incoming payload
         rf24radio.writeAckPayload(0, &buffer, 0);
 
-        dmxBuffer.setBuffer(0, buffer, 3);
+        // TODO: Proper patching handling, please
+        // Dirty workaround for RX demonstration. This will LOOP if the
+        // writing to the DMX buffer will trigger a TX action
+        //dmxBuffer.setBuffer(0, buffer, 3);
     }
 }
