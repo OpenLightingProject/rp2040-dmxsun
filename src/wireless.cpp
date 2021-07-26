@@ -14,6 +14,9 @@ extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 
+uint8_t Wireless::tmpBuf[800]; // Used to store compressed data
+uint8_t Wireless::tmpBuf2[800]; // Used to store UNcompressed data
+
 RF24 rf24radio(PIN_RF24_CE, PIN_SPI_CS0);
 RF24Network rf24network(rf24radio);
 RF24Mesh rf24mesh(rf24radio, rf24network);
@@ -58,8 +61,10 @@ void Wireless::init() {
         rf24radio.enableAckPayload();
         rf24radio.openWritingPipe((const uint8_t *)"DMXTX");
         rf24radio.openReadingPipe(1, (const uint8_t *)"DMXTX");
+        rf24radio.setRetries(2, 2);
         rf24radio.startListening();
     } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
+        LOG("RF24: Mesh setNodeID to %d", boardConfig.activeConfig->radioAddress);
         rf24mesh.setNodeID(boardConfig.activeConfig->radioAddress);
         rf24mesh.begin();
     }
@@ -115,18 +120,29 @@ void Wireless::scanChannel(uint8_t channel)
 }
 
 void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLength) {
-    return;
-    // This should actually only queue stuff for sending. Actual sending is done
-    // in cyclicTask to avoid timeouts on the USB interface, for example
+    // This actually only queues stuff for sending later. Actual sending is done
+    // in cyclicTask to avoid timeouts on the USB interface while waiting for
+    // transmission to complete
     LOG("SendData. Universe: %d. RadioRole: %d", universeId, boardConfig.activeConfig->radioRole);
 
-    // TODO: clamp to max 512!
-    memcpy(this->sendQueueData[universeId], source, sourceLength);
+    uint16_t length = MAX(sourceLength, 512);
+
+    memset(this->sendQueueData[universeId], 0x00, 512);
+    memcpy(this->sendQueueData[universeId], source, length);
     this->sendQueueValid[universeId] = true;
 }
 
 void Wireless::doSendData() {
     bool success = false;
+
+    Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
+    struct DmxData_Header* header = (struct DmxData_Header*)Wireless::tmpBuf2 + 1;
+
+    size_t actuallyRead = 0;
+    size_t actuallyWritten = 1000;
+    size_t payloadSize = 0;
+
+    int j = 0;
 
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
@@ -135,15 +151,59 @@ void Wireless::doSendData() {
             switch (boardConfig.activeConfig->radioRole) {
                 case RadioRole::broadcast:
                     rf24radio.stopListening();
-                    success = rf24radio.write(this->sendQueueData[i], 3);
-                    LOG("doSendData DONE. Success: %d", success);
-                    if (success) {
-                        statusLeds.setLed(6, 0, 255, 0);
-                        statusLeds.writeLeds();
+
+                    // TODO: Move radio packet preparation to separate methods
+                    //       so all radio modes can use it
+
+                    header->universeId = i;
+
+                    // 1. Check if the buffer to be sent is all zeroes
+                    if (!memcmp(this->sendQueueData[i], DmxBuffer::allZeroes, 512)) {
+                        header->compression = 0;
+                        header->chunkCounter = DmxData_ChunkCounter::AllZero;
+
+                        success = rf24radio.write(Wireless::tmpBuf2, 2);
+
+                        LOG("doSendData: Sending allZeroes-Packet for universe %d Success: %d", i, success);
                     } else {
-                        statusLeds.setLed(6, 255, 0, 0);
-                        statusLeds.writeLeds();
+                        // 2. Compress the data
+                        actuallyRead = 0;
+                        actuallyWritten = 1000;
+                        snappy::RawCompress((const char *)this->sendQueueData[i], 512, (char*)Wireless::tmpBuf, &actuallyWritten);
+
+                        if (actuallyWritten >= 512) {
+                            header->compression = 0;
+                            memcpy(Wireless::tmpBuf, this->sendQueueData[i], 512);
+                            actuallyWritten = 512;
+                        } else {
+                            header->compression = 1;
+                        }
+
+                        // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
+                        for (j = 0; j < 18; j++) {
+                            header->chunkCounter = (DmxData_ChunkCounter)j;
+                            payloadSize = 30;
+
+                            if ((j+1)*30 >= actuallyWritten) {
+                                header->chunkCounter = DmxData_ChunkCounter::LastPacket;
+                                payloadSize = actuallyWritten - j*30;
+                            }
+
+                            memcpy(Wireless::tmpBuf + 2, this->sendQueueData[i] + j*30, payloadSize);
+
+                            success = rf24radio.write(Wireless::tmpBuf, payloadSize + 2);
+                            sleep_us(200);
+
+                            LOG("doSendData CHUNK actuallyWritten: %d, chunkCounter: %d, payloadSize: %d, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, success);
+
+                            if (header->chunkCounter == DmxData_ChunkCounter::LastPacket) {
+                                break;
+                            }
+                        }
+                        LOG("doSendData all chunks sent");
+
                     }
+
                     rf24radio.startListening();
                 break;
                 case RadioRole::mesh:
@@ -153,6 +213,15 @@ void Wireless::doSendData() {
                         // We are the mesh master and iterate through the nodes
                     }
                 break;
+            }
+
+            LOG("doSendData DONE. Success: %d", success);
+            if (success) {
+                statusLeds.setLed(6, 0, 255, 0);
+                statusLeds.writeLeds();
+            } else {
+                statusLeds.setLed(6, 255, 0, 0);
+                statusLeds.writeLeds();
             }
         }
     }
