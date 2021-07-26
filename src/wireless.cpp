@@ -231,7 +231,7 @@ void Wireless::handleReceivedData() {
     uint8_t pipe = 0;
     uint8_t buffer[512] = {0};
 
-    if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that recieved it
+    if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
         rf24radio.read(buffer, 3);       // get incoming payload

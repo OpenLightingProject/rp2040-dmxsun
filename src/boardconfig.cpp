@@ -142,7 +142,7 @@ ConfigData BoardConfig::defaultConfig() {
     cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
     cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)id.id[0] << 16);
 
-    // Patch the first 16 internal DMX buffers to the first 16 phyiscal outputs
+    // Patch the first 16 internal DMX buffers to the first 16 physical outputs
     // TODO: Needs to depend on boards connected!
     for (int i = 0; i < 16; i++) {
         cfg.patching[i].active = 1;
