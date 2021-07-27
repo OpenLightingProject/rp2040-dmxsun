@@ -123,6 +123,8 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
     // This actually only queues stuff for sending later. Actual sending is done
     // in cyclicTask to avoid timeouts on the USB interface while waiting for
     // transmission to complete
+    // It's not a real queue since the data for each universe is overwritten. No one
+    // cares about the unsent, old data if we have new values anyway
     LOG("SendData. Universe: %d. RadioRole: %d", universeId, boardConfig.activeConfig->radioRole);
 
     uint16_t length = MAX(sourceLength, 512);

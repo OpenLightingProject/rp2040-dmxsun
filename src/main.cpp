@@ -52,7 +52,7 @@ extern "C" {
  * 21094   | ~0.45s     | Board ready, multiple universes with at least one channel != 0
  */
 // TODO: Replace the clock-derived LED-blinking with a software-controlled one
-//       Reson: If the board crashed, the LED currently blinks on. It should stop doing so
+//       Reason: If the board crashed, the LED currently blinks on. It should stop doing so
 enum {
     BLINK_INIT                 =  2000,
     BLINK_READY_NO_DATA        = 65535,
