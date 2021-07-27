@@ -172,6 +172,7 @@ void Wireless::doSendData() {
                         snappy::RawCompress((const char *)this->sendQueueData[i], 512, (char*)Wireless::tmpBuf, &actuallyWritten);
 
                         if (actuallyWritten >= 512) {
+                            LOG("Compressed size: %d, sending uncompressed!", actuallyWritten);
                             header->compression = 0;
                             memcpy(Wireless::tmpBuf, this->sendQueueData[i], 512);
                             actuallyWritten = 512;
@@ -181,6 +182,8 @@ void Wireless::doSendData() {
 
                         // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
                         for (j = 0; j < 18; j++) {
+                            Wireless::tmpBuf[0] = WirelessCommands::DmxData;
+
                             header->chunkCounter = (DmxData_ChunkCounter)j;
                             payloadSize = 30;
 
@@ -192,7 +195,7 @@ void Wireless::doSendData() {
                             memcpy(Wireless::tmpBuf + 2, this->sendQueueData[i] + j*30, payloadSize);
 
                             success = rf24radio.write(Wireless::tmpBuf, payloadSize + 2);
-                            sleep_us(200);
+                            sleep_us(100);
 
                             LOG("doSendData CHUNK actuallyWritten: %d, chunkCounter: %d, payloadSize: %d, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, success);
 
@@ -229,13 +232,20 @@ void Wireless::doSendData() {
 
 void Wireless::handleReceivedData() {
     uint8_t pipe = 0;
-    uint8_t buffer[512] = {0};
 
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
-        rf24radio.read(buffer, 3);       // get incoming payload
-        rf24radio.writeAckPayload(0, &buffer, 0);
+        rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
+        rf24radio.writeAckPayload(0, Wireless::tmpBuf, 0);
+
+        LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
+
+        if (Wireless::tmpBuf[0] == WirelessCommands::DmxData) {
+            struct DmxData_Header* header = (struct DmxData_Header*)Wireless::tmpBuf + 1;
+
+            LOG("DmxData: Universe: %d, Compressed: %d, Chunk: %d", header->universeId, header->compression, header->chunkCounter);
+        }
 
         // TODO: Proper patching handling, please
         // Dirty workaround for RX demonstration. This will LOOP if the
