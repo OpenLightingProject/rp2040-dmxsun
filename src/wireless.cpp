@@ -184,7 +184,7 @@ void Wireless::doSendData() {
 
                         // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
                         for (j = 0; j < 18; j++) {
-                            Wireless::tmpBuf[0] = WirelessCommands::DmxData;
+                            Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
 
                             header->chunkCounter = (DmxData_ChunkCounter)j;
                             payloadSize = 30;
@@ -194,12 +194,14 @@ void Wireless::doSendData() {
                                 payloadSize = actuallyWritten - j*30;
                             }
 
-                            memcpy(Wireless::tmpBuf + 2, this->sendQueueData[i] + j*30, payloadSize);
+                            //LOG("PreMemcpy. DST: %08x SRC: %08x, SIZE: %d", Wireless::tmpBuf2 + 2, this->sendQueueData[i] + j*30, payloadSize);
+                            memcpy(Wireless::tmpBuf2 + 2, this->sendQueueData[i] + j*30, payloadSize);
+                            //LOG("PostMemcpy");
 
-                            success = rf24radio.write(Wireless::tmpBuf, payloadSize + 2);
+                            success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
                             sleep_us(100);
 
-                            LOG("doSendData CHUNK actuallyWritten: %d, chunkCounter: %d, payloadSize: %d, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, success);
+                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf[0]: %02x, buf[1]: %02x, buf[2]: %02x, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], success);
 
                             if (header->chunkCounter == DmxData_ChunkCounter::LastPacket) {
                                 break;
