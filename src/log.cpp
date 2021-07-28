@@ -21,8 +21,8 @@ void Log::init() {
 void Log::dlog(char* file, uint32_t line, char* text) {
     // Input sanitation so that one cannot make it invalid JSON
     std::string bufSanitized = std::string(text);
-    bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
-    bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
+    //bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
+    //bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
 
     std::string fname = std::string(file);
     auto const pos = fname.find_last_of('/');
