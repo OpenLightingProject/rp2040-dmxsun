@@ -149,20 +149,21 @@ ConfigData BoardConfig::defaultConfig() {
         cfg.patching[i].buffer = i;
         cfg.patching[i].port = i;
     }
-/*
-    // Patch the 4 wireless INs to the first 4 local ports
-    for (int i = 0; i < 4; i++) {
-        cfg.patching[i+16].active = 1;
-        cfg.patching[i+16].buffer = i;
-        cfg.patching[i+16].port = i + 24;
-    }
-*/
+
     // Patch internal buffers 0 to 3 to the wireless OUTs as well
     // TODO: This needs to depend on the wireless module being present
     for (int i = 0; i < 4; i++) {
+        cfg.patching[i+16].active = 1;
+        cfg.patching[i+16].buffer = i;
+        cfg.patching[i+16].port = i + 28;
+    }
+
+    // Patch the 4 wireless INs to buffers 4 to 7 (= 4 physical ports on second IO board)
+    for (int i = 0; i < 4; i++) {
         cfg.patching[i+20].active = 1;
-        cfg.patching[i+20].buffer = i;
-        cfg.patching[i+20].port = i + 28;
+        cfg.patching[i+20].direction = 1;
+        cfg.patching[i+20].buffer = i + 4;
+        cfg.patching[i+20].port = i + 24;
     }
 
     return cfg;

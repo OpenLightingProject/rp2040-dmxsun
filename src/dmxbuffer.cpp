@@ -110,7 +110,7 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
             // local USB interface to host
             // TODO
         } else if (patching.port <= 27) {
-            // Wireless INs
+            // Wireless INs, Nothing to do since direction doesn't match
         } else if (patching.port <= 31) {
             // Wireless OUTs
             // TODO: Correctly calculate the universe ID

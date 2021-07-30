@@ -72,6 +72,9 @@ Wireless wireless;
 
 void led_blinking_task(void);
 
+// TODO: Temporarily here to test if it even works better
+void usb_processQueue();
+
 // Board init sequence:
 // 1. Status LEDs
 // 2. Detect IO boards
@@ -145,6 +148,9 @@ int main() {
     while (true) {
         tud_task();
         webServer.cyclicTask();
+#ifdef USB_QUEUE
+        usb_processQueue();
+#endif
         wireless.cyclicTask();
         led_blinking_task();
         sleep_ms(1);

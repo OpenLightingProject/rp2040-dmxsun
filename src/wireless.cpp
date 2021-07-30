@@ -61,7 +61,7 @@ void Wireless::init() {
         rf24radio.enableAckPayload();
         rf24radio.openWritingPipe((const uint8_t *)"DMXTX");
         rf24radio.openReadingPipe(1, (const uint8_t *)"DMXTX");
-        rf24radio.setRetries(2, 2);
+        rf24radio.setRetries(0, 0);
         rf24radio.startListening();
     } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
         LOG("RF24: Mesh setNodeID to %d", boardConfig.activeConfig->radioAddress);
@@ -182,6 +182,8 @@ void Wireless::doSendData() {
                             header->compression = 1;
                         }
 
+                        // TODO: Append some kind of CRC so the receivers know if they got all chunks
+
                         // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
                         for (j = 0; j < 18; j++) {
                             Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
@@ -194,12 +196,9 @@ void Wireless::doSendData() {
                                 payloadSize = actuallyWritten - j*30;
                             }
 
-                            //LOG("PreMemcpy. DST: %08x SRC: %08x, SIZE: %d", Wireless::tmpBuf2 + 2, this->sendQueueData[i] + j*30, payloadSize);
                             memcpy(Wireless::tmpBuf2 + 2, this->sendQueueData[i] + j*30, payloadSize);
-                            //LOG("PostMemcpy");
 
                             success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
-                            sleep_us(100);
 
                             LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf[0]: %02x, buf[1]: %02x, buf[2]: %02x, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], success);
 
@@ -235,6 +234,7 @@ void Wireless::doSendData() {
 }
 
 void Wireless::handleReceivedData() {
+    return;
     uint8_t pipe = 0;
 
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
@@ -249,11 +249,14 @@ void Wireless::handleReceivedData() {
             struct DmxData_Header* header = (struct DmxData_Header*)Wireless::tmpBuf + 1;
 
             LOG("DmxData: Universe: %d, Compressed: %d, Chunk: %d", header->universeId, header->compression, header->chunkCounter);
-        }
 
-        // TODO: Proper patching handling, please
-        // Dirty workaround for RX demonstration. This will LOOP if the
-        // writing to the DMX buffer will trigger a TX action
-        //dmxBuffer.setBuffer(0, buffer, 3);
+            // TODO: Check if the universe received is patched somewhere. If not, just ignore this packet
+
+            // TODO: Assemble chunks in a temporary buffer
+            // TODO: Special handling for LAST chunk
+            // TODO: Check if CRC matches
+            // TODO: If compressed, uncompress
+            // TODO: Fulfil the patching, handing the complete DMX frame to the dmxBuffer patched
+        }
     }
 }

@@ -17,6 +17,8 @@ extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 extern Wireless wireless;
 
+extern char __StackLimit; /* Set by linker.  */
+
 base64_encodestate WebServer::b64Encode;
 base64_decodestate WebServer::b64Decode;
 uint8_t WebServer::tmpBuf[800]; // Used to store compressed data
@@ -175,9 +177,18 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         sscanf(ssi_tag_name, "DmxBuffer%dGet", &buffer);
         offset += sprintf(pcInsert + offset, "{\"buffer\":%d,\"value\":\"", buffer);
 
+        void* dummy;
+        dummy = malloc(1);
+        free(dummy);
+        LOG("malloc returned %08x PRE snappy. Stacklimit: %08x", dummy, __StackLimit);
+
         size_t actuallyRead = 0;
         size_t actuallyWritten = 800;
         snappy::RawCompress((const char *)dmxBuffer.buffer[buffer], 512, (char*)WebServer::tmpBuf, &actuallyWritten);
+
+        dummy = malloc(1);
+        free(dummy);
+        LOG("malloc returned %08x POST snappy. Stacklimit: %08x", dummy, __StackLimit);
 
         base64_init_encodestate(&WebServer::b64Encode);
         offset += base64_encode_block(WebServer::tmpBuf, actuallyWritten, pcInsert + offset, &WebServer::b64Encode);

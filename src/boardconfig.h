@@ -91,7 +91,7 @@ enum RadioRole : uint8_t {
 // Bit 11-15: Port:
 //   Ports 0-15 are the 16 physical ports of the IO boards
 //              Their direction is in the PortParams of the IO board config
-//   Ports 16-23 are the (at most) 8  IN ports of the USB host interface (board to host)
+//   Ports 16-23 are the (at most) 8 IN ports of the USB host interface (board to host)
 //              Their direction is in the usbProtocolDirections member of the active system config
 //   Ports 24-27 are 4 wireless-DMX ports IN to this board
 //   Ports 28-31 are 4 wireless-DMX ports OUT of this board
@@ -161,7 +161,7 @@ static const ConfigData constDefaultConfig = {
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::NodleU1,
-    .radioRole           = RadioRole::sniffer,
+    .radioRole           = RadioRole::broadcast,
     .radioChannel        = 0,
     .radioAddress        = 0,
     .statusLedBrightness = 20,

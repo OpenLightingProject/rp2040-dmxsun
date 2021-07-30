@@ -116,7 +116,7 @@ uint8_t const *tud_descriptor_device_cb(void) {
     desc_device.idVendor = 0x16C0;
     desc_device.idProduct = 0x088B;
   } else if (usbProtocol == 5) {
-    // Nodle U1 emulation
+    // ENTTEC USB Pro emulation
     desc_device.idVendor = 0x0403;
     desc_device.idProduct = 0xec70;
   }
