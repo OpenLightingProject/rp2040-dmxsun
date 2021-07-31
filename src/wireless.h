@@ -29,7 +29,7 @@ enum WirelessCommands : uint8_t {
 // 32 byte RF24 payload per packet MAX
 // 1 byte COMMAND
 // 1 byte "DmxData" chunk header (= universe & chunk counter)
-//     = 30 byte DMX data per packet maximun
+//     = 30 byte DMX data per packet maximum
 //       512 byte + 2 byte DmxData packet header (full/partial + offset/compressions) + 2 byte CRC
 //       = 516 Byte DmxData Playload
 //     516/30 = 18 packets MAX (= 540 byte)  => 5 bit required for the chunk counter => 32 possible values
