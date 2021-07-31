@@ -49,6 +49,8 @@ bool DmxBuffer::setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLeng
 
     uint16_t length = MAX(sourceLength, 512);
 
+    LOG("setBuffer Length: %d, Content: %02x %02x %02x %02x %02x %02x", sourceLength, source[0], source[1], source[2], source[3], source[4], source[5]);
+
     memset(this->buffer[bufferId], 0x00, 512);
     memcpy(this->buffer[bufferId], source, length);
 

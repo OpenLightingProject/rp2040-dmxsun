@@ -14,8 +14,14 @@ extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 
+uint16_t Wireless::packetLen;
+
 uint8_t Wireless::tmpBuf[800]; // Used to store compressed data
 uint8_t Wireless::tmpBuf2[800]; // Used to store UNcompressed data
+
+// TODO: Do we need one tmpBuf per incoming universe to assemble them?
+//       Or can we expect them to come in order?
+//       Currently using tmpBuf2 as assemble-buffer for ALL INCOMING packets + outgoing will overwrite them!
 
 RF24 rf24radio(PIN_RF24_CE, PIN_SPI_CS0);
 RF24Network rf24network(rf24radio);
@@ -24,6 +30,8 @@ RF24Mesh rf24mesh(rf24radio, rf24network);
 void Wireless::init() {
     SPI spi;
     int i = 0;
+
+    packetLen = 0;
 
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 
@@ -55,13 +63,16 @@ void Wireless::init() {
 
     // Depending on radioRole, more setup is required
     if (boardConfig.activeConfig->radioRole == RadioRole::broadcast) {
-        rf24radio.setPALevel(RF24_PA_LOW);
+        rf24radio.setPALevel(RF24_PA_MIN, true);
         rf24radio.setChannel(boardConfig.activeConfig->radioChannel);
+        rf24radio.setDataRate(RF24_2MBPS);
         rf24radio.enableDynamicPayloads();
-        rf24radio.enableAckPayload();
+        rf24radio.setAutoAck(true);
+        rf24radio.setCRCLength(RF24_CRC_8);
+        rf24radio.disableAckPayload();
         rf24radio.openWritingPipe((const uint8_t *)"DMXTX");
         rf24radio.openReadingPipe(1, (const uint8_t *)"DMXTX");
-        rf24radio.setRetries(0, 0);
+        rf24radio.setRetries(0, 5);
         rf24radio.startListening();
     } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
         LOG("RF24: Mesh setNodeID to %d", boardConfig.activeConfig->radioAddress);
@@ -138,13 +149,22 @@ void Wireless::doSendData() {
     bool success = false;
 
     Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
-    struct DmxData_Header* header = (struct DmxData_Header*)Wireless::tmpBuf2 + 1;
+    struct DmxData_PacketHeader* packetHeader;
+    struct DmxData_ChunkHeader* chunkHeader;
 
     size_t actuallyRead = 0;
     size_t actuallyWritten = 1000;
     size_t payloadSize = 0;
 
     int j = 0;
+
+    // TODO: Don't send all chunks of all universes at one here.
+    //       If we don't have someone receiving this gives too many retries
+    //       and failures, taking too long.
+    //       This results in bad latency on the tinyUSB network stack and
+    //       ultimately to failed USB writes, possibly crashing the host
+    //       Alternative: Run this function on core1?
+    //       OR: If one chunk didn't get an ACK, just don't bother with the remaining chunks. << Sounds good, DO IT :D
 
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
@@ -157,52 +177,67 @@ void Wireless::doSendData() {
                     // TODO: Move radio packet preparation to separate methods
                     //       so all radio modes can use it
 
-                    header->universeId = i;
-
                     // 1. Check if the buffer to be sent is all zeroes
+                    //    If so, don't create an actual packet, only send one special chunk
                     if (!memcmp(this->sendQueueData[i], DmxBuffer::allZeroes, 512)) {
-                        header->compression = 0;
-                        header->chunkCounter = DmxData_ChunkCounter::AllZero;
+                        chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf2 + 1;
+                        chunkHeader->universeId = i;
+                        chunkHeader->chunkCounter = DmxData_ChunkCounter::AllZero;
+                        chunkHeader->lastChunk = 1; // Strictly not needed
 
                         success = rf24radio.write(Wireless::tmpBuf2, 2);
 
                         LOG("doSendData: Sending allZeroes-Packet for universe %d Success: %d", i, success);
                     } else {
+                        packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf);
+
                         // 2. Compress the data
                         actuallyRead = 0;
-                        actuallyWritten = 1000;
-                        snappy::RawCompress((const char *)this->sendQueueData[i], 512, (char*)Wireless::tmpBuf, &actuallyWritten);
+                        actuallyWritten = 700;
+                        snappy::RawCompress((const char *)this->sendQueueData[i], 512, (char*)(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader)), &actuallyWritten);
 
                         if (actuallyWritten >= 512) {
-                            LOG("Compressed size: %d, sending uncompressed!", actuallyWritten);
-                            header->compression = 0;
-                            memcpy(Wireless::tmpBuf, this->sendQueueData[i], 512);
+                            LOG("Compressed size: %d => SENDING UNCOMPRESSED!", actuallyWritten);
+                            packetHeader->compressed = 0;
+                            memcpy(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader), this->sendQueueData[i], 512);
                             actuallyWritten = 512;
                         } else {
-                            header->compression = 1;
+                            packetHeader->compressed = 1;
                         }
 
-                        // TODO: Append some kind of CRC so the receivers know if they got all chunks
+                        // Increase the size of the packet by the prepended header
+                        actuallyWritten += sizeof(struct DmxData_PacketHeader);
+
+                        // Not yet supported
+                        packetHeader->partial = 0;
+                        packetHeader->partialOffset = 0;
+
+                        // TODO: Calculate some kind of CRC so the receivers know if they got all chunks
+                        //packetHeader->crc = XXX;
 
                         // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
+                        //    Use tmpBuf2 to construct the chunk
                         for (j = 0; j < 18; j++) {
                             Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
+                            chunkHeader = (DmxData_ChunkHeader*)(Wireless::tmpBuf2 + 1);
 
-                            header->chunkCounter = (DmxData_ChunkCounter)j;
+                            chunkHeader->universeId = i;
+                            chunkHeader->chunkCounter = (DmxData_ChunkCounter)j;
+                            chunkHeader->lastChunk = 0;
                             payloadSize = 30;
 
                             if ((j+1)*30 >= actuallyWritten) {
-                                header->chunkCounter = DmxData_ChunkCounter::LastPacket;
+                                chunkHeader->lastChunk = 1;
                                 payloadSize = actuallyWritten - j*30;
                             }
 
-                            memcpy(Wireless::tmpBuf2 + 2, this->sendQueueData[i] + j*30, payloadSize);
+                            memcpy(Wireless::tmpBuf2 + 2, Wireless::tmpBuf + j*30, payloadSize);
 
                             success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
 
-                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf[0]: %02x, buf[1]: %02x, buf[2]: %02x, Success: %d", actuallyWritten, header->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], success);
+                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success);
 
-                            if (header->chunkCounter == DmxData_ChunkCounter::LastPacket) {
+                            if (chunkHeader->lastChunk) {
                                 break;
                             }
                         }
@@ -234,29 +269,82 @@ void Wireless::doSendData() {
 }
 
 void Wireless::handleReceivedData() {
-    return;
     uint8_t pipe = 0;
+    size_t uncompressedLength;
 
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
         rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
-        rf24radio.writeAckPayload(0, Wireless::tmpBuf, 0);
+        //rf24radio.writeAckPayload(0, Wireless::tmpBuf, 0);
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
         if (Wireless::tmpBuf[0] == WirelessCommands::DmxData) {
-            struct DmxData_Header* header = (struct DmxData_Header*)Wireless::tmpBuf + 1;
+            struct DmxData_ChunkHeader* chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf + 1;
 
-            LOG("DmxData: Universe: %d, Compressed: %d, Chunk: %d", header->universeId, header->compression, header->chunkCounter);
+            LOG("DmxData: Universe: %d, Chunk: %d, LastChunk: %d", chunkHeader->universeId, chunkHeader->chunkCounter, chunkHeader->lastChunk);
 
-            // TODO: Check if the universe received is patched somewhere. If not, just ignore this packet
+            for (int i = 0; i < MAX_PATCHINGS; i++) {
+                Patching patching = boardConfig.activeConfig->patching[i];
+                if ((!patching.active) ||
+                    ((patching.port - 24) != chunkHeader->universeId) ||
+                    (!patching.direction))
+                {
+                    continue;
+                }
 
-            // TODO: Assemble chunks in a temporary buffer
-            // TODO: Special handling for LAST chunk
+                LOG("Wireless IN found patched to buffer %d", patching.buffer);
+
+                if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
+                    // Easy: Just clear the DmxBuffer
+                    dmxBuffer.zero(patching.buffer);
+                } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
+                    // Clear tmpBuf2 so the next chunk comes in clean
+                    memset(Wireless::tmpBuf2, 0x00, 800);
+                    packetLen = 0;
+
+                    memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, bytes - 2);
+                    packetLen += (bytes - 2);
+                } else {
+                    // Some intermediate packet: Just copy it to the tmpBuf and go ahead
+                    memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, bytes - 2);
+                    packetLen += (bytes - 2);
+
+                    // TODO: Remember which chunks actually came in
+
+                    if (chunkHeader->lastChunk) {                        
+                        LOG("LastPacket came in, assembly complete! packetLen is now %d", packetLen);
+
+                        struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)Wireless::tmpBuf2;
+
+                        // TODO: Check if all chunks have arrived and check CRC
+
+                        if (packetHeader->compressed) {
+                            // TODO: If compressed, uncompress ;)
+                            if (snappy::GetUncompressedLength((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, &uncompressedLength) == true) {
+                                LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
+                                // TODO: Sanity check, should ALWAYS be 512!
+                                if (snappy::RawUncompress((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, (char*)Wireless::tmpBuf) == true) {
+                                    dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf, uncompressedLength);
+                                } else {
+                                    LOG("snappy::RawUncompress failed :(");
+                                }
+                            } else {
+                                LOG("snappy::GetUncompressedLength failed :(");
+                            }
+                        } else {
+                            // TODO: Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
+                            dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
+                        }
+                        // TODO: Fulfil the patching, handing the complete DMX frame to the dmxBuffer patched
+                    }
+                }
+            }
+
+            // TODO: Assemble chunks in a temporary buffer, Special handling for LAST chunk
             // TODO: Check if CRC matches
-            // TODO: If compressed, uncompress
-            // TODO: Fulfil the patching, handing the complete DMX frame to the dmxBuffer patched
+
         }
     }
 }
