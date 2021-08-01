@@ -237,7 +237,8 @@ void Wireless::doSendData() {
 
                             LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success);
 
-                            if (chunkHeader->lastChunk) {
+                            // If this chunk didn't get any ACKs, don't send the following ones as well
+                            if ((chunkHeader->lastChunk) || (!success)) {
                                 break;
                             }
                         }

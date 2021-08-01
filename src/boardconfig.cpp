@@ -123,7 +123,6 @@ void BoardConfig::prepareConfig() {
         BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setLed(4, 255, 0, 255);
     }
-    sleep_ms(200);
     statusLeds.writeLeds();
 }
 

@@ -101,7 +101,7 @@ int main() {
     // Phase 1: Init the status LEDs
     statusLeds.init();
     statusLeds.setBrightness(20);
-    sleep_ms(200);
+    //sleep_ms(200);
     statusLeds.writeLeds();
 
     // Phase 2: Detect and read IO boards
@@ -121,6 +121,15 @@ int main() {
     tusb_init();
     stdio_usb_init();
     logger.init();
+
+    // Call tud_task() three times so the board can answer enumeration requests
+    // from the host
+    tud_task();
+    sleep_ms(10);
+    tud_task();
+    sleep_ms(10);
+    tud_task();
+    sleep_ms(10);
 
     // Phase 6: Fire up the integrated web server
     webServer.init();
@@ -148,12 +157,9 @@ int main() {
     while (true) {
         tud_task();
         webServer.cyclicTask();
-#ifdef USB_QUEUE
-        usb_processQueue();
-#endif
         wireless.cyclicTask();
         led_blinking_task();
-        sleep_ms(1);
+        sleep_us(10);
     }
 };
 
