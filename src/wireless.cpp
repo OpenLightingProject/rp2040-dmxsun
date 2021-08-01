@@ -43,7 +43,7 @@ void Wireless::init() {
         if (i > 5) {
             break;
         }
-        sleep_ms(100);
+        sleep_ms(50);
         result = rf24radio.begin(&spi);
     }
 
@@ -63,7 +63,7 @@ void Wireless::init() {
 
     // Depending on radioRole, more setup is required
     if (boardConfig.activeConfig->radioRole == RadioRole::broadcast) {
-        rf24radio.setPALevel(RF24_PA_MIN, true);
+        rf24radio.setPALevel(RF24_PA_MAX, true);
         rf24radio.setChannel(boardConfig.activeConfig->radioChannel);
         rf24radio.setDataRate(RF24_2MBPS);
         rf24radio.enableDynamicPayloads();
@@ -72,7 +72,7 @@ void Wireless::init() {
         rf24radio.disableAckPayload();
         rf24radio.openWritingPipe((const uint8_t *)"DMXTX");
         rf24radio.openReadingPipe(1, (const uint8_t *)"DMXTX");
-        rf24radio.setRetries(0, 5);
+        rf24radio.setRetries(0, 8);
         rf24radio.startListening();
     } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
         LOG("RF24: Mesh setNodeID to %d", boardConfig.activeConfig->radioAddress);
@@ -147,6 +147,7 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
 
 void Wireless::doSendData() {
     bool success = false;
+    uint8_t automaticRetryCount = 0;
 
     Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
     struct DmxData_PacketHeader* packetHeader;
@@ -157,14 +158,6 @@ void Wireless::doSendData() {
     size_t payloadSize = 0;
 
     int j = 0;
-
-    // TODO: Don't send all chunks of all universes at one here.
-    //       If we don't have someone receiving this gives too many retries
-    //       and failures, taking too long.
-    //       This results in bad latency on the tinyUSB network stack and
-    //       ultimately to failed USB writes, possibly crashing the host
-    //       Alternative: Run this function on core1?
-    //       OR: If one chunk didn't get an ACK, just don't bother with the remaining chunks. << Sounds good, DO IT :D
 
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
@@ -234,8 +227,9 @@ void Wireless::doSendData() {
                             memcpy(Wireless::tmpBuf2 + 2, Wireless::tmpBuf + j*30, payloadSize);
 
                             success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
+                            automaticRetryCount = rf24radio.getARC();
 
-                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success);
+                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d, Retries: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success, automaticRetryCount);
 
                             // If this chunk didn't get any ACKs, don't send the following ones as well
                             if ((chunkHeader->lastChunk) || (!success)) {
@@ -322,7 +316,7 @@ void Wireless::handleReceivedData() {
                         // TODO: Check if all chunks have arrived and check CRC
 
                         if (packetHeader->compressed) {
-                            // TODO: If compressed, uncompress ;)
+                            // If compressed, uncompress ;)
                             if (snappy::GetUncompressedLength((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, &uncompressedLength) == true) {
                                 LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
                                 // TODO: Sanity check, should ALWAYS be 512!
@@ -338,13 +332,9 @@ void Wireless::handleReceivedData() {
                             // TODO: Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
                             dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
                         }
-                        // TODO: Fulfil the patching, handing the complete DMX frame to the dmxBuffer patched
                     }
                 }
             }
-
-            // TODO: Assemble chunks in a temporary buffer, Special handling for LAST chunk
-            // TODO: Check if CRC matches
 
         }
     }
