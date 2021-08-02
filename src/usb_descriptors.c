@@ -48,6 +48,9 @@ enum
 };
 
 // Available interfaces
+// ATTENTION: The order here seems to be VERY important!
+// HID not in first place => OLA won't work
+// RNDIS not in first place => Windows is not able to start the interface!
 enum {
     ITF_NUM_HID,
     ITF_NUM_CDC_ACM_CMD,
@@ -63,10 +66,11 @@ enum {
 // - MacOS only works with CDC-ECM
 // - Linux will work on both
 // Note index is Num-1x
+// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
+//       So we only support RNDIS for now :(
 enum
 {
-  CONFIG_ID_RNDIS = 0,
-  CONFIG_ID_ECM   = 1,
+  CONFIG_ID_NCM   = 0,
   CONFIG_ID_COUNT
 };
 
@@ -144,8 +148,9 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 // TODO: Those will probably have to change, depending on USB emulation selected!
-#define  CONFIG_RNDIS_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_RNDIS_DESC_LEN)
-#define  CONFIG_ECM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_ECM_DESC_LEN)
+//#define  CONFIG_RNDIS_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_RNDIS_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN)
+//#define  CONFIG_ECM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_ECM_DESC_LEN)
+#define  CONFIG_NCM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_NCM_DESC_LEN)
 
 #define EPNUM_HID_OUT            0x02
 #define EPNUM_HID_IN             0x81
@@ -160,11 +165,15 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 #define EPNUM_CDC_ECM_OUT        0x06
 #define EPNUM_CDC_ECM_IN         0x86
 
+/*
 uint8_t const rndis_configuration[] =
 {
     // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(CONFIG_ID_RNDIS+1, ITF_NUM_TOTAL, 0, CONFIG_RNDIS_TOTAL_LEN,
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
+
+    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, EPNUM_CDC_ECM_CMD, 8, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE),
 
     // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
     TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
@@ -175,15 +184,16 @@ uint8_t const rndis_configuration[] =
     TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_ACM_CMD, STRID_CDC_ACM_IFNAME, EPNUM_CDC_ACM_CMD,
         USBD_CDC_CMD_MAX_SIZE, EPNUM_CDC_ACM_OUT, EPNUM_CDC_ACM_IN,
         USBD_CDC_IN_OUT_MAX_SIZE),
-
-    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, EPNUM_CDC_ECM_CMD, 8, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE),
 };
+*/
 
+/*
+// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
+//       So we only support RNDIS for now :(
 uint8_t const ecm_configuration[] =
 {
     // Config number, interface count, string index, total length, attribute, power in mA
-    TUD_CONFIG_DESCRIPTOR(CONFIG_ID_RNDIS+1, ITF_NUM_TOTAL, 0, CONFIG_RNDIS_TOTAL_LEN,
+    TUD_CONFIG_DESCRIPTOR(CONFIG_ID_ECM+1, ITF_NUM_TOTAL, 0, CONFIG_ECM_TOTAL_LEN,
         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
 
     // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
@@ -199,16 +209,40 @@ uint8_t const ecm_configuration[] =
     // Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
     TUD_CDC_ECM_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, STRID_MAC, EPNUM_CDC_ECM_CMD, 64, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
 };
+*/
+
+uint8_t const ncm_configuration[] =
+{
+    // Config number, interface count, string index, total length, attribute, power in mA
+    TUD_CONFIG_DESCRIPTOR(CONFIG_ID_NCM+1, ITF_NUM_TOTAL, 0, CONFIG_NCM_TOTAL_LEN,
+        TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
+
+    // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
+    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
+        sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
+        CFG_TUD_HID_BUFSIZE, 5),
+
+    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_ACM_CMD, STRID_CDC_ACM_IFNAME, EPNUM_CDC_ACM_CMD,
+        USBD_CDC_CMD_MAX_SIZE, EPNUM_CDC_ACM_OUT, EPNUM_CDC_ACM_IN,
+        USBD_CDC_IN_OUT_MAX_SIZE),
+
+    // Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
+    TUD_CDC_NCM_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, STRID_MAC, EPNUM_CDC_ECM_CMD, 64, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
+};
 
 // Configuration array: RNDIS and CDC-ECM
 // - Windows only works with RNDIS
 // - MacOS only works with CDC-ECM
 // - Linux will work on both
 // Note index is Num-1x
-static uint8_t const * const configuration_arr[2] =
+// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
+//       So we only support RNDIS for now :(
+static uint8_t const * const configuration_arr[1] =
 {
-  [CONFIG_ID_RNDIS] = rndis_configuration,
-  [CONFIG_ID_ECM  ] = ecm_configuration
+  //[CONFIG_ID_RNDIS] = rndis_configuration,
+  //[CONFIG_ID_ECM  ] = ecm_configuration,
+  [CONFIG_ID_NCM  ] = ncm_configuration,
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -262,7 +296,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
       char product[64];
       uint32_t ip = getOwnIp();
       str = product;
-      snprintf(product, 64, "Visit http://%d.%d.%d.%d/",
+      snprintf(product, 64, "rp2040-dongle http://%d.%d.%d.%d/",
         (uint8_t)(ip& 0xff),
         (uint8_t)((ip >> 8) & 0xff),
         (uint8_t)((ip >> 16) & 0xff),

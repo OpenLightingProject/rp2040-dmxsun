@@ -49,26 +49,21 @@ ip_addr_t hostIp;
 ip_addr_t anyIp;
 dhcp_config_t dhcp_config;
 
+void flatten(void *arg, uint8_t *buffer, uint16_t size) {
+    pbuf_copy_partial(arg, buffer, size, 0);
+}
+
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
 {
     (void)netif;
     
-    for (;;)
-    {
-      /* if TinyUSB isn't ready, we must signal back to lwip that there is nothing we can do */
-      if (!tud_ready())
+    /* if TinyUSB isn't ready, we must signal back to lwip that there is nothing we can do */
+    if (!tud_ready()) {
         return ERR_USE;
-    
-      /* if the network driver can accept another packet, we make it happen */
-      if (tud_network_can_xmit())
-      {
-        tud_network_xmit(p, 0 /* unused for this example */);
-        return ERR_OK;
-      }
-    
-      /* transfer execution to TinyUSB in the hopes that it will finish transmitting the prior packet */
-      tud_task();
     }
+
+    tud_ncm_xmit(p, p->tot_len, flatten);
+    return ERR_OK;
 }
 
 static err_t output_fn(struct netif *netif, struct pbuf *p, const ip_addr_t *addr)
@@ -147,6 +142,16 @@ bool tud_network_recv_cb(const uint8_t *src, uint16_t size)
     return true;
 }
 
+// NCM functions
+void tud_ncm_receive_cb(uint8_t *data, size_t length) {
+    tud_network_recv_cb(data, length);
+}
+
+void tud_ncm_link_state_cb(bool state) {
+    return;
+}
+// /NCM functions
+
 uint16_t tud_network_xmit_cb(uint8_t *dst, void *ref, uint16_t arg)
 {
     struct pbuf *p = (struct pbuf *)ref;
@@ -175,7 +180,7 @@ void service_traffic(void)
       ethernet_input(received_frame, &netif_data);
       pbuf_free(received_frame);
       received_frame = NULL;
-      tud_network_recv_renew();
+      //tud_network_recv_renew();
     }
     
     sys_check_timeouts();
@@ -192,7 +197,7 @@ void dhcpd_init()
     dhcp_config.router = anyIp;    /* router address (if any) */
     dhcp_config.port = 67;         /* listen port */
     dhcp_config.dns = anyIp;       /* dns server (if any) */
-    dhcp_config.domain = "";       /* dns suffix */
+    dhcp_config.domain = "localDmx";       /* dns suffix */
     dhcp_config.num_entry = 1;     /* num entry */
     dhcp_config.entries = entries; /* entries */
 
