@@ -49,21 +49,27 @@ ip_addr_t hostIp;
 ip_addr_t anyIp;
 dhcp_config_t dhcp_config;
 
-void flatten(void *arg, uint8_t *buffer, uint16_t size) {
-    pbuf_copy_partial(arg, buffer, size, 0);
-}
-
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
 {
     (void)netif;
-    
-    /* if TinyUSB isn't ready, we must signal back to lwip that there is nothing we can do */
-    if (!tud_ready()) {
-        return ERR_USE;
-    }
 
-    tud_ncm_xmit(p, p->tot_len, flatten);
-    return ERR_OK;
+    for (;;)
+    {
+        /* if TinyUSB isn't ready, we must signal back to lwip that there is nothing we can do */
+        if (!tud_ready()) {
+            return ERR_USE;
+        }
+
+        /* if the network driver can accept another packet, we make it happen */
+        if (tud_network_can_xmit(p->tot_len))
+        {
+          tud_network_xmit(p, 0 /* unused for this example */);
+          return ERR_OK;
+        }
+    
+      /* transfer execution to TinyUSB in the hopes that it will finish transmitting the prior packet */
+      tud_task();
+     }
 }
 
 static err_t output_fn(struct netif *netif, struct pbuf *p, const ip_addr_t *addr)
@@ -142,34 +148,15 @@ bool tud_network_recv_cb(const uint8_t *src, uint16_t size)
     return true;
 }
 
-// NCM functions
-void tud_ncm_receive_cb(uint8_t *data, size_t length) {
-    tud_network_recv_cb(data, length);
-}
-
-void tud_ncm_link_state_cb(bool state) {
-    return;
-}
-// /NCM functions
-
 uint16_t tud_network_xmit_cb(uint8_t *dst, void *ref, uint16_t arg)
 {
     struct pbuf *p = (struct pbuf *)ref;
-    struct pbuf *q;
-    uint16_t len = 0;
 
     (void)arg; /* unused for this example */
 
-    /* traverse the "pbuf chain"; see ./lwip/src/core/pbuf.c for more info */
-    for(q = p; q != NULL; q = q->next)
-    {
-        memcpy(dst, (char *)q->payload, q->len);
-        dst += q->len;
-        len += q->len;
-        if (q->len == q->tot_len) break;
-    }
+    pbuf_copy_partial(p, dst, p->tot_len, 0);
 
-    return len;
+    return p->tot_len;
 }
 
 void service_traffic(void)
@@ -180,7 +167,7 @@ void service_traffic(void)
       ethernet_input(received_frame, &netif_data);
       pbuf_free(received_frame);
       received_frame = NULL;
-      //tud_network_recv_renew();
+      tud_network_recv_renew();
     }
     
     sys_check_timeouts();

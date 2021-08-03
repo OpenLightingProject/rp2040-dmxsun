@@ -44,7 +44,8 @@ enum
   STRID_SERIAL,
   STRID_CDC_ACM_IFNAME,
   STRID_CDC_ECM_IFNAME,
-  STRID_MAC
+  STRID_MAC,
+  STRID_VENDOR,
 };
 
 // Available interfaces
@@ -57,6 +58,7 @@ enum {
     ITF_NUM_CDC_ACM_DATA,
     ITF_NUM_CDC_ECM_CMD,
     ITF_NUM_CDC_ECM_DATA,
+    ITF_NUM_VENDOR,
     ITF_NUM_TOTAL
 };
 
@@ -81,21 +83,23 @@ tusb_desc_device_t desc_device =
 {
     .bLength            = sizeof(tusb_desc_device_t),
     .bDescriptorType    = TUSB_DESC_DEVICE,
-    .bcdUSB             = 0x0200,
+    .bcdUSB             = 0x0210,
 
     // Use Interface Association Descriptor (IAD) for CDC
     // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
     .bDeviceClass       = TUSB_CLASS_MISC,
     .bDeviceSubClass    = MISC_SUBCLASS_COMMON,
     .bDeviceProtocol    = MISC_PROTOCOL_IAD,
-
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
+
     .idVendor           = DEFAULT_VID, // Possibly overwritten by function below
     .idProduct          = DEFAULT_PID, // Possibly overwritten by function below
     .bcdDevice          = VERSION_BCD,
+
     .iManufacturer      = STRID_MANUFACTURER,
     .iProduct           = STRID_PRODUCT,
     .iSerialNumber      = STRID_SERIAL,
+
     .bNumConfigurations = CONFIG_ID_COUNT
 };
 
@@ -150,7 +154,8 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 // TODO: Those will probably have to change, depending on USB emulation selected!
 //#define  CONFIG_RNDIS_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_RNDIS_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN)
 //#define  CONFIG_ECM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_ECM_DESC_LEN)
-#define  CONFIG_NCM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_NCM_DESC_LEN)
+
+#define  CONFIG_NCM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_NCM_DESC_LEN + TUD_VENDOR_DESC_LEN)
 
 #define EPNUM_HID_OUT            0x02
 #define EPNUM_HID_IN             0x81
@@ -164,6 +169,9 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 #define EPNUM_CDC_ECM_CMD        0x85
 #define EPNUM_CDC_ECM_OUT        0x06
 #define EPNUM_CDC_ECM_IN         0x86
+
+#define EPNUM_VENDOR_OUT         0x07
+#define EPNUM_VENDOR_IN          0x87
 
 /*
 uint8_t const rndis_configuration[] =
@@ -229,6 +237,9 @@ uint8_t const ncm_configuration[] =
 
     // Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
     TUD_CDC_NCM_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, STRID_MAC, EPNUM_CDC_ECM_CMD, 64, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
+
+    // Interface number, string index, EP Out & IN address, EP size
+    TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, STRID_VENDOR, EPNUM_VENDOR_OUT, EPNUM_VENDOR_IN, 64),
 };
 
 // Configuration array: RNDIS and CDC-ECM
@@ -254,6 +265,138 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 }
 
 //--------------------------------------------------------------------+
+// BOS Descriptor
+//--------------------------------------------------------------------+
+
+/* Microsoft OS 2.0 registry property descriptor
+Per MS requirements https://msdn.microsoft.com/en-us/library/windows/hardware/hh450799(v=vs.85).aspx
+device should create DeviceInterfaceGUIDs. It can be done by driver and
+in case of real PnP solution device should expose MS "Microsoft OS 2.0
+registry property descriptor". Such descriptor can insert any record
+into Windows registry per device/configuration/interface. In our case it
+will insert "DeviceInterfaceGUIDs" multistring property.
+GUID is freshly generated and should be OK to use.
+https://developers.google.com/web/fundamentals/native-hardware/build-for-webusb/
+(Section Microsoft OS compatibility descriptors)
+*/
+
+enum
+{
+  VENDOR_REQUEST_WEBUSB = 1,
+  VENDOR_REQUEST_MICROSOFT = 2
+};
+
+#define BOS_TOTAL_LEN      (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
+
+#define MS_OS_20_DESC_LEN  0xB2
+
+// BOS Descriptor is required for webUSB
+uint8_t const desc_bos[] =
+{
+  // total length, number of device caps
+  TUD_BOS_DESCRIPTOR(BOS_TOTAL_LEN, 2),
+
+  // Vendor Code, iLandingPage
+  TUD_BOS_WEBUSB_DESCRIPTOR(VENDOR_REQUEST_WEBUSB, 1),
+
+  // Microsoft OS 2.0 descriptor
+  TUD_BOS_MS_OS_20_DESCRIPTOR(MS_OS_20_DESC_LEN, VENDOR_REQUEST_MICROSOFT)
+};
+
+uint8_t const * tud_descriptor_bos_cb(void)
+{
+  return desc_bos;
+}
+
+
+uint8_t const desc_ms_os_20[] =
+{
+  // Set header: length, type, windows version, total length
+  U16_TO_U8S_LE(0x000A), U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR), U32_TO_U8S_LE(0x06030000), U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
+
+  // Configuration subset header: length, type, configuration index, reserved, configuration total length
+  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION), 0, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A),
+
+  // Function Subset header: length, type, first interface, reserved, subset length
+  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_VENDOR, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08),
+
+  // MS OS 2.0 Compatible ID descriptor: length, type, compatible ID, sub compatible ID
+  U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID), 'W', 'I', 'N', 'N', 'C', 'M', 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // sub-compatible
+
+  // MS OS 2.0 Registry property descriptor: length, type
+  U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08-0x08-0x14), U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
+  U16_TO_U8S_LE(0x0007), U16_TO_U8S_LE(0x002A), // wPropertyDataType, wPropertyNameLength and PropertyName "DeviceInterfaceGUIDs\0" in UTF-16
+  'D', 0x00, 'e', 0x00, 'v', 0x00, 'i', 0x00, 'c', 0x00, 'e', 0x00, 'I', 0x00, 'n', 0x00, 't', 0x00, 'e', 0x00,
+  'r', 0x00, 'f', 0x00, 'a', 0x00, 'c', 0x00, 'e', 0x00, 'G', 0x00, 'U', 0x00, 'I', 0x00, 'D', 0x00, 's', 0x00, 0x00, 0x00,
+  U16_TO_U8S_LE(0x0050), // wPropertyDataLength
+	//bPropertyData: “{975F44D9-0D08-43FD-8B3E-127CA8AFFF9D}”.
+  '{', 0x00, '9', 0x00, '7', 0x00, '5', 0x00, 'F', 0x00, '4', 0x00, '4', 0x00, 'D', 0x00, '9', 0x00, '-', 0x00,
+  '0', 0x00, 'D', 0x00, '0', 0x00, '8', 0x00, '-', 0x00, '4', 0x00, '3', 0x00, 'F', 0x00, 'D', 0x00, '-', 0x00,
+  '8', 0x00, 'B', 0x00, '3', 0x00, 'E', 0x00, '-', 0x00, '1', 0x00, '2', 0x00, '7', 0x00, 'C', 0x00, 'A', 0x00,
+  '8', 0x00, 'A', 0x00, 'F', 0x00, 'F', 0x00, 'F', 0x00, '9', 0x00, 'D', 0x00, '}', 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+TU_VERIFY_STATIC(sizeof(desc_ms_os_20) == MS_OS_20_DESC_LEN, "Incorrect size");
+
+//--------------------------------------------------------------------+
+// WebUSB use vendor class
+//--------------------------------------------------------------------+
+
+// TODO
+#define URL  "169.254.230.1"
+
+const tusb_desc_webusb_url_t desc_url =
+{
+  .bLength         = 3 + sizeof(URL) - 1,
+  .bDescriptorType = 3, // WEBUSB URL type
+  .bScheme         = 0, // 0: http, 1: https
+  .url             = URL
+};
+
+// Invoked when a control transfer occurred on an interface of this class
+// Driver response accordingly to the request and the transfer stage (setup/data/ack)
+// return false to stall control endpoint (e.g unsupported request)
+bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request)
+{
+  // nothing to with DATA & ACK stage
+  if (stage != CONTROL_STAGE_SETUP) {
+    return true;
+  }
+
+  switch (request->bmRequestType_bit.type)
+  {
+    case TUSB_REQ_TYPE_VENDOR:
+      switch (request->bRequest)
+      {
+        case VENDOR_REQUEST_WEBUSB:
+          // match vendor request in BOS descriptor
+          // Get landing page url
+          return tud_control_xfer(rhport, request, (void*) &desc_url, desc_url.bLength);
+
+        case VENDOR_REQUEST_MICROSOFT:
+          if ( request->wIndex == 7 ) {
+            // Get Microsoft OS 2.0 compatible descriptor
+            uint16_t total_len;
+            memcpy(&total_len, desc_ms_os_20+8, 2);
+
+            return tud_control_xfer(rhport, request, (void*) desc_ms_os_20, total_len);
+          } else {
+            return false;
+          }
+
+        default: break;
+      }
+    break;
+
+    default: break;
+  }
+
+  // stall unknown request
+  return false;
+}
+
+//--------------------------------------------------------------------+
 // String Descriptors
 //--------------------------------------------------------------------+
 
@@ -266,7 +409,8 @@ char const *string_desc_arr[] =
     [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",             // 3: Serial, fallback here, it's dynamically created later
     [STRID_CDC_ACM_IFNAME] = "Debugging Console",                   // 4: CDC ACM interface name
     [STRID_CDC_ECM_IFNAME] = "Network Interface",                   // 5: CDC ECM interface name, also handled in tud_descriptor_string_cb
-    [STRID_MAC]            = "000000000000"                         // 6: MAC address is handled in tud_descriptor_string_cb
+    [STRID_MAC]            = "000000000000",                        // 6: MAC address is handled in tud_descriptor_string_cb
+    [STRID_VENDOR]         = "WebUSB"                               // 7: Vendor Interface
 };
 
 static uint16_t _desc_str[128];
