@@ -43,7 +43,7 @@ enum
   STRID_PRODUCT,
   STRID_SERIAL,
   STRID_CDC_ACM_IFNAME,
-  STRID_CDC_ECM_IFNAME,
+  STRID_CDC_NCM_IFNAME,
   STRID_MAC,
   STRID_VENDOR,
 };
@@ -51,25 +51,18 @@ enum
 // Available interfaces
 // ATTENTION: The order here seems to be VERY important!
 // HID not in first place => OLA won't work
-// RNDIS not in first place => Windows is not able to start the interface!
 enum {
     ITF_NUM_HID,
     ITF_NUM_CDC_ACM_CMD,
     ITF_NUM_CDC_ACM_DATA,
-    ITF_NUM_CDC_ECM_CMD,
-    ITF_NUM_CDC_ECM_DATA,
+    ITF_NUM_CDC_NCM_CMD,
+    ITF_NUM_CDC_NCM_DATA,
     ITF_NUM_VENDOR,
     ITF_NUM_TOTAL
 };
 
 // Available configurations
-// Configuration array: RNDIS and CDC-ECM
-// - Windows only works with RNDIS
-// - MacOS only works with CDC-ECM
-// - Linux will work on both
-// Note index is Num-1x
-// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
-//       So we only support RNDIS for now :(
+// Since NCM works on Linux, macOS and Windows hosts, we just have one config
 enum
 {
   CONFIG_ID_NCM   = 0,
@@ -152,8 +145,6 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 // TODO: Those will probably have to change, depending on USB emulation selected!
-//#define  CONFIG_RNDIS_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_RNDIS_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN)
-//#define  CONFIG_ECM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_ECM_DESC_LEN)
 
 #define  CONFIG_NCM_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_CDC_NCM_DESC_LEN + TUD_VENDOR_DESC_LEN)
 
@@ -166,58 +157,12 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
 #define USBD_CDC_CMD_MAX_SIZE       8
 #define USBD_CDC_IN_OUT_MAX_SIZE   64
 
-#define EPNUM_CDC_ECM_CMD        0x85
-#define EPNUM_CDC_ECM_OUT        0x06
-#define EPNUM_CDC_ECM_IN         0x86
+#define EPNUM_CDC_NCM_CMD        0x85
+#define EPNUM_CDC_NCM_OUT        0x06
+#define EPNUM_CDC_NCM_IN         0x86
 
 #define EPNUM_VENDOR_OUT         0x07
 #define EPNUM_VENDOR_IN          0x87
-
-/*
-uint8_t const rndis_configuration[] =
-{
-    // Config number, interface count, string index, total length, attribute, power in mA
-    TUD_CONFIG_DESCRIPTOR(CONFIG_ID_RNDIS+1, ITF_NUM_TOTAL, 0, CONFIG_RNDIS_TOTAL_LEN,
-        TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
-
-    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, EPNUM_CDC_ECM_CMD, 8, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE),
-
-    // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
-        sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
-        CFG_TUD_HID_BUFSIZE, 5),
-
-    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_ACM_CMD, STRID_CDC_ACM_IFNAME, EPNUM_CDC_ACM_CMD,
-        USBD_CDC_CMD_MAX_SIZE, EPNUM_CDC_ACM_OUT, EPNUM_CDC_ACM_IN,
-        USBD_CDC_IN_OUT_MAX_SIZE),
-};
-*/
-
-/*
-// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
-//       So we only support RNDIS for now :(
-uint8_t const ecm_configuration[] =
-{
-    // Config number, interface count, string index, total length, attribute, power in mA
-    TUD_CONFIG_DESCRIPTOR(CONFIG_ID_ECM+1, ITF_NUM_TOTAL, 0, CONFIG_ECM_TOTAL_LEN,
-        TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
-
-    // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-    TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE,
-        sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID_IN,
-        CFG_TUD_HID_BUFSIZE, 5),
-
-    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_ACM_CMD, STRID_CDC_ACM_IFNAME, EPNUM_CDC_ACM_CMD,
-        USBD_CDC_CMD_MAX_SIZE, EPNUM_CDC_ACM_OUT, EPNUM_CDC_ACM_IN,
-        USBD_CDC_IN_OUT_MAX_SIZE),
-
-    // Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
-    TUD_CDC_ECM_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, STRID_MAC, EPNUM_CDC_ECM_CMD, 64, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
-};
-*/
 
 uint8_t const ncm_configuration[] =
 {
@@ -236,24 +181,10 @@ uint8_t const ncm_configuration[] =
         USBD_CDC_IN_OUT_MAX_SIZE),
 
     // Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
-    TUD_CDC_NCM_DESCRIPTOR(ITF_NUM_CDC_ECM_CMD, STRID_CDC_ECM_IFNAME, STRID_MAC, EPNUM_CDC_ECM_CMD, 64, EPNUM_CDC_ECM_OUT, EPNUM_CDC_ECM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
+    TUD_CDC_NCM_DESCRIPTOR(ITF_NUM_CDC_NCM_CMD, STRID_CDC_NCM_IFNAME, STRID_MAC, EPNUM_CDC_NCM_CMD, 64, EPNUM_CDC_NCM_OUT, EPNUM_CDC_NCM_IN, CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
 
     // Interface number, string index, EP Out & IN address, EP size
     TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, STRID_VENDOR, EPNUM_VENDOR_OUT, EPNUM_VENDOR_IN, 64),
-};
-
-// Configuration array: RNDIS and CDC-ECM
-// - Windows only works with RNDIS
-// - MacOS only works with CDC-ECM
-// - Linux will work on both
-// Note index is Num-1x
-// TODO: ECM support via 2nd config seems to break Windows USB enumeration ...
-//       So we only support RNDIS for now :(
-static uint8_t const * const configuration_arr[1] =
-{
-  //[CONFIG_ID_RNDIS] = rndis_configuration,
-  //[CONFIG_ID_ECM  ] = ecm_configuration,
-  [CONFIG_ID_NCM  ] = ncm_configuration,
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -261,7 +192,8 @@ static uint8_t const * const configuration_arr[1] =
 // Descriptor contents must exist long enough for transfer to complete
 uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 {
-  return (index < CONFIG_ID_COUNT) ? configuration_arr[index] : NULL;
+    (void) index; // for multiple configurations
+    return ncm_configuration;
 }
 
 //--------------------------------------------------------------------+
@@ -318,7 +250,7 @@ uint8_t const desc_ms_os_20[] =
   U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION), 0, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A),
 
   // Function Subset header: length, type, first interface, reserved, subset length
-  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_VENDOR, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08),
+  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_CDC_NCM_CMD, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08),
 
   // MS OS 2.0 Compatible ID descriptor: length, type, compatible ID, sub compatible ID
   U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID), 'W', 'I', 'N', 'N', 'C', 'M', 0x00, 0x00,
@@ -406,9 +338,9 @@ char const *string_desc_arr[] =
     [STRID_LANGID]         = (const char[]) {0x09, 0x04},           // 0: is supported language is English (0x0409)
     [STRID_MANUFACTURER]   = "OpenLightingProject",                 // 1: Manufacturer
     [STRID_PRODUCT]        = "rp2040-dongle http://255.255.255.255",// 2: Product
-    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",             // 3: Serial, fallback here, it's dynamically created later
+    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",             // 3: Serial, fallback here, it's dynamically created in tud_descriptor_string_cb
     [STRID_CDC_ACM_IFNAME] = "Debugging Console",                   // 4: CDC ACM interface name
-    [STRID_CDC_ECM_IFNAME] = "Network Interface",                   // 5: CDC ECM interface name, also handled in tud_descriptor_string_cb
+    [STRID_CDC_NCM_IFNAME] = "Network Interface",                   // 5: CDC NCM interface name
     [STRID_MAC]            = "000000000000",                        // 6: MAC address is handled in tud_descriptor_string_cb
     [STRID_VENDOR]         = "WebUSB"                               // 7: Vendor Interface
 };
