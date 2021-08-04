@@ -25,7 +25,7 @@ jobs:
     - name: Clone pico-sdk
       uses: actions/checkout@v2
       with:
-        ## Offical one:
+        ## Official one:
         #repository: raspberrypi/pico-sdk
         #ref: 1.2.0
         ## Uses "NCM" branch of TinyUSB:
