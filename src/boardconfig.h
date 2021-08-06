@@ -78,6 +78,8 @@ enum RadioRole : uint8_t {
     // APE_RX                    = 6,
     // D-Fi_TX                   = 7,
     // D-Fi_RX                   = 8,
+    // Cameo_WDMX_TX             = 9,
+    // Cameo_WDMX_RX             = 10,
 };
 
 // Bit 0: 0 = inactive, 1 = active
@@ -162,7 +164,7 @@ static const ConfigData constDefaultConfig = {
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::NodleU1,
     .radioRole           = RadioRole::broadcast,
-    .radioChannel        = 0,
+    .radioChannel        = 99,
     .radioAddress        = 0,
     .statusLedBrightness = 20,
 };
@@ -180,7 +182,7 @@ class BoardConfig {
 
   private:
     bool responding[4];       // True if the board resonded to the bus scan
-    uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each
+    uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each)
 };
 
 #endif // __cplusplus

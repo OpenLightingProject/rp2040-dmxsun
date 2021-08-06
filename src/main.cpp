@@ -19,15 +19,6 @@ extern "C" {
 #include "stdio_usb.h"
 }
 
-// TODO: Should we have some human- or machine-friendly, interactive console
-//       via CDC ACM "serial" terminal? We could at least get/set the buffer values
-//       and request all info as JSON or better readable that the web server 
-//       provides via the API. However, the user could just use the web API
-//       right away.
-//       For now, logs are printed to the CDC ACM terminal
-//       Was: acminterface.c/.h
-//#include "acminterface.h"
-
 #include "log.h"
 #include "dmxbuffer.h"
 #include "statusleds.h"
@@ -71,9 +62,6 @@ WebServer webServer;
 Wireless wireless;
 
 void led_blinking_task(void);
-
-// TODO: Temporarily here to test if it even works better
-void usb_processQueue();
 
 // Board init sequence:
 // 1. Status LEDs
@@ -121,15 +109,6 @@ int main() {
     tusb_init();
     stdio_usb_init();
     logger.init();
-
-    // Call tud_task() three times so the board can answer enumeration requests
-    // from the host
-    tud_task();
-    sleep_ms(10);
-    tud_task();
-    sleep_ms(10);
-    tud_task();
-    sleep_ms(10);
 
     // Phase 6: Fire up the integrated web server
     webServer.init();

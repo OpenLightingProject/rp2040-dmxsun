@@ -232,6 +232,7 @@ void Wireless::doSendData() {
                             LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d, Retries: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success, automaticRetryCount);
 
                             // If this chunk didn't get any ACKs, don't send the following ones as well
+                            // Since no one can re-assemble that packet and it just wastes our time
                             if ((chunkHeader->lastChunk) || (!success)) {
                                 break;
                             }
@@ -267,11 +268,13 @@ void Wireless::handleReceivedData() {
     uint8_t pipe = 0;
     size_t uncompressedLength;
 
+    // TODO: Check for radio mode
+
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
         rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
-        //rf24radio.writeAckPayload(0, Wireless::tmpBuf, 0);
+        // No need to manually send an ACK since autoAck is beeing used
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
@@ -319,7 +322,12 @@ void Wireless::handleReceivedData() {
                             // If compressed, uncompress ;)
                             if (snappy::GetUncompressedLength((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, &uncompressedLength) == true) {
                                 LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
-                                // TODO: Sanity check, should ALWAYS be 512!
+
+                                // Sanity check: uncompressedLength must be 512
+                                if (uncompressedLength != 512) {
+                                    return;
+                                }
+
                                 if (snappy::RawUncompress((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, (char*)Wireless::tmpBuf) == true) {
                                     dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf, uncompressedLength);
                                 } else {
@@ -329,8 +337,10 @@ void Wireless::handleReceivedData() {
                                 LOG("snappy::GetUncompressedLength failed :(");
                             }
                         } else {
-                            // TODO: Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
-                            dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
+                            // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
+                            if (packetHeader->partial || packetLen == (512 + sizeof(DmxData_PacketHeader))) {
+                                dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
+                            }
                         }
                     }
                 }

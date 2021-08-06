@@ -46,7 +46,7 @@ ip_addr_t gateway;
 
 dhcp_entry_t entries[1];
 ip_addr_t hostIp;
-ip_addr_t anyIp;
+ip_addr_t ownIp;
 dhcp_config_t dhcp_config;
 
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
@@ -180,11 +180,12 @@ void dhcpd_init()
     entries[0].addr = hostIp;
     entries[0].lease = 24 * 60 * 60;
 
-    ip4_addr_set_u32(&anyIp, 0);
-    dhcp_config.router = anyIp;    /* router address (if any) */
+    //ip4_addr_set_u32(&ownIp, getOwnIp());
+
+    //dhcp_config.router = anyIp;    /* router address (if any) */
     dhcp_config.port = 67;         /* listen port */
-    dhcp_config.dns = anyIp;       /* dns server (if any) */
-    dhcp_config.domain = "localDmx";       /* dns suffix */
+    //dhcp_config.dns = ownIp;       /* dns server (if any) */
+    //dhcp_config.domain = "dmx";       /* dns suffix */
     dhcp_config.num_entry = 1;     /* num entry */
     dhcp_config.entries = entries; /* entries */
 
