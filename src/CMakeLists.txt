@@ -46,6 +46,7 @@ execute_process(
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
+    artnet_in.cpp
     boardconfig.cpp
     dmxbuffer.cpp
     localdmx.cpp
