@@ -82,6 +82,10 @@ void Wireless::init() {
 }
 
 void Wireless::cyclicTask() {
+    if (!moduleAvailable) {
+        return;
+    }
+
     switch (boardConfig.activeConfig->radioRole) {
         case RadioRole::sniffer:
             lastScannedChannel++;
@@ -131,6 +135,10 @@ void Wireless::scanChannel(uint8_t channel)
 }
 
 void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLength) {
+    if (!moduleAvailable) {
+        return;
+    }
+
     // This actually only queues stuff for sending later. Actual sending is done
     // in cyclicTask to avoid timeouts on the USB interface while waiting for
     // transmission to complete
