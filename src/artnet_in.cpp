@@ -1,25 +1,28 @@
 #include "artnet_in.h"
 
 #include "log.h"
+#include "dmxbuffer.h"
 
 #include <string.h>
 #include <time.h>
 
-/*
-struct sntp_msg {
-  PACK_STRUCT_FLD_8(u8_t  li_vn_mode);
-  PACK_STRUCT_FLD_8(u8_t  stratum);
-  PACK_STRUCT_FLD_8(u8_t  poll);
-  PACK_STRUCT_FLD_8(u8_t  precision);
-  PACK_STRUCT_FIELD(u32_t root_delay);
-  PACK_STRUCT_FIELD(u32_t root_dispersion);
-  PACK_STRUCT_FIELD(u32_t reference_identifier);
-  PACK_STRUCT_FIELD(u32_t reference_timestamp[2]);
-  PACK_STRUCT_FIELD(u32_t originate_timestamp[2]);
-  PACK_STRUCT_FIELD(u32_t receive_timestamp[2]);
-  PACK_STRUCT_FIELD(u32_t transmit_timestamp[2]);
-} PACK_STRUCT_STRUCT;
-*/
+extern DmxBuffer dmxBuffer;
+
+struct ArtNet_Header {
+  char id[8]; // Needs to be 'Art-Net\0'
+  uint16_t opOcode; // TODO: ENUM
+  uint16_t protoVersion; // TOOD: ENUM?
+};
+
+struct ArtNet_OpDmx {
+  uint8_t sequence;
+  uint8_t physical;
+  uint16_t universe;
+  uint16_t length;
+  uint8_t data[512];
+};
+
+const char ArtNetId[8] = "Art-Net";
 
 udp_pcb* ArtnetIn::pcb;
 
@@ -29,80 +32,39 @@ static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip
 }
 
 void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-    LOG("Received ArtNet packet");
-    /*
-  struct sntp_timestamps timestamps;
-  u8_t mode;
-  u8_t stratum;
-  err_t err;
+    LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
 
-  LWIP_UNUSED_ARG(arg);
-  LWIP_UNUSED_ARG(pcb);
+    if ((p->tot_len >= 12) && (!memcmp(p->payload, ArtNetId, 8))) {
+      struct ArtNet_Header* header = (struct ArtNet_Header*)p->payload;
+      //LOG("It's ArtNet :D OpCode: %04x, Version: %04x", header->opOcode, header->protoVersion);
 
-  err = ERR_ARG;
-  if (((sntp_opmode != SNTP_OPMODE_POLL) || ip_addr_eq(addr, &sntp_last_server_address)) &&
-      (port == SNTP_PORT))
-  LWIP_UNUSED_ARG(addr);
-  LWIP_UNUSED_ARG(port);
-  {
-    if (p->tot_len == SNTP_MSG_LEN) {
-      mode = pbuf_get_at(p, SNTP_OFFSET_LI_VN_MODE) & SNTP_MODE_MASK;
-      if (((sntp_opmode == SNTP_OPMODE_POLL)       && (mode == SNTP_MODE_SERVER)) ||
-          ((sntp_opmode == SNTP_OPMODE_LISTENONLY) && (mode == SNTP_MODE_BROADCAST))) {
-        stratum = pbuf_get_at(p, SNTP_OFFSET_STRATUM);
-
-        if (stratum == SNTP_STRATUM_KOD) {
-          err = SNTP_ERR_KOD;
-          LWIP_DEBUGF(SNTP_DEBUG_STATE, ("sntp_recv: Received Kiss-of-Death\n"));
-        } else {
-          pbuf_copy_partial(p, &timestamps, sizeof(timestamps), SNTP_OFFSET_TIMESTAMPS);
-          if (timestamps.orig.sec != sntp_last_timestamp_sent.sec ||
-              timestamps.orig.frac != sntp_last_timestamp_sent.frac) {
-            LWIP_DEBUGF(SNTP_DEBUG_WARN,
-                        ("sntp_recv: Invalid originate timestamp in response\n"));
-          } else
-          {
-            err = ERR_OK;
-          }
-        }
-      } else {
-        LWIP_DEBUGF(SNTP_DEBUG_WARN, ("sntp_recv: Invalid mode in response: %"U16_F"\n", (u16_t)mode));
-        err = ERR_TIMEOUT;
+      if (header->protoVersion != 0x0e00) {
+        return;
       }
-    } else {
-      LWIP_DEBUGF(SNTP_DEBUG_WARN, ("sntp_recv: Invalid packet length: %"U16_F"\n", p->tot_len));
+
+      switch (header->opOcode) {
+        case 0x2000:
+          LOG("It's OpPoll");
+          // TODO: Proper reply!
+        break;
+
+        case 0x5000:
+          struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)(p->payload + 12);
+
+          // Endianess ...
+          uint16_t length = ((dmx->length & 0xFF) << 8) + ((dmx->length & 0xFF00) >> 8);
+
+          LOG("It's OpOutput! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
+
+          // TODO: Cap length to 512!
+
+          if (dmx->universe < DMXBUFFER_COUNT) {
+            dmxBuffer.setBuffer(dmx->universe, dmx->data, length);
+          }
+
+        break;
+      }
     }
-  }
-  else {
-
-    err = ERR_TIMEOUT;
-  }
-
-  pbuf_free(p);
-
-  if (err == ERR_OK) {
-    sntp_process(&timestamps);
-
-    sntp_servers[sntp_current_server].reachability |= 1;
-    if (sntp_opmode == SNTP_OPMODE_POLL) {
-      u32_t sntp_update_delay;
-      sys_untimeout(sntp_try_next_server, NULL);
-      sys_untimeout(sntp_request, NULL);
-
-      SNTP_RESET_RETRY_TIMEOUT();
-
-      sntp_update_delay = (u32_t)SNTP_UPDATE_DELAY;
-      sys_timeout(sntp_update_delay, sntp_request, NULL);
-      LWIP_DEBUGF(SNTP_DEBUG_STATE, ("sntp_recv: Scheduled next time request: %"U32_F" ms\n",
-                                     sntp_update_delay));
-    }
-  } else if (err == SNTP_ERR_KOD) {
-    if (sntp_opmode == SNTP_OPMODE_POLL) {
-      sntp_kod_try_next_server(NULL);
-    }
-  } else {
-  }
-  */
 }
 
 void ArtnetIn::init(void) {
