@@ -14,6 +14,8 @@
 
 #include <string>
 
+// TODO: Define or import ArtNet enums and structs!
+
 class ArtnetIn {
   public:
     static void init();
@@ -22,6 +24,7 @@ class ArtnetIn {
 
   private:
     static struct udp_pcb *pcb;
+    static struct ArtNet_OpPollReply opPollReply;
 };
 
 #endif // __cplusplus
