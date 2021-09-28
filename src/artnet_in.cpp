@@ -11,7 +11,7 @@ extern DmxBuffer dmxBuffer;
 struct ArtNet_Header {
   char id[8]; // Needs to be 'Art-Net\0'
   uint16_t opCode; // TODO: ENUM
-  uint16_t protoVersion; // TOOD: ENUM?
+  uint16_t protoVersion; // TODO: ENUM?
 };
 
 struct ArtNet_OpDmx {
@@ -104,7 +104,7 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
         case 0x5000:
           struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)(p->payload + 12);
 
-          // Endianess ...
+          // Endianness ...
           uint16_t length = ((dmx->length & 0xFF) << 8) + ((dmx->length & 0xFF00) >> 8);
 
           LOG("It's OpOutput! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
@@ -124,8 +124,8 @@ void ArtnetIn::init(void) {
   // Init our ArtPollReply so we have it ready fast when needed
   memcpy(opPollReply.id, ArtNetId, 8);
   opPollReply.opCode = 0x2100;
-  opPollReply.ipAddr = 0x01E6FEA9; // TODO. And check byte order!
-  opPollReply.portNumber = 0x3619; // TODO. And check byte order!
+  opPollReply.ipAddr = 0x01E6FEA9; // TODO. But Byte order is correct :)
+  opPollReply.portNumber = 0x1936; // TODO. And check byte order!
   opPollReply.versionInfo = 0x0000; // TODO
   opPollReply.netSwitch = 0; // TODO
   opPollReply.subSwitch = 0; // TODO
@@ -136,7 +136,7 @@ void ArtnetIn::init(void) {
   snprintf(opPollReply.shortName, 18, "rp2040-dongle"); // TODO: SERIAL
   snprintf(opPollReply.longName, 64, "rp2040-dongle"); // TODO: SERIAL
   snprintf(opPollReply.nodeReport, 18, "all good here"); // TODO: SERIAL
-  opPollReply.numPorts = 0x0001; // TODO
+  opPollReply.numPorts = 0x0100; // TODO
   opPollReply.portTypes = 0; // TODO: ???
   opPollReply.goodInput = 0; // TODO: ???
   opPollReply.goodOutput = 1; // TODO: ???

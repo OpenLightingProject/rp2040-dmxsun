@@ -282,7 +282,7 @@ void Wireless::handleReceivedData() {
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
         rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
-        // No need to manually send an ACK since autoAck is beeing used
+        // No need to manually send an ACK since autoAck is being used
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
