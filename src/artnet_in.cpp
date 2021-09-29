@@ -4,16 +4,17 @@
 #include "dmxbuffer.h"
 
 #include <string.h>
-#include <time.h>
 
 extern DmxBuffer dmxBuffer;
 
+// General header, used by in front of most packets
 struct ArtNet_Header {
   char id[8]; // Needs to be 'Art-Net\0'
   uint16_t opCode; // TODO: ENUM
   uint16_t protoVersion; // TODO: ENUM?
 };
 
+// New DMX values. Uses general header
 struct ArtNet_OpDmx {
   uint8_t sequence;
   uint8_t physical;
@@ -22,12 +23,13 @@ struct ArtNet_OpDmx {
   uint8_t data[512];
 };
 
-// TODO: Unused ;)
+// Poll for nodes, sent by masters. Uses general header
 struct ArtNet_OpPoll {
   uint8_t flags;
   uint8_t priority;
 };
 
+// Poll Reply by nodes. Does NOT use the general header
 struct __attribute__((__packed__)) ArtNet_OpPollReply {
   char id[8];
   uint16_t opCode;
@@ -63,13 +65,15 @@ struct __attribute__((__packed__)) ArtNet_OpPollReply {
   uint8_t  filler[26];
 };
 
+// Constant to we can fast memcmp or memcpy
 const char ArtNetId[8] = "Art-Net";
 
+// Readily-prepared OpPollReply so it's not re-created every time
 struct ArtNet_OpPollReply ArtnetIn::opPollReply;
 
 udp_pcb* ArtnetIn::pcb;
 
-// UDP recv callback
+// UDP recv callback (for C-based code, not part of the class)
 static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
     ArtnetIn::receive(arg, pcb, p, addr, port);
 }
@@ -89,13 +93,10 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
 
       switch (header->opCode) {
         case 0x2000:
-          LOG("It's OpPoll");
-          // TODO: Proper reply!
-
           p_send = pbuf_alloc(PBUF_TRANSPORT, sizeof(struct ArtNet_OpPollReply), PBUF_RAM);
           if (p_send != NULL) {
             memcpy(p_send->payload, &opPollReply, sizeof(struct ArtNet_OpPollReply));
-            LOG("Sending reply to %08x", addr);
+            LOG("Got OpPoll-Request, Sending reply back to %08x", addr);
             udp_sendto(pcb, p_send, addr, port);
             pbuf_free(p_send);
           }
@@ -104,12 +105,12 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
         case 0x5000:
           struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)(p->payload + 12);
 
-          // Endianness ...
+          // Need to swap bytes due to endianness
           uint16_t length = ((dmx->length & 0xFF) << 8) + ((dmx->length & 0xFF00) >> 8);
 
-          LOG("It's OpOutput! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
+          LOG("It's OpDmx! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
 
-          // TODO: Cap length to 512!
+          length = MAX(length, 512);
 
           if (dmx->universe < DMXBUFFER_COUNT) {
             dmxBuffer.setBuffer(dmx->universe, dmx->data, length);
