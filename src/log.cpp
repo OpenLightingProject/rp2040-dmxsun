@@ -61,7 +61,13 @@ void Log::dlog(char* file, uint32_t line, char* text) {
 }
 
 size_t Log::getLogBufferNumEntries() {
-    return Log::logBuffer.size();
+    size_t size = 0;
+
+    mutex_enter_blocking(&logLock);
+    size = Log::logBuffer.size();
+    mutex_exit(&logLock);
+
+    return size;
 }
 
 std::string Log::getLogBuffer(int maxSize) {
@@ -73,6 +79,7 @@ std::string Log::getLogBuffer(int maxSize) {
         return output;
     }
 
+    mutex_enter_blocking(&logLock);
     for (const auto& value: Log::logBuffer) {
         if (output.size() < (maxSize - 5)) {
             output += value + ",\n";
@@ -82,6 +89,7 @@ std::string Log::getLogBuffer(int maxSize) {
 
     // Drop the elements we have in output from the logBuffer
     Log::logBuffer.erase(Log::logBuffer.begin(), Log::logBuffer.begin() + elements);
+    mutex_exit(&logLock);
 
     // Remove the last comma and line break
     if (output.size() > 5) {
@@ -93,7 +101,9 @@ std::string Log::getLogBuffer(int maxSize) {
 }
 
 void Log::clearLogBuffer() {
+    mutex_enter_blocking(&logLock);
     Log::logBuffer.clear();
+    mutex_exit(&logLock);
 }
 
 // C helper functions

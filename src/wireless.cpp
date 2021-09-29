@@ -324,7 +324,7 @@ void Wireless::handleReceivedData() {
 
                     // TODO: Remember which chunks actually came in
 
-                    if (chunkHeader->lastChunk) {                        
+                    if (chunkHeader->lastChunk) {
                         LOG("LastPacket came in, assembly complete! packetLen is now %d", packetLen);
 
                         struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)Wireless::tmpBuf2;
