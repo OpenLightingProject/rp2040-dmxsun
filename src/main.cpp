@@ -62,6 +62,8 @@ BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
 
+critical_section_t bufferLock;
+
 void led_blinking_task(void);
 
 // Board init sequence:
@@ -98,6 +100,7 @@ int main() {
     boardConfig.readIOBoards();
 
     // Phase 2b: Init our DMX buffers
+    critical_section_init(&bufferLock);
     dmxBuffer.init();
 
     // Phase 3: Make sure we have some configuration ready (includes Phase 3b)

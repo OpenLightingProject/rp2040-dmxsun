@@ -12,6 +12,8 @@
 
 extern LocalDmx localDmx;
 
+extern critical_section_t bufferLock;
+
 uint8_t LocalDmx::buffer[LOCALDMX_COUNT][512];
 uint16_t LocalDmx::wavetable[WAVETABLE_LENGTH];  // 16 universes (data type) with 5648 bit each
 
@@ -108,8 +110,10 @@ bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
 
     uint16_t length = MAX(sourceLength, 512);
 
+    critical_section_enter_blocking(&bufferLock);
     memset(this->buffer[portId], 0x00, 512);
     memcpy(this->buffer[portId], source, length);
+    critical_section_exit(&bufferLock);
 
     return true;
 }
@@ -162,6 +166,8 @@ void LocalDmx::dma_handler_0_0() {
     gpio_put(PIN_TRIGGER, 0);
 #endif // PIN_TRIGGER
 
+    critical_section_enter_blocking(&bufferLock);
+
     // Zero the wavetable. *2 because of the data type: uint16_t = 2 byte per element
     memset(wavetable, 0x00, WAVETABLE_LENGTH * sizeof(uint16_t));
 
@@ -191,6 +197,8 @@ void LocalDmx::dma_handler_0_0() {
         // Leave the line at a defined LOW level (BREAK) until the next packet starts
         wavetable_write_bit(universe, &bitoffset, 0);
     }
+
+    critical_section_exit(&bufferLock);
 
     // Clear the interrupt request.
     dma_hw->ints0 = 1u << dma_chan_0_0;

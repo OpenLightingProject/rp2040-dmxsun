@@ -14,6 +14,8 @@ extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
 
+extern critical_section_t bufferLock;
+
 uint16_t Wireless::packetLen;
 
 uint8_t Wireless::tmpBuf[800]; // Used to store compressed data
@@ -148,8 +150,11 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
 
     uint16_t length = MAX(sourceLength, 512);
 
+    critical_section_enter_blocking(&bufferLock);
     memset(this->sendQueueData[universeId], 0x00, 512);
     memcpy(this->sendQueueData[universeId], source, length);
+    critical_section_exit(&bufferLock);
+
     this->sendQueueValid[universeId] = true;
 }
 

@@ -9,6 +9,8 @@ extern BoardConfig boardConfig;
 extern LocalDmx localDmx;
 extern Wireless wireless;
 
+extern critical_section_t bufferLock;
+
 uint8_t DmxBuffer::buffer[DMXBUFFER_COUNT][512];
 uint8_t DmxBuffer::allZeroes[512];
 
@@ -22,7 +24,9 @@ void DmxBuffer::init() {
 
 void DmxBuffer::zero(uint8_t bufferId) {
     // Simply zero out the specified buffer
+    critical_section_enter_blocking(&bufferLock);
     memset(this->buffer[bufferId], 0x00, 512);
+    critical_section_exit(&bufferLock);
 
     this->triggerPatchings(bufferId, true);
 }
@@ -51,8 +55,10 @@ bool DmxBuffer::setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLeng
 
     LOG("setBuffer Length: %d, Content: %02x %02x %02x %02x %02x %02x", sourceLength, source[0], source[1], source[2], source[3], source[4], source[5]);
 
+    critical_section_enter_blocking(&bufferLock);
     memset(this->buffer[bufferId], 0x00, 512);
     memcpy(this->buffer[bufferId], source, length);
+    critical_section_exit(&bufferLock);
 
     this->triggerPatchings(bufferId);
 
