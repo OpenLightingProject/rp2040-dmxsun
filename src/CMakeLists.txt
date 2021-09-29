@@ -126,6 +126,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     libb64
     lwipallapps
     lwipcore
+    pico_multicore
     pico_stdlib
     pico_unique_id
     RF24

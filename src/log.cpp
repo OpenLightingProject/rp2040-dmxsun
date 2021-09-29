@@ -12,10 +12,12 @@
 
 std::vector<std::string> Log::logBuffer;
 uint32_t Log::logLineCount;
+mutex_t Log::logLock;
 
 void Log::init() {
     Log::logBuffer.clear();
     Log::logLineCount = 0;
+    mutex_init(&logLock);
 }
 
 void Log::dlog(char* file, uint32_t line, char* text) {
@@ -33,6 +35,11 @@ void Log::dlog(char* file, uint32_t line, char* text) {
     if (tud_cdc_connected()) {
         printf("{\"type\": \"log\", \"count\": %ld, \"file\": \"%s\", \"line\": %ld, \"text\": \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
     } else {
+        // TODO: A mutex makes sure that only one core is inside here.
+        //       However, it might block the core from more important tasks!
+        // TODO: Maybe use "faster" data structures?
+        // TODO: Disable logging on "production" builds?
+        mutex_enter_blocking(&logLock);
         if (Log::logBuffer.size() >= 30) {
             Log::logBuffer.erase(Log::logBuffer.begin());
         }
@@ -47,6 +54,7 @@ void Log::dlog(char* file, uint32_t line, char* text) {
                 "}"
             )
         );
+        mutex_exit(&logLock);
     }
 
     Log::logLineCount++;

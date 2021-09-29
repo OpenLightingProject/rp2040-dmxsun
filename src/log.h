@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include "pico/stdlib.h"
+#include "pico/mutex.h"
 
 #ifdef __cplusplus
 
@@ -19,6 +20,7 @@ class Log {
   private:
     static std::vector<std::string> logBuffer;
     static uint32_t logLineCount;
+    static mutex_t logLock;
 };
 
 #endif // __cplusplus

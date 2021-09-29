@@ -12,6 +12,7 @@ extern "C" {
 //#include <hardware/irq.h>       // To control the data transfer from mem to pio
 
 #include <pico/stdlib.h>
+#include "pico/multicore.h"
 
 #include "pins.h"
 #include "picotool_binary_information.h"
@@ -65,6 +66,8 @@ Wireless wireless;
 critical_section_t bufferLock;
 
 void led_blinking_task(void);
+
+void core1_tasks(void);
 
 // Board init sequence:
 // 1. Status LEDs
@@ -138,13 +141,35 @@ int main() {
 
     // SETUP COMPLETE
 
-    // Everything else from this point is interrupt-driven. The processor has
-    // time to sit and think about its early retirement -- maybe open a bakery?
+    // Run all important tasks at least once before we start AUX tasks on core1
+    // so the USB device enumeration doesn't time-out
+    tud_task();
+    tud_task();
+    tud_task();
+    webServer.cyclicTask();
+
+    // Now get core1 running ...
+    multicore_launch_core1(core1_tasks);
+
+    // Enter the main loop on core0. localDmx (PIO) is interrupt driven.
+    // Everything else (I assume) is polled and handled here.
+    // Wireless is on core1 so waiting for ACKs won't slow down everything else
     while (true) {
         tud_task();
         webServer.cyclicTask();
-        wireless.cyclicTask();
+//        wireless.cyclicTask();
         led_blinking_task();
+        sleep_us(10);
+    }
+};
+
+// Core1 currently only handles wireless
+void core1_tasks() {
+    while (true) {
+//        tud_task();
+//        webServer.cyclicTask();
+        wireless.cyclicTask();
+//        led_blinking_task();
         sleep_us(10);
     }
 };
