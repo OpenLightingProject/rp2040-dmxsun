@@ -311,16 +311,20 @@ void Wireless::handleReceivedData() {
                     // Easy: Just clear the DmxBuffer
                     dmxBuffer.zero(patching.buffer);
                 } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
+                    critical_section_enter_blocking(&bufferLock);
                     // Clear tmpBuf2 so the next chunk comes in clean
                     memset(Wireless::tmpBuf2, 0x00, 800);
                     packetLen = 0;
 
                     memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, bytes - 2);
                     packetLen += (bytes - 2);
+                    critical_section_exit(&bufferLock);
                 } else {
                     // Some intermediate packet: Just copy it to the tmpBuf and go ahead
+                    critical_section_enter_blocking(&bufferLock);
                     memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, bytes - 2);
                     packetLen += (bytes - 2);
+                    critical_section_exit(&bufferLock);
 
                     // TODO: Remember which chunks actually came in
 

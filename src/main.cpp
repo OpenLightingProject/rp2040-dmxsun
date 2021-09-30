@@ -158,7 +158,7 @@ int main() {
         webServer.cyclicTask();
 //        wireless.cyclicTask();
         led_blinking_task();
-        sleep_us(10);
+//        sleep_us(10);
     }
 };
 
@@ -169,7 +169,7 @@ void core1_tasks() {
 //        webServer.cyclicTask();
         wireless.cyclicTask();
 //        led_blinking_task();
-        sleep_us(10);
+//        sleep_us(10);
     }
 };
 
