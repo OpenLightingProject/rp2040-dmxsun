@@ -9,7 +9,6 @@ extern "C" {
 #include <hardware/clocks.h>    // Needed for the onboard LED blinking patterns
 #include <hardware/dma.h>       // To control the data transfer from mem to pio
 #include <hardware/gpio.h>      // To "manually" control the trigger pin
-//#include <hardware/irq.h>       // To control the data transfer from mem to pio
 
 #include <pico/stdlib.h>
 #include "pico/multicore.h"

@@ -3,24 +3,30 @@
 
 #include "pico/stdlib.h"
 #include "pico/mutex.h"
+#include "pico/util/queue.h"
 
 #ifdef __cplusplus
 
 #include <string>
-#include <vector>
+
+// TODO: LOG MASKS
+#define LOGMASK_ARTNET      0x00000001
+#define LOGMASK_WIRELESS    0x00000002
+#define LOGMASK_DMXBUFFER   0x00000004
 
 class Log {
   public:
     void init();
     static void dlog(char* file, uint32_t line, char* text);
     static size_t getLogBufferNumEntries();
-    static std::string getLogBuffer(int maxSize);
+    static size_t getLogBuffer(char* buffer, size_t size);
     static void clearLogBuffer();
 
   private:
-    static std::vector<std::string> logBuffer;
     static uint32_t logLineCount;
+    static queue_t logQueue;
     static mutex_t logLock;
+    static char logLine[255];
 };
 
 #endif // __cplusplus

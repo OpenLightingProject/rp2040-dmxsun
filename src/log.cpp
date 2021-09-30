@@ -10,50 +10,39 @@
 
 #include <tusb.h>
 
-std::vector<std::string> Log::logBuffer;
 uint32_t Log::logLineCount;
+queue_t Log::logQueue;
 mutex_t Log::logLock;
+char Log::logLine[255];
 
 void Log::init() {
-    Log::logBuffer.clear();
-    Log::logLineCount = 0;
     mutex_init(&logLock);
+    queue_init(&logQueue, 255, 30);
+    Log::logLineCount = 0;
 }
 
 void Log::dlog(char* file, uint32_t line, char* text) {
     // Input sanitation so that one cannot make it invalid JSON
+    // TODO: RegEx is damn slow and memory-hungry. Any idea for something leaner?
     std::string bufSanitized = std::string(text);
-    //bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
-    //bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
+    bufSanitized = std::regex_replace(bufSanitized, std::regex("\""), "\\\"");
+    bufSanitized = std::regex_replace(bufSanitized, std::regex("\n"), "\\n");
 
     std::string fname = std::string(file);
     auto const pos = fname.find_last_of('/');
     fname = fname.substr(pos + 1);
 
-    // If ACM console is not connected, append to log buffer (of course size-limitig it)
     // If ACM console IS connected, just print it
+    // If ACM console is not connected, append to log buffer (of course size-limitig it)
     if (tud_cdc_connected()) {
         printf("{\"type\": \"log\", \"count\": %ld, \"file\": \"%s\", \"line\": %ld, \"text\": \"%s\"}\n", logLineCount, fname.c_str(), line, bufSanitized.c_str());
     } else {
-        // TODO: A mutex makes sure that only one core is inside here.
-        //       However, it might block the core from more important tasks!
-        // TODO: Maybe use "faster" data structures?
-        // TODO: Disable logging on "production" builds?
         mutex_enter_blocking(&logLock);
-        if (Log::logBuffer.size() >= 30) {
-            Log::logBuffer.erase(Log::logBuffer.begin());
+        if (queue_is_full(&logQueue)) {
+            queue_remove_blocking(&logQueue, logLine);
         }
-        Log::logBuffer.push_back(
-            std::string(
-                "{" +
-                std::string("\"type\": \"log\", ") +
-                std::string("\"count\": " + std::to_string(logLineCount) + ", ") +
-                std::string("\"file\": \"" + fname + "\", ") +
-                std::string("\"line\": " + std::to_string(line) + ", ") +
-                std::string("\"text\": \"" + bufSanitized + "\"") +
-                "}"
-            )
-        );
+        snprintf(logLine, 255, "{\"type\": \"log\", \"count\": %ld, \"file\": \"%s\", \"line\": %ld, \"text\": \"%s\"}", logLineCount, fname.c_str(), line, bufSanitized.c_str());
+        queue_add_blocking(&logQueue, logLine);
         mutex_exit(&logLock);
     }
 
@@ -61,48 +50,47 @@ void Log::dlog(char* file, uint32_t line, char* text) {
 }
 
 size_t Log::getLogBufferNumEntries() {
-    size_t size = 0;
-
-    mutex_enter_blocking(&logLock);
-    size = Log::logBuffer.size();
-    mutex_exit(&logLock);
-
-    return size;
+    return queue_get_level(&logQueue);
 }
 
-std::string Log::getLogBuffer(int maxSize) {
-    std::string output;
-    uint16_t elements = 0;
+size_t Log::getLogBuffer(char* buffer, size_t size) {
+    size_t offset = 0;
 
-    // Avoid an underflow later
-    if (maxSize < 6) {
-        return output;
+    if (buffer == 0) {
+        return 0;
     }
 
-    mutex_enter_blocking(&logLock);
-    for (const auto& value: Log::logBuffer) {
-        if (output.size() < (maxSize - 5)) {
-            output += value + ",\n";
-            elements++;
+    // Avoid an underflow later when the loop is not run but we
+    // substract from the offset anyways
+    if (size < 12) {
+        return offset;
+    }
+
+    while(!queue_is_empty(&logQueue))
+    {
+        // Make sure we have enough space left in the buffer
+        if ((size - offset) < 257) {
+            break;
         }
+        queue_remove_blocking(&logQueue, logLine);
+        offset += snprintf(buffer + offset, size - offset, "%s,\n", logLine);
     }
-
-    // Drop the elements we have in output from the logBuffer
-    Log::logBuffer.erase(Log::logBuffer.begin(), Log::logBuffer.begin() + elements);
-    mutex_exit(&logLock);
 
     // Remove the last comma and line break
-    if (output.size() > 5) {
-        output.pop_back();
-        output.pop_back();
+    if (offset > 5) {
+        offset -= 2;
     }
+    mutex_exit(&logLock);
 
-    return output;
+    return offset;
 }
 
 void Log::clearLogBuffer() {
     mutex_enter_blocking(&logLock);
-    Log::logBuffer.clear();
+    while (!queue_is_empty(&logQueue))
+    {
+        queue_remove_blocking(&logQueue, logLine);
+    }
     mutex_exit(&logLock);
 }
 
