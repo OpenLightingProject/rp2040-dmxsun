@@ -84,6 +84,7 @@ class Wireless {
 
     static uint8_t tmpBuf[800];
     static uint8_t tmpBuf2[800];
+    static uint8_t tmpBufQueueCopy[600];
 
     void handleReceivedData();
     void doSendData();

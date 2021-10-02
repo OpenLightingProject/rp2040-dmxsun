@@ -20,6 +20,7 @@ uint16_t Wireless::packetLen;
 
 uint8_t Wireless::tmpBuf[800]; // Used to store compressed data
 uint8_t Wireless::tmpBuf2[800]; // Used to store UNcompressed data
+uint8_t Wireless::tmpBufQueueCopy[600]; // Used to quickly copy data from the sendQueue
 
 // TODO: Do we need one tmpBuf per incoming universe to assemble them?
 //       Or can we expect them to come in order?
@@ -150,6 +151,7 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
 
     uint16_t length = MAX(sourceLength, 512);
 
+    // TODO: Mutex should be fine here, no reason to disables IRQs
     critical_section_enter_blocking(&bufferLock);
     memset(this->sendQueueData[universeId], 0x00, 512);
     memcpy(this->sendQueueData[universeId], source, length);
@@ -174,7 +176,14 @@ void Wireless::doSendData() {
 
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
+
+            critical_section_enter_blocking(&bufferLock);
             this->sendQueueValid[i] = false;
+
+            // Copy the data away to somewhere it doesn't change while we read it
+            memcpy(Wireless::tmpBufQueueCopy, 0x00, 512);
+            memcpy(Wireless::tmpBufQueueCopy, this->sendQueueData[i], 512);
+            critical_section_exit(&bufferLock);
 
             switch (boardConfig.activeConfig->radioRole) {
                 case RadioRole::broadcast:
@@ -185,7 +194,7 @@ void Wireless::doSendData() {
 
                     // 1. Check if the buffer to be sent is all zeroes
                     //    If so, don't create an actual packet, only send one special chunk
-                    if (!memcmp(this->sendQueueData[i], DmxBuffer::allZeroes, 512)) {
+                    if (!memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512)) {
                         chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf2 + 1;
                         chunkHeader->universeId = i;
                         chunkHeader->chunkCounter = DmxData_ChunkCounter::AllZero;
@@ -200,12 +209,12 @@ void Wireless::doSendData() {
                         // 2. Compress the data
                         actuallyRead = 0;
                         actuallyWritten = 700;
-                        snappy::RawCompress((const char *)this->sendQueueData[i], 512, (char*)(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader)), &actuallyWritten);
+                        snappy::RawCompress((const char *)Wireless::tmpBufQueueCopy, 512, (char*)(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader)), &actuallyWritten);
 
                         if (actuallyWritten >= 512) {
                             LOG("Compressed size: %d => SENDING UNCOMPRESSED!", actuallyWritten);
                             packetHeader->compressed = 0;
-                            memcpy(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader), this->sendQueueData[i], 512);
+                            memcpy(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader), Wireless::tmpBufQueueCopy, 512);
                             actuallyWritten = 512;
                         } else {
                             packetHeader->compressed = 1;
@@ -305,14 +314,16 @@ void Wireless::handleReceivedData() {
                     continue;
                 }
 
+                // TODO: Verify what happens if multiple patchings match the packet!
+
                 LOG("Wireless IN found patched to buffer %d", patching.buffer);
 
                 if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
                     // Easy: Just clear the DmxBuffer
                     dmxBuffer.zero(patching.buffer);
                 } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
-                    critical_section_enter_blocking(&bufferLock);
                     // Clear tmpBuf2 so the next chunk comes in clean
+                    critical_section_enter_blocking(&bufferLock);
                     memset(Wireless::tmpBuf2, 0x00, 800);
                     packetLen = 0;
 
