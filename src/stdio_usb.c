@@ -6,11 +6,9 @@
 
 #include "tusb.h"
 
-#include "pico/time.h"
 #include "stdio_usb.h"
 #include "pico/stdio/driver.h"
 #include "pico/binary_info.h"
-#include "hardware/irq.h"
 
 #include "pico/bootrom.h"
 #include "hardware/watchdog.h"
