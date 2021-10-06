@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <pico/unique_id.h>
+
 #include "snappy.h"
 
 #include "json/json.h"
@@ -155,6 +157,21 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         char ownIp[16];
         char ownMask[16];
         char hostIp[16];
+        pico_unique_board_id_t board_id;
+        char unique_id_string[18];
+        
+        pico_get_unique_board_id(&board_id);
+        snprintf(unique_id_string, 18, "%02x%02x%02x%02x%02x%02x%02x%02x",
+            board_id.id[0],
+            board_id.id[1],
+            board_id.id[2],
+            board_id.id[3],
+            board_id.id[4],
+            board_id.id[5],
+            board_id.id[6],
+            board_id.id[7]
+        );
+
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
@@ -164,6 +181,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["ownIp"] = ownIp;
         output["ownMask"] = ownMask;
         output["hostIp"] = hostIp;
+        output["uniqueId"] = unique_id_string;
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
@@ -182,7 +200,6 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         free(dummy);
         LOG("malloc returned %08x PRE snappy. Stacklimit: %08x", dummy, __StackLimit);
 
-        size_t actuallyRead = 0;
         size_t actuallyWritten = 800;
         snappy::RawCompress((const char *)dmxBuffer.buffer[buffer], 512, (char*)WebServer::tmpBuf, &actuallyWritten);
 
