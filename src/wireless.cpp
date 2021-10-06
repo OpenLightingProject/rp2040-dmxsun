@@ -149,7 +149,7 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
     // cares about the unsent, old data if we have new values anyway
     LOG("SendData. Universe: %d. RadioRole: %d", universeId, boardConfig.activeConfig->radioRole);
 
-    uint16_t length = MAX(sourceLength, 512);
+    uint16_t length = MIN(sourceLength, 512);
 
     // TODO: Mutex should be fine here, no reason to disables IRQs
     critical_section_enter_blocking(&bufferLock);
@@ -168,7 +168,6 @@ void Wireless::doSendData() {
     struct DmxData_PacketHeader* packetHeader;
     struct DmxData_ChunkHeader* chunkHeader;
 
-    size_t actuallyRead = 0;
     size_t actuallyWritten = 1000;
     size_t payloadSize = 0;
 
@@ -206,7 +205,6 @@ void Wireless::doSendData() {
                         packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf);
 
                         // 2. Compress the data
-                        actuallyRead = 0;
                         actuallyWritten = 700;
                         snappy::RawCompress((const char *)Wireless::tmpBufQueueCopy, 512, (char*)(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader)), &actuallyWritten);
 
@@ -286,6 +284,7 @@ void Wireless::doSendData() {
 }
 
 void Wireless::handleReceivedData() {
+    size_t copySize = 0;
     uint8_t pipe = 0;
     size_t uncompressedLength;
 
@@ -300,10 +299,26 @@ void Wireless::handleReceivedData() {
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
+        if (bytes < 1) {
+            // TODO: Does it make sense to have "command only" commands?
+            //       If not, we should fail if bytes < 2
+            return;
+        }
+
         if (Wireless::tmpBuf[0] == WirelessCommands::DmxData) {
+
+            if (bytes < 2) {
+                return;
+            }
+
             struct DmxData_ChunkHeader* chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf + 1;
 
             LOG("DmxData: Universe: %d, Chunk: %d, LastChunk: %d", chunkHeader->universeId, chunkHeader->chunkCounter, chunkHeader->lastChunk);
+
+            // TODO: Instead of looping through the patchings first and then
+            //       assembling the packet, we should better assemble first
+            //       and then loop through the patchings when we got the
+            //       complete frame assembled
 
             for (int i = 0; i < MAX_PATCHINGS; i++) {
                 Patching patching = boardConfig.activeConfig->patching[i];
@@ -316,33 +331,35 @@ void Wireless::handleReceivedData() {
 
                 // TODO: Verify what happens if multiple patchings match the packet!
 
-                LOG("Wireless IN found patched to buffer %d", patching.buffer);
+                //LOG("Wireless IN found patched to buffer %d", patching.buffer);
+
+                // Current packet's data (one chunk) is in tmpBuf
+                // Complete frame (all chunks) is assembled in tmpBuf2
 
                 if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
                     // Easy: Just clear the DmxBuffer
                     dmxBuffer.zero(patching.buffer);
                 } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
                     // Clear tmpBuf2 so the next chunk comes in clean
+                    packetLen = MIN((bytes - 2), 32);
                     critical_section_enter_blocking(&bufferLock);
                     memset(Wireless::tmpBuf2, 0x00, 800);
-                    packetLen = 0;
-
-                    memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, bytes - 2);
-                    packetLen += (bytes - 2);
+                    memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, packetLen);
                     critical_section_exit(&bufferLock);
-                } else {
+                } else if (chunkHeader->chunkCounter < 20) {
                     // Some intermediate packet: Just copy it to the tmpBuf and go ahead
+                    copySize = MIN((bytes - 2), 32);
                     critical_section_enter_blocking(&bufferLock);
-                    memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, bytes - 2);
-                    packetLen += (bytes - 2);
+                    memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, copySize);
                     critical_section_exit(&bufferLock);
+                    packetLen += copySize;
 
                     // TODO: Remember which chunks actually came in
 
                     if (chunkHeader->lastChunk) {
-                        LOG("LastPacket came in, assembly complete! packetLen is now %d", packetLen);
-
                         struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)Wireless::tmpBuf2;
+
+                        LOG("LastPacket came in, assembly complete! packetLen is now %d. Compressed: %u", packetLen, packetHeader->compressed);
 
                         // TODO: Check if all chunks have arrived and check CRC
 
