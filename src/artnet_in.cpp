@@ -110,7 +110,7 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
 
           LOG("It's OpDmx! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
 
-          length = MAX(length, 512);
+          length = MIN(length, 512);
 
           if (dmx->universe < DMXBUFFER_COUNT) {
             dmxBuffer.setBuffer(dmx->universe, dmx->data, length);

@@ -56,7 +56,7 @@ size_t Log::getLogBuffer(char* buffer, size_t size) {
     }
 
     // Avoid an underflow later when the loop is not run but we
-    // substract from the offset anyways
+    // subtract from the offset anyways
     if (size < 12) {
         return offset;
     }

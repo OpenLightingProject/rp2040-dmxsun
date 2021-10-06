@@ -51,7 +51,7 @@ bool DmxBuffer::setBuffer(uint8_t bufferId, uint8_t* source, uint16_t sourceLeng
     // Shall we lock the buffer so two sources don't write at the same time?
     // TODO: Merge modes. For HTP and LTP we might need to remember the source that last wrote here?
 
-    uint16_t length = MAX(sourceLength, 512);
+    uint16_t length = MIN(sourceLength, 512);
 
     LOG("setBuffer Length: %d, Content: %02x %02x %02x %02x %02x %02x", sourceLength, source[0], source[1], source[2], source[3], source[4], source[5]);
 

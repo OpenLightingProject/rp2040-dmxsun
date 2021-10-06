@@ -108,7 +108,7 @@ bool LocalDmx::setPort(uint8_t portId, uint8_t* source, uint16_t sourceLength) {
     // Shall we lock the buffer so two sources don't write at the same time?
     // TODO: Don't change the buffer while the conversion to the wavetable is running
 
-    uint16_t length = MAX(sourceLength, 512);
+    uint16_t length = MIN(sourceLength, 512);
 
     critical_section_enter_blocking(&bufferLock);
     memset(this->buffer[portId], 0x00, 512);
