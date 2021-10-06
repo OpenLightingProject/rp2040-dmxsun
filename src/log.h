@@ -9,10 +9,12 @@
 
 #include <string>
 
+#define LOG_BUFFER_SIZE     100
+
 // TODO: LOG MASKS
-#define LOGMASK_ARTNET      0x00000001
-#define LOGMASK_WIRELESS    0x00000002
-#define LOGMASK_DMXBUFFER   0x00000004
+#define LOG_MASK_ARTNET      0x00000001
+#define LOG_MASK_WIRELESS    0x00000002
+#define LOG_MASK_DMXBUFFER   0x00000004
 
 class Log {
   public:
