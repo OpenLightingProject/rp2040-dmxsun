@@ -181,7 +181,6 @@ void Wireless::doSendData() {
             this->sendQueueValid[i] = false;
 
             // Copy the data away to somewhere it doesn't change while we read it
-            memcpy(Wireless::tmpBufQueueCopy, 0x00, 512);
             memcpy(Wireless::tmpBufQueueCopy, this->sendQueueData[i], 512);
             critical_section_exit(&bufferLock);
 
@@ -295,6 +294,7 @@ void Wireless::handleReceivedData() {
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
+        memset(Wireless::tmpBuf, 0x00, 32); // make sure we have defined values as long as one packet can be
         rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
         // No need to manually send an ACK since autoAck is being used
 
