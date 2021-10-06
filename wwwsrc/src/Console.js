@@ -14,6 +14,7 @@ class Console extends React.Component {
             selectedBuffer: 0,
             updateValuesInterval: undefined,
             values: [],
+            inFlight: false,
             channelOffset: 0,
         };
         this.setValueTimeout = undefined;
@@ -21,8 +22,12 @@ class Console extends React.Component {
         // This binding is necessary to make `this` work in the callback
         this.selectedBufferDecrease = this.selectedBufferDecrease.bind(this);
         this.selectedBufferIncrease = this.selectedBufferIncrease.bind(this);
+        this.selectedBufferFirst = this.selectedBufferFirst.bind(this);
+        this.selectedBufferLast = this.selectedBufferLast.bind(this);
         this.channelOffsetDecrease = this.channelOffsetDecrease.bind(this);
         this.channelOffsetIncrease = this.channelOffsetIncrease.bind(this);
+        this.channelOffsetFirst = this.channelOffsetFirst.bind(this);
+        this.channelOffsetLast = this.channelOffsetLast.bind(this);
         this.setAllOff = this.setAllOff.bind(this);
         this.setAllOn = this.setAllOn.bind(this);
     }
@@ -41,6 +46,12 @@ class Console extends React.Component {
     }
 
     updateValues() {
+        // Check if there is already a request running. If so, do nothing
+        if (this.state.inFlight) {
+            return;
+        }
+
+        this.setState({ inFlight: true });
         let buffer = this.state.selectedBuffer;
         if (buffer <= 9) {
             buffer = '0' + buffer;
@@ -59,9 +70,11 @@ class Console extends React.Component {
                         let values = this.state.values;
                         values.length = 0;
                         Array.prototype.push.apply(values, new Uint8Array(uncompressed.buffer));
-                        this.setState({ values: values });
+                        this.setState({ inFlight: false, values: values });
                     }
                 }
+            ).finally(
+                () => { this.setState({ inFlight: false }); }
             );
     }
 
@@ -91,11 +104,21 @@ class Console extends React.Component {
     }
 
     selectedBufferIncrease() {
-        if (this.state.selectedBuffer >= 31) {
+        if (this.state.selectedBuffer >= 24) {
             return;
         }
 
         this.setState({selectedBuffer: this.state.selectedBuffer + 1});
+        this.updateValues();
+    }
+
+    selectedBufferFirst() {
+        this.setState({selectedBuffer: 0});
+        this.updateValues();
+    }
+
+    selectedBufferLast() {
+        this.setState({selectedBuffer: 24});
         this.updateValues();
     }
 
@@ -113,6 +136,14 @@ class Console extends React.Component {
         }
 
         this.setState({channelOffset: this.state.channelOffset + 32});
+    }
+
+    channelOffsetFirst() {
+        this.setState({channelOffset: 0});
+    }
+
+    channelOffsetLast() {
+        this.setState({channelOffset: 480});
     }
 
     setAllOff() {
@@ -144,6 +175,7 @@ class Console extends React.Component {
     render() {
         return (
             <div className="console" class="container-fluid">
+                <div class="row"><div class="col">&nbsp;</div></div>
                 <div class="row"><div class="col">
                     Select buffer: &nbsp;&nbsp;
                     <Slider
@@ -153,11 +185,38 @@ class Console extends React.Component {
                         xmax={24}
                         x={this.state.selectedBuffer}
                         onChange={({ x }) => this.setState({ selectedBuffer: x })}
-                    /> &nbsp;&nbsp; {this.state.selectedBuffer} &nbsp;&nbsp; <Icon.ChevronLeft onClick={this.selectedBufferDecrease} /> &nbsp;&nbsp; <Icon.ChevronRight onClick={this.selectedBufferIncrease} />
+                    />
+                    &nbsp;&nbsp;
+                    <Icon.ChevronBarLeft onClick={this.selectedBufferFirst} />
+                    &nbsp;&nbsp;
+                    <Icon.ChevronLeft onClick={this.selectedBufferDecrease} />
+                    &nbsp;&nbsp;
+                    { this.state.selectedBuffer }
+                    &nbsp;&nbsp;
+                    <Icon.ChevronRight onClick={this.selectedBufferIncrease} />
+                    &nbsp;&nbsp;
+                    <Icon.ChevronBarRight onClick={this.selectedBufferLast} />
+                    &nbsp;&nbsp;
+                    { this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }
                 </div></div>
                 <div class="row"><div class="col">&nbsp;</div></div>
                 <div class="row"><div class="col">
-                    Starting channel: <Icon.ChevronLeft onClick={this.channelOffsetDecrease} /> &nbsp;&nbsp; <Icon.ChevronRight onClick={this.channelOffsetIncrease} /> &nbsp;&nbsp; All channels: <Icon.LightbulbOff onClick={this.setAllOff} /> &nbsp;&nbsp; <Icon.Lightbulb onClick={this.setAllOn} />
+                    Starting channel:
+                    &nbsp;&nbsp;
+                    <Icon.ChevronBarLeft onClick={this.channelOffsetFirst} />
+                    &nbsp;&nbsp;
+                    <Icon.ChevronLeft onClick={this.channelOffsetDecrease} />
+                    &nbsp;&nbsp;
+                    { this.state.channelOffset + 1 }
+                    &nbsp;&nbsp;
+                    <Icon.ChevronRight onClick={this.channelOffsetIncrease} />
+                    &nbsp;&nbsp;
+                    <Icon.ChevronBarRight onClick={this.channelOffsetLast} />
+                    &nbsp;&nbsp;
+                    All channels:
+                    <Icon.LightbulbOff onClick={this.setAllOff} />
+                    &nbsp;&nbsp;
+                    <Icon.Lightbulb onClick={this.setAllOn} />
                 </div></div>
                 <div class="row"><div class="col">
                     <table class="table" style={{ padding: '0px' }}>

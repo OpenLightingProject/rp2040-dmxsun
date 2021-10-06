@@ -6,6 +6,7 @@ class Log extends React.Component {
         this.state = {
             updateLogInterval: undefined,
             logEntries: {},
+            inFlight: false,
         };
     }
 
@@ -23,6 +24,12 @@ class Log extends React.Component {
     }
 
     updateLog() {
+        // Check if there is already a request running. If so, do nothing
+        if (this.state.inFlight) {
+            return;
+        }
+
+        this.setState({ inFlight: true });
         fetch(window.urlPrefix + '/log/get.json')
             .then(res => res.json())
             .then(
@@ -38,16 +45,23 @@ class Log extends React.Component {
 
                         console.log('ENTRIES:', entries);
                         this.setState({
+                            inFlight: false,
                             logEntries: entries
                         });
                     }
                 }
+            ).finally(
+                () => { this.setState({ inFlight: false }); }
             );
     }
     render() {
         return (
             <div className="log">
-                <h4>Reverse order, latest log entry is shown on top</h4>
+                <h4>
+                    Reverse order, latest log entry is shown on top
+                    &nbsp;&nbsp;
+                    { this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }
+                </h4>
                 <table class="table">
                     <thead><tr><th>Location</th><th>Text</th></tr></thead>
                     <tbody>
