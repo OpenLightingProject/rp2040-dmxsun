@@ -186,24 +186,34 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName == "ConfigWirelessGet") {
-        output["radioRole"] = "";
+        output["role"] = "";
         if (boardConfig.activeConfig->radioRole == RadioRole::sniffer) {
-            output["radioRole"] = "sniffer";
+            output["role"] = "sniffer";
         } else if (boardConfig.activeConfig->radioRole == RadioRole::broadcast) {
-            output["radioRole"] = "broadcast";
+            output["role"] = "broadcast";
         } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
-            output["radioRole"] = "mesh";
+            output["role"] = "mesh";
         }
-        output["radioChannel"] = boardConfig.activeConfig->radioChannel;
-        output["radioAddress"] = boardConfig.activeConfig->radioAddress;
-        output["radioCompression"] = boardConfig.activeConfig->radioParams.compression;
-        output["radioDataRate"] = "";
+        output["channel"] = boardConfig.activeConfig->radioChannel;
+        output["address"] = boardConfig.activeConfig->radioAddress;
+        output["compression"] = boardConfig.activeConfig->radioParams.compression;
+        output["dataRate"] = "";
         if (boardConfig.activeConfig->radioParams.dataRate == RF24_250KBPS) {
-            output["radioDataRate"] = "250kbps";
+            output["dataRate"] = "250kbps";
         } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_1MBPS) {
-            output["radioDataRate"] = "1Mbps";
+            output["dataRate"] = "1Mbps";
         } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_2MBPS) {
-            output["radioDataRate"] = "2Mbps";
+            output["dataRate"] = "2Mbps";
+        }
+        output["txPower"] = "";
+        if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_MIN) {
+            output["txPower"] = "min";
+        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_LOW) {
+            output["txPower"] = "low";
+        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_HIGH) {
+            output["txPower"] = "high";
+        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_MAX) {
+            output["txPower"] = "max";
         }
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
