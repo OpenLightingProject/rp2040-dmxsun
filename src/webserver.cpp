@@ -160,12 +160,26 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
         output["boardName"] = boardConfig.activeConfig->boardName;
-        output["configSource"] = boardConfig.configSource;
+        output["configSource"] = "";
+        if (boardConfig.configSource == ConfigSource::IOBoard00) {
+            output["configSource"] = "IOBoard00";
+        } else if (boardConfig.configSource == ConfigSource::IOBoard01) {
+            output["configSource"] = "IOBoard01";
+        } else if (boardConfig.configSource == ConfigSource::IOBoard10) {
+            output["configSource"] = "IOBoard10";
+        } else if (boardConfig.configSource == ConfigSource::IOBoard11) {
+            output["configSource"] = "IOBoard11";
+        } else if (boardConfig.configSource == ConfigSource::BaseBoard) {
+            output["configSource"] = "BaseBoard";
+        } else if (boardConfig.configSource == ConfigSource::Fallback) {
+            output["configSource"] = "Fallback";
+        }
         output["version"] = VERSION;
         output["ownIp"] = ownIp;
         output["ownMask"] = ownMask;
         output["hostIp"] = hostIp;
         output["serial"] = unique_id_string;
+        output["statusLedBrightness"] = boardConfig.activeConfig->statusLedBrightness;
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 

@@ -6,6 +6,7 @@ import {
   Link
 } from "react-router-dom";
 
+import Home from "./Home.js";
 import Console from "./Console.js";
 import Log from "./Log.js";
 import Wireless from "./Wireless.js";
@@ -20,7 +21,7 @@ export default function App() {
   // served by localhost during development but talk to the API of
   // a REAL dongle
   window.urlPrefix = '';
-  //window.urlPrefix = 'http://169.254.230.1'; // comment line if not used
+  //window.urlPrefix = 'http://169.254.53.1'; // comment line if not used
 
   return (
     <Router>
@@ -68,10 +69,6 @@ export default function App() {
       </div>
     </Router>
   );
-}
-
-function Home() {
-  return <h2>Home</h2>;
 }
 
 function Config() {
