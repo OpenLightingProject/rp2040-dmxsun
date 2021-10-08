@@ -29,6 +29,9 @@ class Home extends React.Component {
         const url = window.urlPrefix + '/overview/get.json';
         fetch(url)
             .then(res => res.json())
+            .catch(
+                () => { this.setState({ inFlight: false }); this.updateValues(); }
+            )
             .then(
                 (result) => {
                     if (result) {
@@ -105,7 +108,7 @@ class Home extends React.Component {
                                         <Slider
                                             axis="x"
                                             xstep={10}
-                                            xmin={0}
+                                            xmin={1}
                                             xmax={255}
                                             x={this.state.config.statusLedBrightness}
                                             onChange={({ x }) => this.setStatusLedBrightness(x)}
