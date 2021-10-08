@@ -335,14 +335,14 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 // array of pointer to string descriptors
 char const *string_desc_arr[] =
 {
-    [STRID_LANGID]         = (const char[]) {0x09, 0x04},           // 0: is supported language is English (0x0409)
-    [STRID_MANUFACTURER]   = "OpenLightingProject",                 // 1: Manufacturer
-    [STRID_PRODUCT]        = "rp2040-dongle http://255.255.255.255",// 2: Product
-    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",             // 3: Serial, fallback here, it's dynamically created in tud_descriptor_string_cb
-    [STRID_CDC_ACM_IFNAME] = "Debugging Console",                   // 4: CDC ACM interface name
-    [STRID_CDC_NCM_IFNAME] = "Network Interface",                   // 5: CDC NCM interface name
-    [STRID_MAC]            = "000000000000",                        // 6: MAC address is handled in tud_descriptor_string_cb
-    [STRID_VENDOR]         = "WebUSB"                               // 7: Vendor Interface
+    [STRID_LANGID]         = (const char[]) {0x09, 0x04},            // 0: is supported language is English (0x0409)
+    [STRID_MANUFACTURER]   = "OpenLightingProject",                  // 1: Manufacturer
+    [STRID_PRODUCT]        = "rp2040-dongle http://255.255.255.255/",// 2: Product
+    [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",              // 3: Serial, fallback here, it's dynamically created in tud_descriptor_string_cb
+    [STRID_CDC_ACM_IFNAME] = "Debugging Console",                    // 4: CDC ACM interface name
+    [STRID_CDC_NCM_IFNAME] = "Network Interface",                    // 5: CDC NCM interface name
+    [STRID_MAC]            = "000000000000",                         // 6: MAC address is handled in tud_descriptor_string_cb
+    [STRID_VENDOR]         = "WebUSB"                                // 7: Vendor Interface
 };
 
 static uint16_t _desc_str[128];
@@ -359,14 +359,19 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         pico_unique_board_id_t board_id;
         pico_get_unique_board_id(&board_id);
 
-        char serial[33];
+        char serial[26];
         str = serial;
 
-        snprintf(serial, 32, "RP2040_");
-
-        for (int i = 0; (i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES) && (i < 8); ++i) {
-            snprintf(serial + i*2 + 7, 32, "%02x", board_id.id[i]);
-        }
+        snprintf(serial, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
+            board_id.id[0],
+            board_id.id[1],
+            board_id.id[2],
+            board_id.id[3],
+            board_id.id[4],
+            board_id.id[5],
+            board_id.id[6],
+            board_id.id[7]
+        );
     } else if (index == STRID_PRODUCT) {
       // Network interface name has been requested. Get our IP there
       char product[64];

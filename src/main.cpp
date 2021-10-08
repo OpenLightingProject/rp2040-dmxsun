@@ -132,9 +132,7 @@ int main() {
     ArtnetIn::init();
 
     // Finally, turn on the green component of the SYSTEM status LED
-    uint8_t r, g, b;
-    statusLeds.getLed(4, &r, &g, &b);
-    statusLeds.setLed(4, r, 255, b);
+    statusLeds.setStaticOn(4, 0, 1, 0);
     sleep_ms(10);
     statusLeds.writeLeds();
 
@@ -157,6 +155,7 @@ int main() {
         tud_task();
         webServer.cyclicTask();
 //        wireless.cyclicTask();
+        statusLeds.cyclicTask();
         led_blinking_task();
 //        sleep_us(10);
     }
@@ -168,6 +167,7 @@ void core1_tasks() {
 //        tud_task();
 //        webServer.cyclicTask();
         wireless.cyclicTask();
+//        statusLeds.cyclicTask();
 //        led_blinking_task();
 //        sleep_us(10);
     }

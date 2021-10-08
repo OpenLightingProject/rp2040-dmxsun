@@ -3,6 +3,10 @@
 
 #include "pins.h"
 
+#ifdef __cplusplus
+#include <RF24.h>
+#endif
+
 // The config area in the flash is the last sector since the smallest
 // area we can erase is one sector. One sector is 4kByte large and
 // the Pico's flash is 2048kByte large. Thus, the config area starts
@@ -65,6 +69,15 @@ enum UsbProtocol : uint8_t {
                                    // Not sure if we can actually do this
                                    // since we would need to properly emulate a
                                    // FT*I chip for that
+};
+
+// Size: 2 byte
+struct RadioParams {
+    uint8_t compression           : 1;
+    uint8_t allowPartial          : 1;
+    rf24_datarate_e dataRate      : 3;
+    rf24_pa_dbm_e txPower         : 3;
+    uint8_t padding               : 8;
 };
 
 enum RadioRole : uint8_t {
@@ -140,20 +153,27 @@ struct ConfigData {
     struct PortParams port3params;
 
 // Section 2: System configuration stored in this board.
-    uint8_t           configVersion; // values 0x00 and 0xff => invalid
-    char              boardName[32];
-    uint32_t          ownIp;
-    uint32_t          ownMask;
-    uint32_t          hostIp;
-    UsbProtocol       usbProtocol;
-    uint8_t           usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
-    RadioRole         radioRole;
-    uint8_t           radioChannel; // 0-127; Higher values maybe FHSS?
-    uint16_t          radioAddress; // RF24Mesh: "nodeId"
-    uint16_t          radioParams;  // Bit field: 0,1: Compression, 2: Partial or Full transfers, 3,4: Data rate, 5,6: TX power
-    struct Patching   patching[MAX_PATCHINGS];
-    struct E131out    e131out[8];
-    uint8_t           statusLedBrightness;
+    uint8_t             configVersion; // values 0x00 and 0xff => invalid
+    char                boardName[32];
+    uint32_t            ownIp;
+    uint32_t            ownMask;
+    uint32_t            hostIp;
+    UsbProtocol         usbProtocol;
+    uint8_t             usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
+    RadioRole           radioRole;
+    uint8_t             radioChannel; // 0-127; Higher values maybe FHSS?
+    uint16_t            radioAddress; // RF24Mesh: "nodeId"
+    struct RadioParams  radioParams;  // Bit field: 0,1: Compression, 2: Partial or Full transfers, 3,4: Data rate, 5,6: TX power
+    struct Patching     patching[MAX_PATCHINGS];
+    struct E131out      e131out[8];
+    uint8_t             statusLedBrightness;
+};
+
+static const RadioParams constDefaultRadioParams = {
+    .compression         = 1,
+    .allowPartial        = 0,
+    .dataRate            = RF24_2MBPS,
+    .txPower             = RF24_PA_MAX,
 };
 
 static const ConfigData constDefaultConfig = {
@@ -166,6 +186,7 @@ static const ConfigData constDefaultConfig = {
     .radioRole           = RadioRole::broadcast,
     .radioChannel        = 99,
     .radioAddress        = 0,
+    .radioParams         = constDefaultRadioParams,
     .statusLedBrightness = 20,
 };
 

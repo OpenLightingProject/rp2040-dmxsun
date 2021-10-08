@@ -137,31 +137,15 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
     wbuilder["indentation"] = "";
 
-    if (tagName == "ConfigStatusLedsBrightnessGet") {
-        return snprintf(pcInsert, iInsertLen, "{\"value\":%d}", boardConfig.activeConfig->statusLedBrightness);
-
-    } else if (tagName == "ConfigWebSeverIpGet") {
-        char ownIp[16];
-        char ownMask[16];
-        char hostIp[16];
-        WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
-        WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
-        WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
-        output["ownIp"] = ownIp;
-        output["ownMask"] = ownMask;
-        output["hostIp"] = hostIp;
-        output_string = Json::writeString(wbuilder, output);
-        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
-
-    } else if (tagName == "OverviewGet") {
+    if (tagName == "OverviewGet") {
         char ownIp[16];
         char ownMask[16];
         char hostIp[16];
         pico_unique_board_id_t board_id;
-        char unique_id_string[18];
+        char unique_id_string[25];
         
         pico_get_unique_board_id(&board_id);
-        snprintf(unique_id_string, 18, "%02x%02x%02x%02x%02x%02x%02x%02x",
+        snprintf(unique_id_string, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
             board_id.id[0],
             board_id.id[1],
             board_id.id[2],
@@ -181,7 +165,46 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["ownIp"] = ownIp;
         output["ownMask"] = ownMask;
         output["hostIp"] = hostIp;
-        output["uniqueId"] = unique_id_string;
+        output["serial"] = unique_id_string;
+        output_string = Json::writeString(wbuilder, output);
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
+
+    } else if (tagName == "ConfigStatusLedsBrightnessGet") {
+        return snprintf(pcInsert, iInsertLen, "{\"value\":%d}", boardConfig.activeConfig->statusLedBrightness);
+
+    } else if (tagName == "ConfigWebSeverIpGet") {
+        char ownIp[16];
+        char ownMask[16];
+        char hostIp[16];
+        WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
+        WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
+        WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
+        output["ownIp"] = ownIp;
+        output["ownMask"] = ownMask;
+        output["hostIp"] = hostIp;
+        output_string = Json::writeString(wbuilder, output);
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
+
+    } else if (tagName == "ConfigWirelessGet") {
+        output["radioRole"] = "";
+        if (boardConfig.activeConfig->radioRole == RadioRole::sniffer) {
+            output["radioRole"] = "sniffer";
+        } else if (boardConfig.activeConfig->radioRole == RadioRole::broadcast) {
+            output["radioRole"] = "broadcast";
+        } else if (boardConfig.activeConfig->radioRole == RadioRole::mesh) {
+            output["radioRole"] = "mesh";
+        }
+        output["radioChannel"] = boardConfig.activeConfig->radioChannel;
+        output["radioAddress"] = boardConfig.activeConfig->radioAddress;
+        output["radioCompression"] = boardConfig.activeConfig->radioParams.compression;
+        output["radioDataRate"] = "";
+        if (boardConfig.activeConfig->radioParams.dataRate == RF24_250KBPS) {
+            output["radioDataRate"] = "250kbps";
+        } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_1MBPS) {
+            output["radioDataRate"] = "1Mbps";
+        } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_2MBPS) {
+            output["radioDataRate"] = "2Mbps";
+        }
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
@@ -195,18 +218,20 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         sscanf(ssi_tag_name, "DmxBuffer%dGet", &buffer);
         offset += sprintf(pcInsert + offset, "{\"buffer\":%d,\"value\":\"", buffer);
 
-        void* dummy;
+        // TODO: common function to compress & base64-encode
+
+/*        void* dummy;
         dummy = malloc(1);
         free(dummy);
         LOG("malloc returned %08x PRE snappy. Stacklimit: %08x", dummy, __StackLimit);
-
+*/
         size_t actuallyWritten = 800;
         snappy::RawCompress((const char *)dmxBuffer.buffer[buffer], 512, (char*)WebServer::tmpBuf, &actuallyWritten);
 
-        dummy = malloc(1);
+/*        dummy = malloc(1);
         free(dummy);
         LOG("malloc returned %08x POST snappy. Stacklimit: %08x", dummy, __StackLimit);
-
+*/
         base64_init_encodestate(&WebServer::b64Encode);
         offset += base64_encode_block(WebServer::tmpBuf, actuallyWritten, pcInsert + offset, &WebServer::b64Encode);
         offset += base64_encode_blockend(pcInsert + offset, &WebServer::b64Encode);
@@ -223,6 +248,8 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         uint32_t offset2 = 0;
 
         offset += sprintf(pcInsert + offset, "{\"spectrum\":\"");
+
+        // TODO: common function to compress & base64-encode
 
         // Compress the array using snappy
         size_t actuallyRead = 0;

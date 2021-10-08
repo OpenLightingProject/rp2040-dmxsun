@@ -41,15 +41,15 @@ void BoardConfig::readIOBoards() {
         if (ret > 0) {
             this->responding[addr - 80] = true;
             if (this->rawData[addr - 80][0] == 0xff) {
-                // EEPROM detected but content invalid => orange LED
-                statusLeds.setLed(addr - 80, 255, 127, 0);
+                // EEPROM detected but content invalid => yellow LED
+                statusLeds.setStatic(addr - 80, 1, 1, 0);
             } else {
                 // EEPROM detected and content seems valid => green LED
-                statusLeds.setLed(addr - 80, 0, 255, 0);
+                statusLeds.setStatic(addr - 80, 0, 1, 0);
             }
         } else {
             // EEPROM not detected :(
-            statusLeds.setLed(addr - 80, 255, 0, 0);
+                statusLeds.setStatic(addr - 80, 1, 0, 0);
         }
     }
     statusLeds.writeLeds();
@@ -61,7 +61,6 @@ void BoardConfig::prepareConfig() {
     ConfigData* cfg10 = (ConfigData*)this->rawData[2];
     ConfigData* cfg11 = (ConfigData*)this->rawData[3];
     ConfigData* cfgbase = (ConfigData*)this->rawData[4];
-    uint8_t r, g, b;
 
     // Also copy the data from the internal flash to RAM so it can be modified
     memcpy(this->rawData[4], config_flash_contents, 256);
@@ -75,8 +74,7 @@ void BoardConfig::prepareConfig() {
     ) {
         BoardConfig::activeConfig = cfg00;
         BoardConfig::configSource = ConfigSource::IOBoard00;
-        statusLeds.getLed(0, &r, &g, &b);
-        statusLeds.setLed(0, r, g, 255);
+        statusLeds.setStaticOn(0, 0, 0, 1);
     } else if (
         (cfg01->boardType > BoardType::invalid_00) &&
         (cfg01->boardType < BoardType::invalid_ff) &&
@@ -84,8 +82,7 @@ void BoardConfig::prepareConfig() {
     ) {
         BoardConfig::activeConfig = cfg01;
         BoardConfig::configSource = ConfigSource::IOBoard01;
-        statusLeds.getLed(1, &r, &g, &b);
-        statusLeds.setLed(1, r, g, 255);
+        statusLeds.setStaticOn(1, 0, 0, 1);
     } else if (
         (cfg10->boardType > BoardType::invalid_00) &&
         (cfg10->boardType < BoardType::invalid_ff) &&
@@ -93,8 +90,7 @@ void BoardConfig::prepareConfig() {
     ) {
         BoardConfig::activeConfig = cfg10;
         BoardConfig::configSource = ConfigSource::IOBoard10;
-        statusLeds.getLed(2, &r, &g, &b);
-        statusLeds.setLed(2, r, g, 255);
+        statusLeds.setStaticOn(2, 0, 0, 1);
     } else if (
         (cfg11->boardType > BoardType::invalid_00) &&
         (cfg11->boardType < BoardType::invalid_ff) &&
@@ -102,8 +98,7 @@ void BoardConfig::prepareConfig() {
     ) {
         BoardConfig::activeConfig = cfg11;
         BoardConfig::configSource = ConfigSource::IOBoard11;
-        statusLeds.getLed(3, &r, &g, &b);
-        statusLeds.setLed(3, r, g, 255);
+        statusLeds.setStaticOn(3, 0, 0, 1);
     } else if (
         (cfgbase->boardType > BoardType::invalid_00) &&
         (cfgbase->boardType < BoardType::invalid_ff) &&
@@ -111,8 +106,7 @@ void BoardConfig::prepareConfig() {
     ) {
         BoardConfig::activeConfig = cfgbase;
         BoardConfig::configSource = ConfigSource::BaseBoard;
-        statusLeds.getLed(4, &r, &g, &b);
-        statusLeds.setLed(4, r, g, 255);
+        statusLeds.setStaticOn(4, 0, 0, 1);
     } else {
         // We don't have any valid configuration at all :-O
         // Create a default one and use it for now
@@ -121,7 +115,7 @@ void BoardConfig::prepareConfig() {
         *cfgbase = this->defaultConfig();
         BoardConfig::activeConfig = cfgbase;
         BoardConfig::configSource = ConfigSource::Fallback;
-        statusLeds.setLed(4, 255, 0, 255);
+        statusLeds.setStatic(4, 1, 0, 1);
     }
     statusLeds.writeLeds();
 }

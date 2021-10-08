@@ -18,15 +18,24 @@
 class StatusLeds {
   public:
     void init();
-    void getLed(uint8_t index, uint8_t* r, uint8_t* g, uint8_t* b);
-    void setLed(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+
+    void setStatic(uint8_t ledNum, bool red, bool green, bool blue);
+    void setStaticOn(uint8_t ledNum, bool red, bool green, bool blue);
+    void setStaticOff(uint8_t ledNum, bool red, bool green, bool blue);
+
+    void setBlinkOnce(uint8_t ledNum, bool red, bool green, bool blue);
+
+    void cyclicTask();
     void setBrightness(uint8_t brightness);
-    void writeLeds(); // TODO: Replace by cyclicTask so clients don't need to call this
+    void writeLeds(); // Usually called by cyclicTask. However, needed during startup phase
 
   private:
     uint32_t pixels[8];
+    uint32_t toBlinkOn[8][3];
+    uint32_t toBlinkOff[8][3];
     uint pio_program;
     uint8_t brightness = 127;
+    uint32_t lastRefresh;
 };
 
 #endif // STATUSLEDS_H
