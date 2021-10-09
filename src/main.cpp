@@ -26,7 +26,9 @@ extern "C" {
 #include "webserver.h"
 #include "wireless.h"
 #include "localdmx.h"
+
 #include "artnet_in.h"
+#include "e1_31_in.h"
 
 extern "C" {
 #include <bsp/board.h>          // On-board-LED
@@ -128,8 +130,9 @@ int main() {
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
 
-    // Phase 10: Start our Artnet-Receiver
+    // Phase 10: Start our ArtNet- and E1.31 receiver
     ArtnetIn::init();
+    E1_31In::init();
 
     // Finally, turn on the green component of the SYSTEM status LED
     statusLeds.setStaticOn(4, 0, 1, 0);

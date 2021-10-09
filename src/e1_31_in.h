@@ -1,5 +1,5 @@
-#ifndef ARTNET_IN_H
-#define ARTNET_IN_H
+#ifndef E1_31_IN_H
+#define E1_31_IN_H
 
 #include "pico/stdlib.h"
 
@@ -14,10 +14,10 @@
 
 #include <string>
 
-// Data types (enums and structs) are defined in artnet_in.cpp since they
+// Data types (enums and structs) are defined in e1_31_in.cpp since they
 // are used only there
 
-class ArtnetIn {
+class E1_31In {
   public:
     static void init();
     static void stop();
@@ -25,7 +25,6 @@ class ArtnetIn {
 
   private:
     static struct udp_pcb *pcb;
-    static struct ArtNet_OpPollReply opPollReply;
 };
 
 #endif // __cplusplus
@@ -35,7 +34,7 @@ class ArtnetIn {
 extern "C" {
 #endif
 
-static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
+static void e1_31_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
 
 #ifdef __cplusplus
 }

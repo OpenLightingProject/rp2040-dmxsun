@@ -49,6 +49,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     artnet_in.cpp
     boardconfig.cpp
     dmxbuffer.cpp
+    e1_31_in.cpp
     localdmx.cpp
     log.cpp
     main.cpp

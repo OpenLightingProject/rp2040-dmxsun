@@ -75,7 +75,7 @@ udp_pcb* ArtnetIn::pcb;
 
 // UDP recv callback (for C-based code, not part of the class)
 static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-    ArtnetIn::receive(arg, pcb, p, addr, port);
+  ArtnetIn::receive(arg, pcb, p, addr, port);
 }
 
 void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
