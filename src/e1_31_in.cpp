@@ -78,7 +78,7 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
         //LOG("flags: %04x, vector: %08x, source name: %s, sequence: %02x, universe: %04x",
         //  framing->flags_and_length, framing->vector, framing->source_name, framing->sequence_number, framing->universe);
         
-        universe = ((framing->universe & 0xFF) << 8) + ((framing->universe & 0xFF00) >> 8);
+        universe = ntohs(framing->universe);
         // E1.31 starts to count at 1 instead of 0, so subtract 1
         if (universe > 0) {
           universe = universe - 1;
@@ -99,12 +99,12 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
         //LOG("flags: %04x, vector: %02x", dmp->flags_and_length, dmp->vector);
         //LOG("offset: %u, increments: %u, count: %u", dmp->first_property_address, dmp->address_increment, dmp->property_value_count);
 
-        size = ((dmp->property_value_count & 0xFF) << 8) + ((dmp->property_value_count & 0xFF00) >> 8);
+        size = ntohs(dmp->property_value_count);
 
         size = MIN(size, 512);
 
-        LOG("E1.31 DMX DATA IN. Universe: %u, Sequence: %02x, offset: %u, increments: %u, count: %u", framing->universe, framing->sequence_number,
-          dmp->first_property_address, dmp->address_increment, dmp->property_value_count);
+        LOG("E1.31 DMX DATA IN. Universe: %u, Sequence: %02x, offset: %u, increments: %u, count: %u", universe, framing->sequence_number,
+          ntohs(dmp->first_property_address), ntohs(dmp->address_increment), size);
 
         if (universe < DMXBUFFER_COUNT) {
           dmxBuffer.setBuffer(universe, dmp->start_and_data + 1, size);

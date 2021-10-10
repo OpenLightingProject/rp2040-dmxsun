@@ -106,9 +106,9 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
           struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)((uint8_t*)p->payload + 12);
 
           // Need to swap bytes due to endianness
-          uint16_t length = ((dmx->length & 0xFF) << 8) + ((dmx->length & 0xFF00) >> 8);
+          uint16_t length = ntohs(dmx->length);
 
-          LOG("It's OpDmx! Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
+          LOG("ArtNet: OpDmx :D Sequence: %d, Physical: %d, Universe: %d, Length: %d", dmx->sequence, dmx->physical, dmx->universe, length);
 
           length = MIN(length, 512);
 
