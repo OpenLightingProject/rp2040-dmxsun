@@ -25,12 +25,17 @@ class StatusLeds {
 
     void setBlinkOnce(uint8_t ledNum, bool red, bool green, bool blue);
 
+    void getLed(uint8_t ledNum,
+      bool* red_static, bool* green_static, bool* blue_static,
+      bool* red_blink, bool* green_blink, bool* blue_blink);
+
     void cyclicTask();
     void setBrightness(uint8_t brightness);
     void writeLeds(); // Usually called by cyclicTask. However, needed during startup phase
 
   private:
     uint32_t pixels[8];
+    uint32_t pixelsBlink[8];
     uint32_t toBlinkOn[8][3];
     uint32_t toBlinkOff[8][3];
     uint pio_program;

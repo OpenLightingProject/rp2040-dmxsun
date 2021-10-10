@@ -20,6 +20,7 @@ void StatusLeds::init() {
 
     // * 4 is sizeof(uint32_t)
     memset(this->pixels, 0x00, 8 * 4);
+    memset(this->pixelsBlink, 0x00, 8 * 4);
     memset(this->toBlinkOn, 0x00, 8 * 3 * 4);
     memset(this->toBlinkOff, 0x00, 8 * 3 * 4);
 }
@@ -81,6 +82,29 @@ void StatusLeds::setBlinkOnce(uint8_t ledNum, bool red, bool green, bool blue) {
     }
 };
 
+void StatusLeds::getLed(uint8_t ledNum,
+  bool* red_static, bool* green_static, bool* blue_static,
+  bool* red_blink, bool* green_blink, bool* blue_blink) {
+    if (red_static && (pixels[ledNum] & 0x0000ff00)) {
+        *red_static = true;
+    }
+    if (green_static && (pixels[ledNum] & 0x00ff0000)) {
+        *green_static = true;
+    }
+    if (blue_static && (pixels[ledNum] & 0x000000ff)) {
+        *blue_static = true;
+    }
+    if (red_blink && ((toBlinkOn[ledNum][0]) || (toBlinkOff[ledNum][0]))) {
+        *red_blink = true;
+    }
+    if (green_blink && ((toBlinkOn[ledNum][1]) || (toBlinkOff[ledNum][1]))) {
+        *green_blink = true;
+    }
+    if (blue_blink && ((toBlinkOn[ledNum][2]) || (toBlinkOff[ledNum][2]))) {
+        *blue_blink = true;
+    }
+};
+
 void StatusLeds::cyclicTask() {
     uint32_t time_now = board_millis();
 
@@ -90,34 +114,43 @@ void StatusLeds::cyclicTask() {
     lastRefresh = time_now;
 
     for (uint8_t i = 0; i < 8; i++) {
+        // Get the current state of the blinking-influenced part
+        uint32_t pixel = pixelsBlink[i];
+
+        // Modify that part according to the wanted timings
+        // Part 1: Switch OFF colors if they are due
         if (toBlinkOff[i][0] && (toBlinkOff[i][0] < time_now)) {
-            this->setStaticOff(i, 1, 0, 0);
+            pixel = pixel & 0xffff00ff;
             toBlinkOff[i][0] = 0;
         }
         if (toBlinkOff[i][1] && (toBlinkOff[i][1] < time_now)) {
-            this->setStaticOff(i, 0, 1, 0);
+            pixel = pixel & 0xff00ffff;
             toBlinkOff[i][1] = 0;
         }
         if (toBlinkOff[i][2] && (toBlinkOff[i][2] < time_now)) {
-            this->setStaticOff(i, 0, 0, 1);
+            pixel = pixel & 0xffffff00;
             toBlinkOff[i][2] = 0;
         }
 
+        // Part 2: Switch ON colors if they are due
         if (toBlinkOn[i][0] && (toBlinkOn[i][0] < time_now)) {
-            this->setStaticOn(i, 1, 0, 0);
+            pixel = pixel | 0x0000ff00;
             toBlinkOn[i][0] = 0;
             toBlinkOff[i][0] = time_now + 200;
         }
         if (toBlinkOn[i][1] && (toBlinkOn[i][1] < time_now)) {
-            this->setStaticOn(i, 0, 1, 0);
+            pixel = pixel | 0x00ff0000;
             toBlinkOn[i][1] = 0;
             toBlinkOff[i][1] = time_now + 200;
         }
         if (toBlinkOn[i][2] && (toBlinkOn[i][2] < time_now)) {
-            this->setStaticOn(i, 0, 0, 1);
+            pixel = pixel | 0x000000ff;
             toBlinkOn[i][2] = 0;
             toBlinkOff[i][2] = time_now + 200;
         }
+
+        // Save the new state
+        pixelsBlink[i] = pixel;
     }
 
     this->writeLeds();
@@ -131,13 +164,13 @@ void StatusLeds::setBrightness(uint8_t brightness) {
 void StatusLeds::writeLeds() {
     for (uint8_t i = 0; i < 8; i++) {
         if (this->brightness == 255) {
-            put_pixel(this->pixels[i]);
+            put_pixel(this->pixels[i] | this->pixelsBlink[i]);
         } else if (this->brightness == 0) {
             put_pixel(0);
         } else {
-            uint8_t r = this->pixels[i] >> 8;
-            uint8_t g = this->pixels[i] >> 16;
-            uint8_t b = this->pixels[i] & 0xff;
+            uint8_t r = (this->pixels[i] | this->pixelsBlink[i]) >> 8;
+            uint8_t g = (this->pixels[i] | this->pixelsBlink[i]) >> 16;
+            uint8_t b = (this->pixels[i] | this->pixelsBlink[i]) & 0xff;
             r = (uint16_t)r * this->brightness / 255;
             g = (uint16_t)g * this->brightness / 255;
             b = (uint16_t)b * this->brightness / 255;
