@@ -81,7 +81,7 @@ static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip
 void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
     struct pbuf *p_send;
 
-    LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
+    //LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
 
     if ((p->tot_len >= 12) && (!memcmp(p->payload, ArtNetId, 8))) {
       struct ArtNet_Header* header = (struct ArtNet_Header*)p->payload;
@@ -103,7 +103,7 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
         break;
 
         case 0x5000:
-          struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)(p->payload + 12);
+          struct ArtNet_OpDmx* dmx = (struct ArtNet_OpDmx*)((uint8_t*)p->payload + 12);
 
           // Need to swap bytes due to endianness
           uint16_t length = ((dmx->length & 0xFF) << 8) + ((dmx->length & 0xFF00) >> 8);

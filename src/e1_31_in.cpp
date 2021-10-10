@@ -51,7 +51,7 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
   uint16_t universe = 0;
   uint16_t size = 0;
 
-  LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
+  //LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
   
   uint16_t* data = (uint16_t*)p->payload;
   
@@ -65,7 +65,7 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
       (header->postamble_size == 0x0000) &&
       (!memcmp(header->acn_packet_identifier, AcnPacketIdentifier, 12)))
   {
-    LOG("It's ACN :D. Vector: %08x", header->vector);
+    //LOG("It's ACN :D. Vector: %08x", header->vector);
     
     switch (header->vector) {
       case 0x04000000:
@@ -75,8 +75,8 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
 
         struct e1_31_framing_layer* framing = (struct e1_31_framing_layer*)((uint8_t*)p->payload + 38);
 
-        LOG("flags: %04x, vector: %08x, source name: %s, sequence: %02x, universe: %04x",
-          framing->flags_and_length, framing->vector, framing->source_name, framing->sequence_number, framing->universe);
+        //LOG("flags: %04x, vector: %08x, source name: %s, sequence: %02x, universe: %04x",
+        //  framing->flags_and_length, framing->vector, framing->source_name, framing->sequence_number, framing->universe);
         
         universe = ((framing->universe & 0xFF) << 8) + ((framing->universe & 0xFF00) >> 8);
         // E1.31 starts to count at 1 instead of 0, so subtract 1
@@ -96,12 +96,15 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
         // TODO: We assume FULL frames here for now
         // TODO: Byteswap all values ;)
 
-        LOG("flags: %04x, vector: %02x", dmp->flags_and_length, dmp->vector);
-        LOG("offset: %u, increments: %u, count: %u", dmp->first_property_address, dmp->address_increment, dmp->property_value_count);
+        //LOG("flags: %04x, vector: %02x", dmp->flags_and_length, dmp->vector);
+        //LOG("offset: %u, increments: %u, count: %u", dmp->first_property_address, dmp->address_increment, dmp->property_value_count);
 
         size = ((dmp->property_value_count & 0xFF) << 8) + ((dmp->property_value_count & 0xFF00) >> 8);
 
         size = MIN(size, 512);
+
+        LOG("E1.31 DMX DATA IN. Universe: %u, Sequence: %02x, offset: %u, increments: %u, count: %u", framing->universe, framing->sequence_number,
+          dmp->first_property_address, dmp->address_increment, dmp->property_value_count);
 
         if (universe < DMXBUFFER_COUNT) {
           dmxBuffer.setBuffer(universe, dmp->start_and_data + 1, size);

@@ -158,8 +158,8 @@ int main() {
         tud_task();
         webServer.cyclicTask();
 //        wireless.cyclicTask();
-        statusLeds.cyclicTask();
-        led_blinking_task();
+//        statusLeds.cyclicTask();
+//        led_blinking_task();
 //        sleep_us(10);
     }
 };
@@ -170,8 +170,8 @@ void core1_tasks() {
 //        tud_task();
 //        webServer.cyclicTask();
         wireless.cyclicTask();
-//        statusLeds.cyclicTask();
-//        led_blinking_task();
+        statusLeds.cyclicTask();
+        led_blinking_task();
 //        sleep_us(10);
     }
 };
