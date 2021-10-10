@@ -65,7 +65,7 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
       (header->postamble_size == 0x0000) &&
       (!memcmp(header->acn_packet_identifier, AcnPacketIdentifier, 12)))
   {
-    //LOG("It's ACN :D. Vector: %08x", header->vector);
+    //LOG("It's E1.31 :D. Vector: %08x", header->vector);
     
     switch (header->vector) {
       case 0x04000000:
