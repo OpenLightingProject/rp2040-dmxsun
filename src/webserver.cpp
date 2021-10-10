@@ -183,6 +183,29 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
+    } else if (tagName == "OverviewStatusledsGet") {
+        bool red_static, blue_static, green_static;
+        bool red_blink, green_blink, blue_blink;
+        char hexColor[8];
+
+        for (int i = 0; i < 8; i++) {
+            red_static = 0;
+            green_static = 0;
+            blue_static = 0;
+            red_blink = 0;
+            green_blink = 0;
+            blue_blink = 0;
+            Json::Value ledStatus;
+            statusLeds.getLed(i, &red_static, &green_static, &blue_static, &red_blink, &green_blink, &blue_blink);
+            snprintf(hexColor, 8, "#%02x%02x%02x", red_static ? 0xff : 0x00, green_static ? 0xff : 0x00, blue_static ? 0xff : 0x00);
+            ledStatus["static"] = hexColor;
+            snprintf(hexColor, 8, "#%02x%02x%02x", red_blink ? 0xff : 0x00, green_blink ? 0xff : 0x00, blue_blink ? 0xff : 0x00);
+            ledStatus["blink"] = hexColor;
+            output[i] = ledStatus;
+        }
+        output_string = Json::writeString(wbuilder, output);
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
+
     } else if (tagName == "ConfigStatusLedsBrightnessGet") {
         return snprintf(pcInsert, iInsertLen, "{\"value\":%d}", boardConfig.activeConfig->statusLedBrightness);
 

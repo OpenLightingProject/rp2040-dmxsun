@@ -8,15 +8,34 @@ class Home extends React.Component {
         this.state = {
             config: {},
             inFlight: false,
+            leds: [
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"},
+                {"blink":"#000000","static":"#000000"}
+            ],
+            updateStatusLedsInterval: undefined,
         };
         this.setBrightnessTimeout = undefined;
     }
 
+
     componentDidMount() {
         this.updateValues.bind(this)();
+        let interval = window.setInterval(this.updateStatuLeds.bind(this), 2000);
+        this.setState({
+            updateStatusLedsInterval: interval
+        });
     }
 
     componentWillUnmount() {
+        if (this.state.updateStatusLedsInterval) {
+            window.clearInterval(this.state.updateStatusLedsInterval);
+        }
     }
 
     updateValues() {
@@ -37,6 +56,28 @@ class Home extends React.Component {
                     if (result) {
                         console.log('Values fetched: ', result);
                         this.setState({ inFlight: false, config: result });
+                    }
+                }
+            ).finally(
+                () => { this.setState({ inFlight: false }); }
+            );
+    }
+
+    updateStatuLeds() {
+        // Check if there is already a request running. If so, do nothing
+        if (this.state.inFlight) {
+            return;
+        }
+
+        this.setState({ inFlight: true });
+        const url = window.urlPrefix + '/overview/statusleds/get.json';
+        fetch(url)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('StatusLeds fetched: ', result);
+                        this.setState({ inFlight: false, leds: result });
                     }
                 }
             ).finally(
@@ -114,6 +155,24 @@ class Home extends React.Component {
                                             onChange={({ x }) => this.setStatusLedBrightness(x)}
                                         />
                                     </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col">
+                        Status Leds (lower right corner shows blinking aspect):
+                        <table class="table" style={{ padding: '0px' }}>
+                            <tbody>
+                                <tr style={{ padding: '0px' }}>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[2].static + ' 0%, ' + this.state.leds[2].static + ' 59%, ' + this.state.leds[2].blink + ' 61%, ' + this.state.leds[2].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[5].static + ' 0%, ' + this.state.leds[5].static + ' 59%, ' + this.state.leds[5].blink + ' 61%, ' + this.state.leds[5].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[6].static + ' 0%, ' + this.state.leds[6].static + ' 59%, ' + this.state.leds[6].blink + ' 61%, ' + this.state.leds[6].blink + ' 100%)' }}></div></td>
+                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[7].static + ' 0%, ' + this.state.leds[7].static + ' 59%, ' + this.state.leds[7].blink + ' 61%, ' + this.state.leds[7].blink + ' 100%)' }}></div></td>
                                 </tr>
                             </tbody>
                         </table>
