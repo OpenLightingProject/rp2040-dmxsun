@@ -201,6 +201,12 @@ class BoardConfig {
     ConfigData defaultConfig();
     int saveConfig(uint8_t slot);
 
+    ConfigData* configData_Board00;
+    ConfigData* configData_Board01;
+    ConfigData* configData_Board10;
+    ConfigData* configData_Board11;
+    ConfigData* configData_BaseBoard;
+
   private:
     bool responding[4];       // True if the board resonded to the bus scan
     uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each)
