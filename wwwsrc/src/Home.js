@@ -161,18 +161,41 @@ class Home extends React.Component {
                     </div>
 
                     <div class="col">
-                        Status Leds (lower right corner shows blinking aspect):
+                        Status Leds (lower half shows blinking aspect):
                         <table class="table" style={{ padding: '0px' }}>
                             <tbody>
                                 <tr style={{ padding: '0px' }}>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[2].static + ' 0%, ' + this.state.leds[2].static + ' 59%, ' + this.state.leds[2].blink + ' 61%, ' + this.state.leds[2].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[5].static + ' 0%, ' + this.state.leds[5].static + ' 59%, ' + this.state.leds[5].blink + ' 61%, ' + this.state.leds[5].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[6].static + ' 0%, ' + this.state.leds[6].static + ' 59%, ' + this.state.leds[6].blink + ' 61%, ' + this.state.leds[6].blink + ' 100%)' }}></div></td>
-                                    <td><div style={{ border: '2px solid black', padding: '0px', width: '40px', height: '40px', background: 'linear-gradient(135deg, ' + this.state.leds[7].static + ' 0%, ' + this.state.leds[7].static + ' 59%, ' + this.state.leds[7].blink + ' 61%, ' + this.state.leds[7].blink + ' 100%)' }}></div></td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div><br />
+                                        Slot 00
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div><br />
+                                        Slot 01
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[2].static + ' 0%, ' + this.state.leds[2].static + ' 59%, ' + this.state.leds[2].blink + ' 61%, ' + this.state.leds[2].blink + ' 100%)' }}></div><br />
+                                        Slot 10
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div><br />
+                                        Slot 11
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div><br />
+                                        System
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[5].static + ' 0%, ' + this.state.leds[5].static + ' 59%, ' + this.state.leds[5].blink + ' 61%, ' + this.state.leds[5].blink + ' 100%)' }}></div><br />
+                                        USB
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[6].static + ' 0%, ' + this.state.leds[6].static + ' 59%, ' + this.state.leds[6].blink + ' 61%, ' + this.state.leds[6].blink + ' 100%)' }}></div><br />
+                                        Wireless
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[7].static + ' 0%, ' + this.state.leds[7].static + ' 59%, ' + this.state.leds[7].blink + ' 61%, ' + this.state.leds[7].blink + ' 100%)' }}></div><br />
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

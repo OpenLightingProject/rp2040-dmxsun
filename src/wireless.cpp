@@ -84,9 +84,6 @@ void Wireless::init() {
 }
 
 void Wireless::cyclicTask() {
-    bool txSuccess = false;
-    bool rxSuccess = false;
-
     if (!moduleAvailable) {
         return;
     }
@@ -101,23 +98,8 @@ void Wireless::cyclicTask() {
             break;
         case RadioRole::broadcast:
             // Nothing to do to keep any network alive
-            txSuccess = this->doSendData();
-            rxSuccess = this->handleReceivedData();
-
-            LOG("TxSuccess: %u, RxSuccess: %u", txSuccess, rxSuccess);
-
-            if (!txSuccess && !rxSuccess) {
-                statusLeds.setStaticOn(6, 1, 0, 0);
-            } else {
-                statusLeds.setStaticOff(6, 1, 0, 0);
-            }
-
-            if (txSuccess) {
-                statusLeds.setBlinkOnce(6, 0, 1, 0);
-            }
-            if (rxSuccess) {
-                statusLeds.setBlinkOnce(6, 0, 0, 1);
-            }
+            this->doSendData();
+            this->handleReceivedData();
             break;
         case RadioRole::mesh:
             rf24mesh.update();
@@ -175,8 +157,10 @@ void Wireless::sendData(uint8_t universeId, uint8_t *source, uint16_t sourceLeng
     this->sendQueueValid[universeId] = true;
 }
 
-bool Wireless::doSendData() {
+void Wireless::doSendData() {
+    bool triedToSend = false;
     bool success = false;
+    bool anyFailed = false;
     uint8_t automaticRetryCount = 0;
 
     Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
@@ -190,6 +174,9 @@ bool Wireless::doSendData() {
 
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
+
+            triedToSend = true;
+            statusLeds.setBlinkOnce(6, 0, 1, 0);
 
             critical_section_enter_blocking(&bufferLock);
             this->sendQueueValid[i] = false;
@@ -214,6 +201,9 @@ bool Wireless::doSendData() {
                         chunkHeader->lastChunk = 1; // Strictly not needed
 
                         success = rf24radio.write(Wireless::tmpBuf2, 2);
+                        if (!success) {
+                            anyFailed = true;
+                        }
 
                         LOG("doSendData: Sending allZeroes-Packet for universe %d Success: %d", i, success);
                     } else {
@@ -262,6 +252,9 @@ bool Wireless::doSendData() {
 
                             success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
                             automaticRetryCount = rf24radio.getARC();
+                            if (!success) {
+                                anyFailed = true;
+                            }
 
                             LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d, Retries: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success, automaticRetryCount);
 
@@ -271,8 +264,7 @@ bool Wireless::doSendData() {
                                 break;
                             }
                         }
-                        LOG("doSendData all chunks sent");
-
+                        LOG("doSendData all chunks sent. Success: %u", success);
                     }
 
                     rf24radio.startListening();
@@ -286,14 +278,20 @@ bool Wireless::doSendData() {
                 break;
             }
 
-            LOG("doSendData DONE. Success: %d", success);
+            LOG("doSendData DONE");
         }
     }
-    return success;
+
+    if (triedToSend) {
+        if (anyFailed) {
+            statusLeds.setStaticOn(6, 1, 0, 0);
+        } else {
+            statusLeds.setStaticOff(6, 1, 0, 0);
+        }
+    }
 }
 
-bool Wireless::handleReceivedData() {
-    bool success = false;
+void Wireless::handleReceivedData() {
     size_t copySize = 0;
     uint8_t pipe = 0;
     size_t uncompressedLength;
@@ -310,17 +308,17 @@ bool Wireless::handleReceivedData() {
         if (bytes < 1) {
             // TODO: Does it make sense to have "command only" commands?
             //       If not, we should fail if bytes < 2
-            return false;
+            return;
         }
 
-        LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
+        statusLeds.setBlinkOnce(6, 0, 0, 1);
 
-        success = true;
+        LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
         if (Wireless::tmpBuf[0] == WirelessCommands::DmxData) {
 
             if (bytes < 2) {
-                return false;
+                return;
             }
 
             struct DmxData_ChunkHeader* chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf + 1;
@@ -382,7 +380,7 @@ bool Wireless::handleReceivedData() {
 
                                 // Sanity check: uncompressedLength must be 512
                                 if (uncompressedLength != 512) {
-                                    return false;
+                                    return;
                                 }
 
                                 if (snappy::RawUncompress((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, (char*)Wireless::tmpBuf) == true) {
@@ -405,5 +403,4 @@ bool Wireless::handleReceivedData() {
 
         }
     }
-    return success;
 }
