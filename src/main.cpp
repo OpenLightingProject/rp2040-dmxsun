@@ -205,17 +205,22 @@ void led_blinking_task(void) {
                 break;
             }
         }
-        if (universes_none_zero >= 2) {
+        if (universes_none_zero > 4) {
             break;
         }
     }
 
     if (universes_none_zero == 0) {
         BLINK_LED(BLINK_READY_NO_DATA);
+        statusLeds.setStatic(7, 0, 0, 0);
     } else if (universes_none_zero == 1) {
         BLINK_LED(BLINK_READY_SINGLE_UNI);
+        statusLeds.setStatic(7, 0, 1, 0);
+    } else if (universes_none_zero > 4) {
+        BLINK_LED(BLINK_READY_MULTI_UNI);
+        statusLeds.setStatic(7, 1, 1, 1);
     } else if (universes_none_zero > 1) {
         BLINK_LED(BLINK_READY_MULTI_UNI);
+        statusLeds.setStatic(7, 0, 0, 1);
     }
-
 }

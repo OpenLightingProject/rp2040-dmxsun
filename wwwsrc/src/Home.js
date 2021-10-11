@@ -195,6 +195,7 @@ class Home extends React.Component {
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[7].static + ' 0%, ' + this.state.leds[7].static + ' 59%, ' + this.state.leds[7].blink + ' 61%, ' + this.state.leds[7].blink + ' 100%)' }}></div><br />
+                                        Universes<br />in use
                                     </td>
                                 </tr>
                             </tbody>
