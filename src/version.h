@@ -1,4 +1,4 @@
-#define VERSION "0.8.0"
+#define VERSION "0.8.1"
 
 // Version number reported in the USB device descriptor
 // Since no one cares about "bug fixes" there, we report first and second
