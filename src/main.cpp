@@ -66,6 +66,8 @@ Wireless wireless;
 
 critical_section_t bufferLock;
 
+uint8_t usbTraffic = 0;
+
 void led_blinking_task(void);
 
 void core1_tasks(void);
@@ -156,6 +158,13 @@ int main() {
     // Wireless is on core1 so waiting for ACKs won't slow down everything else
     while (true) {
         tud_task();
+
+        if (tud_mounted()) {
+            statusLeds.setStaticOn(5, 0, 1, 0);
+        } else {
+            statusLeds.setStaticOff(5, 0, 1, 0);
+        }
+
         webServer.cyclicTask();
 //        wireless.cyclicTask();
 //        statusLeds.cyclicTask();

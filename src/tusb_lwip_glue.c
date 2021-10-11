@@ -29,6 +29,8 @@
 #include "tusb_lwip_glue.h"
 #include <pico/unique_id.h>
 
+extern uint8_t usbTraffic;
+
 /* lwip context */
 static struct netif netif_data;
 
@@ -130,6 +132,8 @@ bool tud_network_recv_cb(const uint8_t *src, uint16_t size)
     /* this shouldn't happen, but if we get another packet before 
     parsing the previous, we must signal our inability to accept it */
     if (received_frame) return false;
+
+    usbTraffic = 1;
     
     if (size)
     {

@@ -2,6 +2,8 @@
 
 #include "ws2812.pio.h"           // Header file for the PIO program
 
+extern uint8_t usbTraffic;
+
 static inline void put_pixel(uint32_t pixel_grb) {
     pio_sm_put_blocking(pio1, 3, pixel_grb << 8u);
 }
@@ -112,6 +114,11 @@ void StatusLeds::cyclicTask() {
         return;
     }
     lastRefresh = time_now;
+
+    if (usbTraffic) {
+        usbTraffic = 0;
+        this->setBlinkOnce(5, 0, 0, 1);
+    }
 
     for (uint8_t i = 0; i < 8; i++) {
         // Get the current state of the blinking-influenced part
