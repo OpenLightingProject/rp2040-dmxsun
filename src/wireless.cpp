@@ -267,6 +267,8 @@ void Wireless::doSendData() {
                         LOG("doSendData all chunks sent. Success: %u", success);
                     }
 
+                    // END code that needs to be refactored to EDP
+
                     rf24radio.startListening();
                 break;
                 case RadioRole::mesh:
@@ -301,7 +303,7 @@ void Wireless::handleReceivedData() {
     if (rf24radio.available(&pipe)) {                    // is there a payload? get the pipe number that received it
         uint8_t bytes = rf24radio.getDynamicPayloadSize(); // get the size of the payload
 
-        memset(Wireless::tmpBuf, 0x00, 32); // make sure we have defined values as long as one packet can be
+        memset(Wireless::tmpBuf, 0x00, 32); // make sure we have defined values as long as one chunk can be
         rf24radio.read(Wireless::tmpBuf, bytes);       // get incoming payload
         // No need to manually send an ACK since autoAck is being used
 
@@ -312,6 +314,8 @@ void Wireless::handleReceivedData() {
         }
 
         statusLeds.setBlinkOnce(6, 0, 0, 1);
+
+        // TODO: START refactor to EDP classes
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
@@ -402,5 +406,8 @@ void Wireless::handleReceivedData() {
             }
 
         }
+
+        // END refactor to EDP
+
     }
 }
