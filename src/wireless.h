@@ -9,7 +9,7 @@
 #include <RF24Network.h>
 #include <RF24Mesh.h>
 
-//#include "edp.h"
+#include "edp.h"
 #include "boardconfig.h"
 
 #include "snappy.h"
@@ -83,7 +83,7 @@ class Wireless {
     bool sendQueueValid[4];
     uint8_t sendQueueData[4][512];
 
-    //Edp edp;
+    Edp edp;
 
     static uint16_t packetLen;
 

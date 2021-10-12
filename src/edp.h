@@ -72,7 +72,7 @@ class Edp {
     uint16_t maxSendChunkSize;
 
     size_t prepareDmxData_sizeOfDataToBeSent;  // Packetheader + payload length
-    uint8_t prepareDmxData_chunkOffset;
+    uint16_t prepareDmxData_chunkOffset;
 
 };
 

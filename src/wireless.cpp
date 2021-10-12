@@ -36,7 +36,7 @@ void Wireless::init() {
 
     packetLen = 0;
 
-    //edp.init(Wireless::tmpBufQueueCopy, Wireless::tmpBuf, 24, 32);
+    edp.init(Wireless::tmpBufQueueCopy, Wireless::tmpBuf, 24, 32);
 
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 
@@ -165,6 +165,10 @@ void Wireless::doSendData() {
     bool anyFailed = false;
     uint8_t automaticRetryCount = 0;
 
+    uint16_t thisChunkSize = 0;
+    bool callAgain = false;
+    bool allZero = false;
+
     Wireless::tmpBuf2[0] = WirelessCommands::WL_DmxData;
     struct DmxData_PacketHeader* packetHeader;
     struct DmxData_ChunkHeader* chunkHeader;
@@ -177,15 +181,15 @@ void Wireless::doSendData() {
     for (int i = 0; i < 4; i++) {
         if (this->sendQueueValid[i]) {
 
-            triedToSend = true;
-            statusLeds.setBlinkOnce(6, 0, 1, 0);
-
             critical_section_enter_blocking(&bufferLock);
             this->sendQueueValid[i] = false;
 
             // Copy the data away to somewhere it doesn't change while we read it
             memcpy(Wireless::tmpBufQueueCopy, this->sendQueueData[i], 512);
             critical_section_exit(&bufferLock);
+
+            triedToSend = true;
+            statusLeds.setBlinkOnce(6, 0, 1, 0);
 
             switch (boardConfig.activeConfig->radioRole) {
                 case RadioRole::broadcast:
@@ -194,6 +198,48 @@ void Wireless::doSendData() {
                     // TODO: Move radio packet preparation to separate methods
                     //       so all radio modes can use it
 
+                    allZero = !memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512);
+
+                    callAgain = false;
+                    LOG("Pre FIRST chunk!");
+                    edp.prepareDmxData(i, 512, allZero, &thisChunkSize, &callAgain);
+                    LOG("Prepared FIRST chunk! Size: %u callAgain: %u, Content: %02x %02x %02x %02x %02x %02x %02x %02x",
+                        thisChunkSize, callAgain,
+                        Wireless::tmpBuf[0],
+                        Wireless::tmpBuf[1],
+                        Wireless::tmpBuf[2],
+                        Wireless::tmpBuf[3],
+                        Wireless::tmpBuf[4],
+                        Wireless::tmpBuf[5],
+                        Wireless::tmpBuf[6],
+                        Wireless::tmpBuf[7]
+                    );
+                    success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
+                    if (!success) {
+                        anyFailed = true;
+                    }
+                    while(callAgain) {
+                        edp.prepareDmxData(i, 0, allZero, &thisChunkSize, &callAgain);
+
+                        LOG("Prepared follow-up chunk! Size: %u callAgain: %u, Content: %02x %02x %02x %02x %02x %02x %02x %02x",
+                            thisChunkSize, callAgain,
+                            Wireless::tmpBuf[0],
+                            Wireless::tmpBuf[1],
+                            Wireless::tmpBuf[2],
+                            Wireless::tmpBuf[3],
+                            Wireless::tmpBuf[4],
+                            Wireless::tmpBuf[5],
+                            Wireless::tmpBuf[6],
+                            Wireless::tmpBuf[7]
+                        );
+
+                        success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
+                        if (!success) {
+                            anyFailed = true;
+                        }
+                    }
+
+/*
                     // 1. Check if the buffer to be sent is all zeroes
                     //    If so, don't create an actual packet, only send one special chunk
                     if (!memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512)) {
@@ -272,6 +318,7 @@ void Wireless::doSendData() {
                         }
                         LOG("doSendData all chunks sent. Success: %u", success);
                     }
+*/
 
                     // END code that needs to be refactored to EDP
 

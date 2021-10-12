@@ -37,13 +37,13 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
 
         memset(outChunk, 0x00, 600);
         outChunk[0] = Edp_Commands::DmxData;
+        packetHeader->universeId = universeId;
 
         // Special case: allZero packet
         if (allZero) {
-            memset(outChunk, 0x00, 10);
             chunkHeader->chunkCounter = Edp_DmxData_ChunkCounter::AllZero;
             chunkHeader->lastChunk = true; // Actually not needed
-            *thisChunkSize = sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader);
+            *thisChunkSize = sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(struct Edp_DmxData_PacketHeader);
             *callAgain = false;
             return true;
         }
@@ -51,8 +51,6 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
         limitedInDataSize = MIN(inDataSize, 512);
 
         prepareDmxData_chunkOffset = maxSendChunkSize;
-
-        packetHeader->universeId = universeId;
 
         // TODO: Not yet supported
         packetHeader->partial = 0;
@@ -64,7 +62,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
         snappy::RawCompress((const char *)inData, limitedInDataSize, (char*)destination, &prepareDmxData_sizeOfDataToBeSent);
 
         if (prepareDmxData_sizeOfDataToBeSent >= limitedInDataSize) {
-            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, &limitedInDataSize);
+            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, limitedInDataSize);
             packetHeader->compressed = 0;
             memcpy(destination, inData, limitedInDataSize);
             prepareDmxData_sizeOfDataToBeSent = limitedInDataSize;
@@ -100,20 +98,27 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
 
         // ChunkOffset points to the OLD chunk's data
 
+        LOG("PRE SizeToBeSent: %u, old ChunkCounter: %u, chunkOffset: %u", prepareDmxData_sizeOfDataToBeSent, chunkHeader->chunkCounter, prepareDmxData_chunkOffset);
+
         destination = outChunk + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader);
-        memcpy(outChunk + prepareDmxData_chunkOffset, destination, maxSendChunkSize - sizeof(Edp_Commands) - sizeof(struct Edp_DmxData_ChunkHeader));
+        //LOG("MEMCPY. outChunk: %08x, Source: %08x Destination: %08x, Size: %u", outChunk, outChunk + prepareDmxData_chunkOffset, destination, maxSendChunkSize - sizeof(Edp_Commands) - sizeof(struct Edp_DmxData_ChunkHeader));
+        memcpy(destination, outChunk + prepareDmxData_chunkOffset, maxSendChunkSize - sizeof(Edp_Commands) - sizeof(struct Edp_DmxData_ChunkHeader));
 
         chunkHeader->chunkCounter = (Edp_DmxData_ChunkCounter)(chunkHeader->chunkCounter + 1);
 
         if (prepareDmxData_chunkOffset + maxSendChunkSize >= prepareDmxData_sizeOfDataToBeSent) {
             chunkHeader->lastChunk = true;
-            *thisChunkSize = prepareDmxData_sizeOfDataToBeSent - prepareDmxData_chunkOffset;
+            *thisChunkSize = prepareDmxData_sizeOfDataToBeSent - prepareDmxData_chunkOffset + sizeof(struct Edp_DmxData_PacketHeader);
             *callAgain = false;
             return true;
         }
 
         prepareDmxData_chunkOffset = prepareDmxData_chunkOffset + (maxSendChunkSize - sizeof(Edp_Commands) - sizeof(Edp_DmxData_ChunkHeader));
+        //*thisChunkSize = maxSendChunkSize;
         *callAgain = true;
+
+        LOG("POST SizeToBeSent: %u, old ChunkCounter: %u, chunkOffset: %u", prepareDmxData_sizeOfDataToBeSent, chunkHeader->chunkCounter, prepareDmxData_chunkOffset);
+
         return true;
     }
 }
