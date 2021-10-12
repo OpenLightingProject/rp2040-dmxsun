@@ -36,6 +36,8 @@ void Wireless::init() {
 
     packetLen = 0;
 
+    //edp.init(Wireless::tmpBufQueueCopy, Wireless::tmpBuf, 24, 32);
+
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 
     spi.begin(spi0);
@@ -196,11 +198,13 @@ void Wireless::doSendData() {
                     //    If so, don't create an actual packet, only send one special chunk
                     if (!memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512)) {
                         chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf2 + 1;
-                        chunkHeader->universeId = i;
+                        //chunkHeader->universeId = i;
+                        packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf2 + 2);
+                        packetHeader->universeId = i;
                         chunkHeader->chunkCounter = DmxData_ChunkCounter::AllZero;
                         chunkHeader->lastChunk = 1; // Strictly not needed
 
-                        success = rf24radio.write(Wireless::tmpBuf2, 2);
+                        success = rf24radio.write(Wireless::tmpBuf2, 6);
                         if (!success) {
                             anyFailed = true;
                         }
@@ -222,6 +226,8 @@ void Wireless::doSendData() {
                             packetHeader->compressed = 1;
                         }
 
+                        packetHeader->universeId = i;
+
                         // Increase the size of the packet by the prepended header
                         actuallyWritten += sizeof(struct DmxData_PacketHeader);
 
@@ -238,7 +244,7 @@ void Wireless::doSendData() {
                             Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
                             chunkHeader = (DmxData_ChunkHeader*)(Wireless::tmpBuf2 + 1);
 
-                            chunkHeader->universeId = i;
+                            //chunkHeader->universeId = i;
                             chunkHeader->chunkCounter = (DmxData_ChunkCounter)j;
                             chunkHeader->lastChunk = 0;
                             payloadSize = 30;
@@ -293,6 +299,25 @@ void Wireless::doSendData() {
     }
 }
 
+Patching Wireless::findPatching(uint8_t universeId) {
+    Patching retPatch;
+
+    retPatch.active = false;
+
+    for (int i = 0; i < MAX_PATCHINGS; i++) {
+        Patching patching = boardConfig.activeConfig->patching[i];
+        if ((!patching.active) ||
+            ((patching.port - 24) != universeId) ||
+            (!patching.direction))
+        {
+            continue;
+        }
+        return patching;
+    }
+
+    return retPatch;
+}
+
 void Wireless::handleReceivedData() {
     size_t copySize = 0;
     uint8_t pipe = 0;
@@ -327,79 +352,84 @@ void Wireless::handleReceivedData() {
 
             struct DmxData_ChunkHeader* chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf + 1;
 
-            LOG("DmxData: Universe: %d, Chunk: %d, LastChunk: %d", chunkHeader->universeId, chunkHeader->chunkCounter, chunkHeader->lastChunk);
+            LOG("DmxData: Chunk: %d, LastChunk: %d", chunkHeader->chunkCounter, chunkHeader->lastChunk);
 
             // TODO: Instead of looping through the patchings first and then
             //       assembling the packet, we should better assemble first
             //       and then loop through the patchings when we got the
             //       complete frame assembled
 
-            for (int i = 0; i < MAX_PATCHINGS; i++) {
-                Patching patching = boardConfig.activeConfig->patching[i];
-                if ((!patching.active) ||
-                    ((patching.port - 24) != chunkHeader->universeId) ||
-                    (!patching.direction))
-                {
-                    continue;
-                }
+            // TODO: Verify what happens if multiple patchings match the packet!
 
-                // TODO: Verify what happens if multiple patchings match the packet!
+            //LOG("Wireless IN found patched to buffer %d", patching.buffer);
 
-                //LOG("Wireless IN found patched to buffer %d", patching.buffer);
+            // Current packet's data (one chunk) is in tmpBuf
+            // Complete frame (all chunks) is assembled in tmpBuf2
 
-                // Current packet's data (one chunk) is in tmpBuf
-                // Complete frame (all chunks) is assembled in tmpBuf2
+            Patching patching;
 
-                if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
+            if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
+                struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf + 2);
+                patching = findPatching(packetHeader->universeId);
+
+                LOG("allZero packet. universe: %u patching active: %u buffer: %u", packetHeader->universeId, patching.active, patching.buffer);
+
+                if (patching.active) {
                     // Easy: Just clear the DmxBuffer
                     dmxBuffer.zero(patching.buffer);
-                } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
-                    // Clear tmpBuf2 so the next chunk comes in clean
-                    packetLen = MIN((bytes - 2), 32);
-                    critical_section_enter_blocking(&bufferLock);
-                    memset(Wireless::tmpBuf2, 0x00, 800);
-                    memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, packetLen);
-                    critical_section_exit(&bufferLock);
-                } else if (chunkHeader->chunkCounter < 20) {
-                    // Some intermediate packet: Just copy it to the tmpBuf and go ahead
-                    copySize = MIN((bytes - 2), 32);
-                    critical_section_enter_blocking(&bufferLock);
-                    memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, copySize);
-                    critical_section_exit(&bufferLock);
-                    packetLen += copySize;
+                }
+            } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
+                // Clear tmpBuf2 so the next chunk comes in clean
+                packetLen = MIN((bytes - 2), 32);
+                critical_section_enter_blocking(&bufferLock);
+                memset(Wireless::tmpBuf2, 0x00, 800);
+                memcpy(Wireless::tmpBuf2, Wireless::tmpBuf + 2, packetLen);
+                critical_section_exit(&bufferLock);
+            } else if (chunkHeader->chunkCounter < 20) {
+                // Some intermediate packet: Just copy it to the tmpBuf and go ahead
+                copySize = MIN((bytes - 2), 32);
+                critical_section_enter_blocking(&bufferLock);
+                memcpy(Wireless::tmpBuf2 + chunkHeader->chunkCounter*30, Wireless::tmpBuf + 2, copySize);
+                critical_section_exit(&bufferLock);
+                packetLen += copySize;
 
-                    // TODO: Remember which chunks actually came in
+                // TODO: Remember which chunks actually came in
 
-                    if (chunkHeader->lastChunk) {
-                        struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)Wireless::tmpBuf2;
+                if (chunkHeader->lastChunk) {
+                    struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)Wireless::tmpBuf2;
 
-                        LOG("LastPacket came in, assembly complete! packetLen is now %d. Compressed: %u", packetLen, packetHeader->compressed);
+                    patching = findPatching(packetHeader->universeId);
 
-                        // TODO: Check if all chunks have arrived and check CRC
+                    if (!patching.active) {
+                        return;
+                    }
 
-                        if (packetHeader->compressed) {
-                            // If compressed, uncompress ;)
-                            if (snappy::GetUncompressedLength((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, &uncompressedLength) == true) {
-                                LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
+                    LOG("LastPacket came in, assembly complete! packetLen is now %d. Compressed: %u Universe: %u", packetLen, packetHeader->compressed, packetHeader->universeId);
 
-                                // Sanity check: uncompressedLength must be 512
-                                if (uncompressedLength != 512) {
-                                    return;
-                                }
+                    // TODO: Check if all chunks have arrived and check CRC
 
-                                if (snappy::RawUncompress((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, (char*)Wireless::tmpBuf) == true) {
-                                    dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf, uncompressedLength);
-                                } else {
-                                    LOG("snappy::RawUncompress failed :(");
-                                }
+                    if (packetHeader->compressed) {
+                        // If compressed, uncompress ;)
+                        if (snappy::GetUncompressedLength((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, &uncompressedLength) == true) {
+                            LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
+
+                            // Sanity check: uncompressedLength must be 512
+                            if (uncompressedLength != 512) {
+                                return;
+                            }
+
+                            if (snappy::RawUncompress((const char*)(Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader)), packetLen - 4, (char*)Wireless::tmpBuf) == true) {
+                                dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf, uncompressedLength);
                             } else {
-                                LOG("snappy::GetUncompressedLength failed :(");
+                                LOG("snappy::RawUncompress failed :(");
                             }
                         } else {
-                            // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
-                            if (packetHeader->partial || packetLen == (512 + sizeof(DmxData_PacketHeader))) {
-                                dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
-                            }
+                            LOG("snappy::GetUncompressedLength failed :(");
+                        }
+                    } else {
+                        // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
+                        if (packetHeader->partial || packetLen == (512 + sizeof(DmxData_PacketHeader))) {
+                            dmxBuffer.setBuffer(patching.buffer, Wireless::tmpBuf2 + sizeof(struct DmxData_PacketHeader), (packetLen - sizeof(struct DmxData_PacketHeader)));
                         }
                     }
                 }

@@ -23,6 +23,8 @@ void DmxBuffer::init() {
 }
 
 void DmxBuffer::zero(uint8_t bufferId) {
+    LOG("ZERO buffer %u", bufferId);
+
     // Simply zero out the specified buffer
     critical_section_enter_blocking(&bufferLock);
     memset(this->buffer[bufferId], 0x00, 512);

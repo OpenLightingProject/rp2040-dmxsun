@@ -8,15 +8,14 @@ extern DmxBuffer dmxBuffer;
 
 extern critical_section_t bufferLock;
 
-void Edp::init(uint8_t* inData, uint8_t* scratch, uint8_t* outChunk, uint8_t patchingOffset, uint16_t maxSendChunkSize) {
+void Edp::init(uint8_t* inData, uint8_t* outChunk, uint8_t patchingOffset, uint16_t maxSendChunkSize) {
     this->initOkay = false;
 
-    if (!inData || !scratch || !outChunk || (maxSendChunkSize < 20)) {
+    if (!inData || !outChunk || (maxSendChunkSize < 20)) {
         return;
     }
 
     this->inData = inData;
-    this->scratch = scratch;
     this->outChunk = outChunk;
     this->patchingOffset = patchingOffset;
     this->maxSendChunkSize = maxSendChunkSize;

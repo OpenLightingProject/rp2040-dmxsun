@@ -9,6 +9,9 @@
 #include <RF24Network.h>
 #include <RF24Mesh.h>
 
+//#include "edp.h"
+#include "boardconfig.h"
+
 #include "snappy.h"
 
 // nRF24L01+ can tune to 128 channels with 1 MHz spacing from 2400MHz to 2527MHz
@@ -19,11 +22,11 @@
 // Wireless protocol
 
 enum WirelessCommands : uint8_t {
-    Ping                      = 0,
-    DmxData                   = 1, // One command for compressed and uncompressed data, sent in chunks
-    Discovery_Request         = 2,
-    Discovery_Mute            = 3,
-    Discovery_UnMuteAll       = 4,
+    Ping                      = 0x00,
+    DmxData                   = 0x10, // One command for compressed and uncompressed data, sent in chunks
+    Discovery_Request         = 0x20,
+    Discovery_Mute            = 0x21,
+    Discovery_UnMuteAll       = 0x22,
 };
 
 // 32 byte RF24 payload per packet MAX
@@ -43,7 +46,7 @@ enum DmxData_ChunkCounter : uint8_t {
 
 // Should occupy one byte
 struct DmxData_ChunkHeader {
-    uint8_t               universeId   : 2; // values 0-3
+    uint8_t               RESERVED0    : 2; // values 0-3
     DmxData_ChunkCounter  chunkCounter : 5;
     uint8_t               lastChunk    : 1; // 0 = first or middle chunk, 1 = last chunk
 };
@@ -53,7 +56,7 @@ struct DmxData_PacketHeader {
     uint16_t              crc;
     uint8_t               compressed   : 1; // 0 = raw, 1 = compressed
     uint8_t               partial      : 1; // 0 = full frame, 1 = partial
-    uint8_t               RESERVED0    : 6; // For future use
+    uint8_t               universeId    : 6; // For future use
     uint8_t               partialOffset;    // If partial: Position the frame starts at
 };
 
@@ -80,6 +83,8 @@ class Wireless {
     bool sendQueueValid[4];
     uint8_t sendQueueData[4][512];
 
+    //Edp edp;
+
     static uint16_t packetLen;
 
     static uint8_t tmpBuf[800];
@@ -88,6 +93,8 @@ class Wireless {
 
     void handleReceivedData();
     void doSendData();
+
+    Patching findPatching(uint8_t universeId);
 
 };
 
