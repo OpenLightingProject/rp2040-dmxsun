@@ -22,11 +22,11 @@
 // Wireless protocol
 
 enum WirelessCommands : uint8_t {
-    Ping                      = 0x00,
-    DmxData                   = 0x10, // One command for compressed and uncompressed data, sent in chunks
-    Discovery_Request         = 0x20,
-    Discovery_Mute            = 0x21,
-    Discovery_UnMuteAll       = 0x22,
+    WL_Ping                      = 0x00,
+    WL_DmxData                   = 0x10, // One command for compressed and uncompressed data, sent in chunks
+    WL_Discovery_Request         = 0x20,
+    WL_Discovery_Mute            = 0x21,
+    WL_Discovery_UnMuteAll       = 0x22,
 };
 
 // 32 byte RF24 payload per packet MAX
@@ -40,8 +40,8 @@ enum WirelessCommands : uint8_t {
 // Special values for the chunk counter
 // actually only 5 bit => 0-31
 enum DmxData_ChunkCounter : uint8_t {
-    FirstPacket               = 0,
-    AllZero                   = 31,
+    WL_FirstPacket               = 0,
+    WL_AllZero                   = 31,
 };
 
 // Should occupy one byte

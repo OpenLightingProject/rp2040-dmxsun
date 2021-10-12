@@ -165,7 +165,7 @@ void Wireless::doSendData() {
     bool anyFailed = false;
     uint8_t automaticRetryCount = 0;
 
-    Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
+    Wireless::tmpBuf2[0] = WirelessCommands::WL_DmxData;
     struct DmxData_PacketHeader* packetHeader;
     struct DmxData_ChunkHeader* chunkHeader;
 
@@ -201,7 +201,7 @@ void Wireless::doSendData() {
                         //chunkHeader->universeId = i;
                         packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf2 + 2);
                         packetHeader->universeId = i;
-                        chunkHeader->chunkCounter = DmxData_ChunkCounter::AllZero;
+                        chunkHeader->chunkCounter = DmxData_ChunkCounter::WL_AllZero;
                         chunkHeader->lastChunk = 1; // Strictly not needed
 
                         success = rf24radio.write(Wireless::tmpBuf2, 6);
@@ -241,7 +241,7 @@ void Wireless::doSendData() {
                         // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
                         //    Use tmpBuf2 to construct the chunk
                         for (j = 0; j < 18; j++) {
-                            Wireless::tmpBuf2[0] = WirelessCommands::DmxData;
+                            Wireless::tmpBuf2[0] = WirelessCommands::WL_DmxData;
                             chunkHeader = (DmxData_ChunkHeader*)(Wireless::tmpBuf2 + 1);
 
                             //chunkHeader->universeId = i;
@@ -344,7 +344,7 @@ void Wireless::handleReceivedData() {
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
-        if (Wireless::tmpBuf[0] == WirelessCommands::DmxData) {
+        if (Wireless::tmpBuf[0] == WirelessCommands::WL_DmxData) {
 
             if (bytes < 2) {
                 return;
@@ -368,7 +368,7 @@ void Wireless::handleReceivedData() {
 
             Patching patching;
 
-            if (chunkHeader->chunkCounter == DmxData_ChunkCounter::AllZero) {
+            if (chunkHeader->chunkCounter == DmxData_ChunkCounter::WL_AllZero) {
                 struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf + 2);
                 patching = findPatching(packetHeader->universeId);
 
@@ -378,7 +378,7 @@ void Wireless::handleReceivedData() {
                     // Easy: Just clear the DmxBuffer
                     dmxBuffer.zero(patching.buffer);
                 }
-            } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::FirstPacket) {
+            } else if (chunkHeader->chunkCounter == DmxData_ChunkCounter::WL_FirstPacket) {
                 // Clear tmpBuf2 so the next chunk comes in clean
                 packetLen = MIN((bytes - 2), 32);
                 critical_section_enter_blocking(&bufferLock);
