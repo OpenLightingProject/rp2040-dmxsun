@@ -195,132 +195,21 @@ void Wireless::doSendData() {
                 case RadioRole::broadcast:
                     rf24radio.stopListening();
 
-                    // TODO: Move radio packet preparation to separate methods
-                    //       so all radio modes can use it
-
                     allZero = !memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512);
 
                     callAgain = false;
-                    LOG("Pre FIRST chunk!");
                     edp.prepareDmxData(i, 512, allZero, &thisChunkSize, &callAgain);
-                    LOG("Prepared FIRST chunk! Size: %u callAgain: %u, Content: %02x %02x %02x %02x %02x %02x %02x %02x",
-                        thisChunkSize, callAgain,
-                        Wireless::tmpBuf[0],
-                        Wireless::tmpBuf[1],
-                        Wireless::tmpBuf[2],
-                        Wireless::tmpBuf[3],
-                        Wireless::tmpBuf[4],
-                        Wireless::tmpBuf[5],
-                        Wireless::tmpBuf[6],
-                        Wireless::tmpBuf[7]
-                    );
                     success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
                     if (!success) {
                         anyFailed = true;
                     }
                     while(callAgain) {
                         edp.prepareDmxData(i, 0, allZero, &thisChunkSize, &callAgain);
-
-                        LOG("Prepared follow-up chunk! Size: %u callAgain: %u, Content: %02x %02x %02x %02x %02x %02x %02x %02x",
-                            thisChunkSize, callAgain,
-                            Wireless::tmpBuf[0],
-                            Wireless::tmpBuf[1],
-                            Wireless::tmpBuf[2],
-                            Wireless::tmpBuf[3],
-                            Wireless::tmpBuf[4],
-                            Wireless::tmpBuf[5],
-                            Wireless::tmpBuf[6],
-                            Wireless::tmpBuf[7]
-                        );
-
                         success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
                         if (!success) {
                             anyFailed = true;
                         }
                     }
-
-/*
-                    // 1. Check if the buffer to be sent is all zeroes
-                    //    If so, don't create an actual packet, only send one special chunk
-                    if (!memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512)) {
-                        chunkHeader = (struct DmxData_ChunkHeader*)Wireless::tmpBuf2 + 1;
-                        //chunkHeader->universeId = i;
-                        packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf2 + 2);
-                        packetHeader->universeId = i;
-                        chunkHeader->chunkCounter = DmxData_ChunkCounter::WL_AllZero;
-                        chunkHeader->lastChunk = 1; // Strictly not needed
-
-                        success = rf24radio.write(Wireless::tmpBuf2, 6);
-                        if (!success) {
-                            anyFailed = true;
-                        }
-
-                        LOG("doSendData: Sending allZeroes-Packet for universe %d Success: %d", i, success);
-                    } else {
-                        packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf);
-
-                        // 2. Compress the data
-                        actuallyWritten = 700;
-                        snappy::RawCompress((const char *)Wireless::tmpBufQueueCopy, 512, (char*)(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader)), &actuallyWritten);
-
-                        if (actuallyWritten >= 512) {
-                            LOG("Compressed size: %d => SENDING UNCOMPRESSED!", actuallyWritten);
-                            packetHeader->compressed = 0;
-                            memcpy(Wireless::tmpBuf + sizeof(struct DmxData_PacketHeader), Wireless::tmpBufQueueCopy, 512);
-                            actuallyWritten = 512;
-                        } else {
-                            packetHeader->compressed = 1;
-                        }
-
-                        packetHeader->universeId = i;
-
-                        // Increase the size of the packet by the prepended header
-                        actuallyWritten += sizeof(struct DmxData_PacketHeader);
-
-                        // Not yet supported
-                        packetHeader->partial = 0;
-                        packetHeader->partialOffset = 0;
-
-                        // TODO: Calculate some kind of CRC so the receivers know if they got all chunks
-                        //packetHeader->crc = XXX;
-
-                        // 3. Send the data (actuallyWritten bytes from Wireless::tmpBuf) in chunks
-                        //    Use tmpBuf2 to construct the chunk
-                        for (j = 0; j < 18; j++) {
-                            Wireless::tmpBuf2[0] = WirelessCommands::WL_DmxData;
-                            chunkHeader = (DmxData_ChunkHeader*)(Wireless::tmpBuf2 + 1);
-
-                            //chunkHeader->universeId = i;
-                            chunkHeader->chunkCounter = (DmxData_ChunkCounter)j;
-                            chunkHeader->lastChunk = 0;
-                            payloadSize = 30;
-
-                            if ((j+1)*30 >= actuallyWritten) {
-                                chunkHeader->lastChunk = 1;
-                                payloadSize = actuallyWritten - j*30;
-                            }
-
-                            memcpy(Wireless::tmpBuf2 + 2, Wireless::tmpBuf + j*30, payloadSize);
-
-                            success = rf24radio.write(Wireless::tmpBuf2, payloadSize + 2);
-                            automaticRetryCount = rf24radio.getARC();
-                            if (!success) {
-                                anyFailed = true;
-                            }
-
-                            LOG("doSendData CHUNK TotalSize: %d, chunkCounter: %d, payloadSize: %d, buf: %02x %02x %02x %02x %02x %02x %02x %02x %02x, Success: %d, Retries: %d", actuallyWritten, chunkHeader->chunkCounter, payloadSize, Wireless::tmpBuf2[0], Wireless::tmpBuf2[1], Wireless::tmpBuf2[2], Wireless::tmpBuf2[3], Wireless::tmpBuf2[4], Wireless::tmpBuf2[5], Wireless::tmpBuf2[6], Wireless::tmpBuf2[7], Wireless::tmpBuf2[8], success, automaticRetryCount);
-
-                            // If this chunk didn't get any ACKs, don't send the following ones as well
-                            // Since no one can re-assemble that packet and it just wastes our time
-                            if ((chunkHeader->lastChunk) || (!success)) {
-                                break;
-                            }
-                        }
-                        LOG("doSendData all chunks sent. Success: %u", success);
-                    }
-*/
-
-                    // END code that needs to be refactored to EDP
 
                     rf24radio.startListening();
                 break;

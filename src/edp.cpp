@@ -98,10 +98,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
 
         // ChunkOffset points to the OLD chunk's data
 
-        LOG("PRE SizeToBeSent: %u, old ChunkCounter: %u, chunkOffset: %u", prepareDmxData_sizeOfDataToBeSent, chunkHeader->chunkCounter, prepareDmxData_chunkOffset);
-
         destination = outChunk + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader);
-        //LOG("MEMCPY. outChunk: %08x, Source: %08x Destination: %08x, Size: %u", outChunk, outChunk + prepareDmxData_chunkOffset, destination, maxSendChunkSize - sizeof(Edp_Commands) - sizeof(struct Edp_DmxData_ChunkHeader));
         memcpy(destination, outChunk + prepareDmxData_chunkOffset, maxSendChunkSize - sizeof(Edp_Commands) - sizeof(struct Edp_DmxData_ChunkHeader));
 
         chunkHeader->chunkCounter = (Edp_DmxData_ChunkCounter)(chunkHeader->chunkCounter + 1);
@@ -114,10 +111,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
         }
 
         prepareDmxData_chunkOffset = prepareDmxData_chunkOffset + (maxSendChunkSize - sizeof(Edp_Commands) - sizeof(Edp_DmxData_ChunkHeader));
-        //*thisChunkSize = maxSendChunkSize;
         *callAgain = true;
-
-        LOG("POST SizeToBeSent: %u, old ChunkCounter: %u, chunkOffset: %u", prepareDmxData_sizeOfDataToBeSent, chunkHeader->chunkCounter, prepareDmxData_chunkOffset);
 
         return true;
     }
