@@ -38,8 +38,6 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
         // Start a new packet, discard existing data and chunks
 
         memset(outChunk, 0x00, 600);
-        outChunk[0] = Edp_Commands::DmxData;
-        packetHeader->universeId = universeId;
 
         // Loop over the input data so we know:
         //   - if it's all empty / zero
@@ -55,12 +53,15 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
         // Special case: allZero packet
         if (lastUsedChannel == 600) {
-            chunkHeader->chunkCounter = Edp_DmxData_ChunkCounter::AllZero;
-            chunkHeader->lastChunk = true; // Actually not needed
-            *thisChunkSize = sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(struct Edp_DmxData_PacketHeader);
+            outChunk[0] = Edp_Commands::DmxDataAllZero;
+            outChunk[1] = universeId;
+            *thisChunkSize = 2;
             *callAgain = false;
             return true;
         }
+
+        outChunk[0] = Edp_Commands::DmxData;
+        packetHeader->universeId = universeId;
 
         limitedInDataSize = MIN(inDataSize, 512);
 
@@ -132,5 +133,13 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 }
 
 bool Edp::processIncomingChunk(uint8_t* chunkData, uint16_t chunkSize) {
+    if (chunkSize < 1) {
+        return false;
+    }
+
+    LOG("EDP INCOMING: %d byte. Command: %d", chunkSize, chunkData[0]);
+
+    struct Edp_DmxData_ChunkHeader* chunkHeader = (struct Edp_DmxData_ChunkHeader*)chunkData + sizeof(Edp_Commands);
+
 
 }

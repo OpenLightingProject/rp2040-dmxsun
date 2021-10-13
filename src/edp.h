@@ -14,8 +14,9 @@
 enum Edp_Commands : uint8_t {
     Ping                      = 0x00, // Payload: Serial number of requester
     Pong                      = 0x01, // Payload: Serial number of responder
-    DmxData                   = 0x10, // One command for compressed and uncompressed data, sent in chunks
-    DmxDataRead               = 0x11, // Poll the content of a universe
+    DmxDataAllZero            = 0x10, // Followed by 1 byte (universeId), no chunk header, no packet header
+    DmxData                   = 0x11, // One command for compressed and uncompressed data, sent in chunks
+    DmxDataRequest            = 0x11, // Poll the content of a universe
     DiscoveryRequest          = 0x20,
     DiscoveryRespone          = 0x21,
     DiscoveryMute             = 0x22,
@@ -35,8 +36,7 @@ enum Edp_Commands : uint8_t {
 // Special values for the chunk counter
 // actually only 5 bit => 0-31
 enum Edp_DmxData_ChunkCounter : uint8_t {
-    FirstPacket               = 0,
-    AllZero                   = 31,
+    FirstPacket               = 0
 };
 
 // Should occupy one byte

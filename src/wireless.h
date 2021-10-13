@@ -23,10 +23,8 @@
 
 enum WirelessCommands : uint8_t {
     WL_Ping                      = 0x00,
-    WL_DmxData                   = 0x10, // One command for compressed and uncompressed data, sent in chunks
-    WL_Discovery_Request         = 0x20,
-    WL_Discovery_Mute            = 0x21,
-    WL_Discovery_UnMuteAll       = 0x22,
+    WL_DmxDataAllZero            = 0x10, // Followed by one byte (universeId)
+    WL_DmxData                   = 0x11, // One command for compressed and uncompressed data, sent in chunks
 };
 
 // 32 byte RF24 payload per packet MAX

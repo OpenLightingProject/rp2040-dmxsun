@@ -255,6 +255,7 @@ void Wireless::handleReceivedData() {
     size_t copySize = 0;
     uint8_t pipe = 0;
     size_t uncompressedLength;
+    Patching patching;
 
     // TODO: Check for radio mode
 
@@ -277,7 +278,18 @@ void Wireless::handleReceivedData() {
 
         LOG("Wireless RX: %d byte. Command: %d", bytes, Wireless::tmpBuf[0]);
 
-        if (Wireless::tmpBuf[0] == WirelessCommands::WL_DmxData) {
+        if (Wireless::tmpBuf[0] == WirelessCommands::WL_DmxDataAllZero) {
+            // No chunk header, no packetheader, just the universeId
+
+            patching = findPatching(Wireless::tmpBuf[1]);
+
+            LOG("allZero packet. universe: %u patching active: %u buffer: %u", Wireless::tmpBuf[1], patching.active, patching.buffer);
+
+            if (patching.active) {
+                // Easy: Just clear the DmxBuffer
+                dmxBuffer.zero(patching.buffer);
+            }
+        } else if (Wireless::tmpBuf[0] == WirelessCommands::WL_DmxData) {
 
             if (bytes < 2) {
                 return;
@@ -298,8 +310,6 @@ void Wireless::handleReceivedData() {
 
             // Current packet's data (one chunk) is in tmpBuf
             // Complete frame (all chunks) is assembled in tmpBuf2
-
-            Patching patching;
 
             if (chunkHeader->chunkCounter == DmxData_ChunkCounter::WL_AllZero) {
                 struct DmxData_PacketHeader* packetHeader = (struct DmxData_PacketHeader*)(Wireless::tmpBuf + 2);
