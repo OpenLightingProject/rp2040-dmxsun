@@ -60,7 +60,7 @@ class Edp {
     void init(uint8_t* inData, uint8_t* outChunk, uint8_t patchingOffset, uint16_t maxSendChunkSize);
 
     // TODO: Chunk generation with buffer, universe id and max chunk size given
-    bool prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, uint16_t* thisChunkSize, bool* callAgain);
+    bool prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain);
 
     bool processIncomingChunk(uint8_t* chunkData, uint16_t chunkSize);
 

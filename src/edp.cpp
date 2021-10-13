@@ -25,9 +25,11 @@ void Edp::init(uint8_t* inData, uint8_t* outChunk, uint8_t patchingOffset, uint1
 
 // Take data from inData, prepare the complete packet in scratch
 // Then, chop it into chunks and store them in outChunk, one per call
-bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, uint16_t* thisChunkSize, bool* callAgain) {
+bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain) {
     uint16_t limitedInDataSize;
     uint8_t* destination;
+    uint16_t firstUsedChannel = 0;
+    uint16_t lastUsedChannel = 600; // Some invalid value so we can detect if NO channel is in use
 
     struct Edp_DmxData_ChunkHeader* chunkHeader = (struct Edp_DmxData_ChunkHeader*)(outChunk + sizeof(Edp_Commands));
     struct Edp_DmxData_PacketHeader* packetHeader = (struct Edp_DmxData_PacketHeader*)(outChunk + sizeof(Edp_Commands) + sizeof(Edp_DmxData_ChunkHeader));
@@ -39,8 +41,20 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, bool allZero, 
         outChunk[0] = Edp_Commands::DmxData;
         packetHeader->universeId = universeId;
 
+        // Loop over the input data so we know:
+        //   - if it's all empty / zero
+        //   - what the first and last used channels are so can send a partial frame
+        for (uint16_t i = 0; i < inDataSize; i++) {
+            if ((firstUsedChannel == 0) && (inData[i] != 0)) {
+                firstUsedChannel = i;
+            }
+            if (inData[i] != 0) {
+                lastUsedChannel = i;
+            }
+        }
+
         // Special case: allZero packet
-        if (allZero) {
+        if (lastUsedChannel == 600) {
             chunkHeader->chunkCounter = Edp_DmxData_ChunkCounter::AllZero;
             chunkHeader->lastChunk = true; // Actually not needed
             *thisChunkSize = sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(struct Edp_DmxData_PacketHeader);

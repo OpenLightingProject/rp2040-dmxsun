@@ -167,7 +167,6 @@ void Wireless::doSendData() {
 
     uint16_t thisChunkSize = 0;
     bool callAgain = false;
-    bool allZero = false;
 
     Wireless::tmpBuf2[0] = WirelessCommands::WL_DmxData;
     struct DmxData_PacketHeader* packetHeader;
@@ -195,16 +194,14 @@ void Wireless::doSendData() {
                 case RadioRole::broadcast:
                     rf24radio.stopListening();
 
-                    allZero = !memcmp(Wireless::tmpBufQueueCopy, DmxBuffer::allZeroes, 512);
-
                     callAgain = false;
-                    edp.prepareDmxData(i, 512, allZero, &thisChunkSize, &callAgain);
+                    edp.prepareDmxData(i, 512, &thisChunkSize, &callAgain);
                     success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
                     if (!success) {
                         anyFailed = true;
                     }
                     while(callAgain) {
-                        edp.prepareDmxData(i, 0, allZero, &thisChunkSize, &callAgain);
+                        edp.prepareDmxData(i, 0, &thisChunkSize, &callAgain);
                         success = rf24radio.write(Wireless::tmpBuf, thisChunkSize);
                         if (!success) {
                             anyFailed = true;
