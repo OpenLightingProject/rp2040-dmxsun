@@ -25,6 +25,7 @@ void StatusLeds::init() {
     memset(this->pixelsBlink, 0x00, 8 * 4);
     memset(this->toBlinkOn, 0x00, 8 * 3 * 4);
     memset(this->toBlinkOff, 0x00, 8 * 3 * 4);
+    memset(this->pixelPrevious, 0x00, 8 * 3);
 }
 
 void StatusLeds::setStatic(uint8_t ledNum, bool red, bool green, bool blue) {
@@ -181,6 +182,51 @@ void StatusLeds::writeLeds() {
             r = (uint16_t)r * this->brightness / 255;
             g = (uint16_t)g * this->brightness / 255;
             b = (uint16_t)b * this->brightness / 255;
+
+            // r, g and b are the desired values.
+            // depending on the previous state, make a nice fading effect
+
+            // easy case: fade down
+            if (r < pixelPrevious[i][0]) {
+                r = pixelPrevious[i][0] / 2;
+            }
+            if (g < pixelPrevious[i][1]) {
+                g = pixelPrevious[i][1] / 2;
+            }
+            if (b < pixelPrevious[i][2]) {
+                b = pixelPrevious[i][2] / 2;
+            }
+
+            // fading up is a bit more complex
+            if (r && !pixelPrevious[i][0]) {
+                r = 1;
+            } else if ((r > pixelPrevious[i][0]) && (r > pixelPrevious[i][0] * 2)) {
+                r = pixelPrevious[i][0] * 2;
+            } else {
+                // we reached the last fade step before desired brightness
+                // has been reached, so keep r as it is
+            }
+            if (g && !pixelPrevious[i][1]) {
+                g = 1;
+            } else if ((g > pixelPrevious[i][1]) && (g > pixelPrevious[i][1] * 2)) {
+                g = pixelPrevious[i][1] * 2;
+            } else {
+                // we reached the last fade step before desired brightness
+                // has been reached, so keep g as it is
+            }
+            if (b && !pixelPrevious[i][2]) {
+                b = 1;
+            } else if ((b > pixelPrevious[i][2]) && (b > pixelPrevious[i][2] * 2)) {
+                b = pixelPrevious[i][2] * 2;
+            } else {
+                // we reached the last fade step before desired brightness
+                // has been reached, so keep b as it is
+            }
+
+            pixelPrevious[i][0] = r;
+            pixelPrevious[i][1] = g;
+            pixelPrevious[i][2] = b;
+
             put_pixel(g << 16 | r << 8 | b);
         }
     }

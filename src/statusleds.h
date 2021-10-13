@@ -38,6 +38,7 @@ class StatusLeds {
     uint32_t pixelsBlink[8];
     uint32_t toBlinkOn[8][3];
     uint32_t toBlinkOff[8][3];
+    uint8_t pixelPrevious[8][3];
     uint pio_program;
     uint8_t brightness = 127;
     uint32_t lastRefresh;
