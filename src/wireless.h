@@ -81,13 +81,13 @@ class Wireless {
     bool sendQueueValid[4];
     uint8_t sendQueueData[4][512];
 
-    Edp edp;
+    Edp edpTX;
+    Edp edpRX;
 
-    static uint16_t packetLen;
-
-    static uint8_t tmpBuf[800];
-    static uint8_t tmpBuf2[800];
+    static uint8_t tmpBuf_RX0[600];
+    static uint8_t tmpBuf_RX1[600];
     static uint8_t tmpBufQueueCopy[600];
+    static uint8_t tmpBuf_TX1[600];
 
     void handleReceivedData();
     void doSendData();

@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 
 #include "log.h"
+#include "boardconfig.h"
 
 #include "snappy.h"
 
@@ -57,22 +58,24 @@ struct Edp_DmxData_PacketHeader {
 
 class Edp {
   public:
-    void init(uint8_t* inData, uint8_t* outChunk, uint8_t patchingOffset, uint16_t maxSendChunkSize);
+    void init(uint8_t* inData, uint8_t* outData, uint8_t patchingOffset, uint16_t maxSendChunkSize);
 
     // TODO: Chunk generation with buffer, universe id and max chunk size given
     bool prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain);
 
-    bool processIncomingChunk(uint8_t* chunkData, uint16_t chunkSize);
+    bool processIncomingChunk(uint16_t chunkSize);
 
   private:
     bool initOkay;
     uint8_t* inData;
-    uint8_t* outChunk;
+    uint8_t* outData;
     uint8_t patchingOffset;
     uint16_t maxSendChunkSize;
 
     size_t prepareDmxData_sizeOfDataToBeSent;  // Packetheader + payload length
     uint16_t prepareDmxData_chunkOffset;
+
+    Patching findPatching(uint8_t universeId);
 
 };
 
