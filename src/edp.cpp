@@ -125,7 +125,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
     } else {
         // Next chunk if available, otherwise return false
-        // TODO: Check if there actually is a next chunk or if this was accidentially
+        // TODO: Check if there actually is a next chunk or if this was accidentally
         //       called without inDataSize
 
         // ChunkOffset points to the OLD chunk's data
