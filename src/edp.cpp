@@ -27,9 +27,10 @@ void Edp::init(uint8_t* inData, uint8_t* outData, uint8_t patchingOffset, uint16
 // Then, chop it into chunks and store them in outData, one per call
 bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain) {
     uint16_t limitedInDataSize;
+    uint16_t partialSize;
     uint8_t* destination;
-    uint16_t firstUsedChannel = 0;
-    uint16_t lastUsedChannel = 600; // Some invalid value so we can detect if NO channel is in use
+    uint16_t firstUsedChannel;
+    uint16_t lastUsedChannel;
 
     struct Edp_DmxData_ChunkHeader* chunkHeader = (struct Edp_DmxData_ChunkHeader*)(outData + sizeof(Edp_Commands));
     struct Edp_DmxData_PacketHeader* packetHeader = (struct Edp_DmxData_PacketHeader*)(outData + sizeof(Edp_Commands) + sizeof(Edp_DmxData_ChunkHeader));
@@ -42,8 +43,10 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
         // Loop over the input data so we know:
         //   - if it's all empty / zero
         //   - what the first and last used channels are so can send a partial frame
+        firstUsedChannel = 600;  // Some invalid value so we can detect if NO channel is in use
+        lastUsedChannel = 600;   // Some invalid value so we can detect if NO channel is in use
         for (uint16_t i = 0; i < inDataSize; i++) {
-            if ((firstUsedChannel == 0) && (inData[i] != 0)) {
+            if ((firstUsedChannel == 600) && (inData[i] != 0)) {
                 firstUsedChannel = i;
             }
             if (inData[i] != 0) {
@@ -68,19 +71,26 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
         prepareDmxData_chunkOffset = maxSendChunkSize;
 
         // TODO: Not yet supported
+        // IF NOT SUPPORT PARTIAL
         packetHeader->partial = 0;
         packetHeader->partialOffset = 0;
+        partialSize = 512;
+        // ELSE
+        packetHeader->partial = 1;
+        packetHeader->partialOffset = MIN(firstUsedChannel, 255);
+        partialSize = MIN(lastUsedChannel, 511) - packetHeader->partialOffset + 1;
+        LOG("prepareDMX: firstUsedChannel: %u, lastUsedChannel: %u, partialOffset: %u, partialSize: %u", firstUsedChannel, lastUsedChannel, packetHeader->partialOffset, partialSize);
 
         // Compress inData to outData. If it's larger than the input, it will be overwritten later
         prepareDmxData_sizeOfDataToBeSent = 600 - sizeof(Edp_Commands) - sizeof(Edp_DmxData_ChunkHeader) - sizeof(Edp_DmxData_PacketHeader);
         destination = outData + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(Edp_DmxData_PacketHeader);
-        snappy::RawCompress((const char *)inData, limitedInDataSize, (char*)destination, &prepareDmxData_sizeOfDataToBeSent);
+        snappy::RawCompress((const char *)inData + packetHeader->partialOffset, partialSize, (char*)destination, &prepareDmxData_sizeOfDataToBeSent);
 
-        if (prepareDmxData_sizeOfDataToBeSent >= limitedInDataSize) {
-            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, limitedInDataSize);
+        if (prepareDmxData_sizeOfDataToBeSent >= partialSize) {
+            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, partialSize);
             packetHeader->compressed = 0;
-            memcpy(destination, inData, limitedInDataSize);
-            prepareDmxData_sizeOfDataToBeSent = limitedInDataSize;
+            memcpy(destination, inData + packetHeader->partialOffset, partialSize);
+            prepareDmxData_sizeOfDataToBeSent = partialSize;
         } else {
             packetHeader->compressed = 1;
         }
@@ -88,16 +98,19 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
         // Increase the size of the packet by the prepended header
         prepareDmxData_sizeOfDataToBeSent += sizeof(struct Edp_DmxData_PacketHeader);
 
+        LOG("Size with packetHeader: %u", prepareDmxData_sizeOfDataToBeSent);
+
         // TODO: Calculate some kind of CRC so the receivers know if they got all chunks
         //packetHeader->crc = XXX;
 
         // Make chunk 0 ready
         chunkHeader->chunkCounter = Edp_DmxData_ChunkCounter::FirstPacket;
-        if (prepareDmxData_sizeOfDataToBeSent <= maxSendChunkSize) {
+        if ((prepareDmxData_sizeOfDataToBeSent + sizeof(Edp_Commands) + sizeof (struct Edp_DmxData_ChunkHeader)) <= maxSendChunkSize) {
             // Yay, only one chunk needed :D
             chunkHeader->lastChunk = true;
-            *thisChunkSize = prepareDmxData_sizeOfDataToBeSent;
+            *thisChunkSize = prepareDmxData_sizeOfDataToBeSent + sizeof(Edp_Commands) + sizeof (struct Edp_DmxData_ChunkHeader);
             *callAgain = false;
+            LOG("Only one chunk is needed :D Size: %u", prepareDmxData_sizeOfDataToBeSent + sizeof(Edp_Commands) + sizeof (struct Edp_DmxData_ChunkHeader));
             return true;
         }
 
@@ -105,11 +118,15 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
         *thisChunkSize = maxSendChunkSize;
         *callAgain = true;
+
+        LOG("Chunk 0 is ready! :D Size: %u", maxSendChunkSize);
+
         return true;
 
     } else {
         // Next chunk if available, otherwise return false
-        // TODO: Check if there is a next chunk
+        // TODO: Check if there actually is a next chunk or if this was accidentially
+        //       called without inDataSize
 
         // ChunkOffset points to the OLD chunk's data
 
@@ -118,10 +135,17 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
         chunkHeader->chunkCounter = (Edp_DmxData_ChunkCounter)(chunkHeader->chunkCounter + 1);
 
-        if (prepareDmxData_chunkOffset + maxSendChunkSize >= prepareDmxData_sizeOfDataToBeSent) {
+        LOG("Chunk %u is ready! chunkOffset: %u, maxSendChunkSize: %u, prepareDmxData_sizeOfDataToBeSent: %u",
+            chunkHeader->chunkCounter,
+            prepareDmxData_chunkOffset,
+            maxSendChunkSize,
+            prepareDmxData_sizeOfDataToBeSent);
+
+        if (prepareDmxData_chunkOffset + maxSendChunkSize >= prepareDmxData_sizeOfDataToBeSent + sizeof(struct Edp_DmxData_PacketHeader)) {
             chunkHeader->lastChunk = true;
             *thisChunkSize = prepareDmxData_sizeOfDataToBeSent - prepareDmxData_chunkOffset + sizeof(struct Edp_DmxData_PacketHeader);
             *callAgain = false;
+            LOG("It's the last chunk! Size: %u %04x", *thisChunkSize, *thisChunkSize);
             return true;
         }
 
@@ -195,7 +219,14 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
         if (chunkHeader->lastChunk) {
             struct Edp_DmxData_PacketHeader* packetHeader = (struct Edp_DmxData_PacketHeader*)outData;
 
-            // TODO: Check CRC
+            // TODO: Check CRC and discard packet if it doesn't match
+
+            // The complete packet (compressed or not) sits at outData
+            // inData contains the last chunk received + possibly garbage
+
+            // For partial packets to work, we need 512 byte of zeroed space, so we
+            // will re-use inData for that. So zero it here
+            memset(inData, 0x00, 600);
 
             patching = findPatching(packetHeader->universeId + patchingOffset);
 
@@ -218,13 +249,13 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                 if (snappy::GetUncompressedLength((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), &uncompressedLength) == true) {
                     LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
 
-                    // Sanity check: uncompressedLength must be 512. // TODO: Not true for PARTIAL frames!
-                    if (uncompressedLength != 512) {
+                    // Sanity check: uncompressedLength must be 512 OR the frame is partial
+                    if ((!packetHeader->partial && uncompressedLength != 512) || (packetHeader->partial && uncompressedLength > 512)) {
                         return false;
                     }
 
-                    if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData) == true) {
-                        dmxBuffer.setBuffer(patching.buffer, inData, uncompressedLength);
+                    if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData + packetHeader->partialOffset) == true) {
+                        dmxBuffer.setBuffer(patching.buffer, inData, uncompressedLength + packetHeader->partialOffset);
                         return true;
                     } else {
                         LOG("snappy::RawUncompress failed :(");
@@ -235,9 +266,13 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                     return false;
                 }
             } else {
-                // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader // TODO: Not true for PARTIAL frames!
+                // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
                 if (prepareDmxData_chunkOffset == (512 + sizeof(Edp_DmxData_PacketHeader))) {
                     dmxBuffer.setBuffer(patching.buffer, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
+                    return true;
+                } else if (packetHeader->partial) {
+                    memcpy(inData + packetHeader->partialOffset, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+                    dmxBuffer.setBuffer(patching.buffer, inData, prepareDmxData_chunkOffset + packetHeader->partialOffset);
                     return true;
                 }
                 return false;
