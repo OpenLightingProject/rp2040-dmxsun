@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icon from 'react-bootstrap-icons';
+//import * as Icon from 'react-bootstrap-icons';
 import Slider from 'react-input-slider';
 
 class Home extends React.Component {
