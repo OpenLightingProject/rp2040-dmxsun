@@ -17,6 +17,7 @@ include(../lib/RF24Mesh/CMakeLists.txt)
 include(../lib/snappy/interfaceLibForPicoSDK.cmake)
 include(../lib/libb64/CMakeLists.txt)
 include(../lib/jsconcpp/interfaceLibForPicoSDK.cmake)
+include(../lib/libcrc/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
@@ -126,6 +127,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     hardware_spi
     jsoncpp
     libb64
+    libcrc
     lwipallapps
     lwipcore
     pico_multicore

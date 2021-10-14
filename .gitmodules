@@ -19,3 +19,6 @@
 [submodule "lib/jsconcpp"]
 	path = lib/jsconcpp
 	url = https://github.com/kripton/jsoncpp.git
+[submodule "lib/libcrc"]
+	path = lib/libcrc
+	url = https://github.com/kripton/libcrc

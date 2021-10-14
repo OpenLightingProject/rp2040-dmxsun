@@ -1,5 +1,7 @@
 #include "edp.h"
 
+#include "checksum.h"
+
 #include "boardconfig.h"
 #include "dmxbuffer.h"
 
@@ -95,13 +97,14 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
             packetHeader->compressed = 1;
         }
 
+        // Calculate a CRC so the receivers know if they got all the correct chunks
+        // CRC is over the complete "payload" = without the PacketHeader
+        packetHeader->crc = crc_modbus(outData + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(Edp_DmxData_PacketHeader), prepareDmxData_sizeOfDataToBeSent);
+
         // Increase the size of the packet by the prepended header
         prepareDmxData_sizeOfDataToBeSent += sizeof(struct Edp_DmxData_PacketHeader);
 
         LOG("Size with packetHeader: %u", prepareDmxData_sizeOfDataToBeSent);
-
-        // TODO: Calculate some kind of CRC so the receivers know if they got all chunks
-        //packetHeader->crc = XXX;
 
         // Make chunk 0 ready
         chunkHeader->chunkCounter = Edp_DmxData_ChunkCounter::FirstPacket;
@@ -159,6 +162,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 bool Edp::processIncomingChunk(uint16_t chunkSize) {
     Patching patching;
     uint16_t copySize;
+    uint16_t crc;
     size_t uncompressedLength;
 
     if (chunkSize < 1) {
@@ -219,7 +223,12 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
         if (chunkHeader->lastChunk) {
             struct Edp_DmxData_PacketHeader* packetHeader = (struct Edp_DmxData_PacketHeader*)outData;
 
-            // TODO: Check CRC and discard packet if it doesn't match
+            // Check CRC and discard packet if it doesn't match
+            crc = crc_modbus(outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+            if (crc != packetHeader->crc) {
+                LOG("CRC mismatch! Expected: %04x, Calculated: %04x", packetHeader->crc, crc);
+                return false;
+            }
 
             // The complete packet (compressed or not) sits at outData
             // inData contains the last chunk received + possibly garbage
