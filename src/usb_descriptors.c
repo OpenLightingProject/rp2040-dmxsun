@@ -32,8 +32,8 @@
 #include "boardconfig.h"
 
 // TODO: Get a USB ID for the "native" protocol
-#define DEFAULT_VID 0x16C0
-#define DEFAULT_PID 0x088B
+#define DEFAULT_VID 0x1209
+#define DEFAULT_PID 0x2040
 
 // String descriptor indices
 enum
