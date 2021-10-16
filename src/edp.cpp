@@ -1,6 +1,6 @@
 #include "edp.h"
 
-#include "checksum.h"
+#include "crc_X25.h"
 
 #include "boardconfig.h"
 #include "dmxbuffer.h"
@@ -99,7 +99,9 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
         // Calculate a CRC so the receivers know if they got all the correct chunks
         // CRC is over the complete "payload" = without the PacketHeader
-        packetHeader->crc = crc_modbus(outData + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(Edp_DmxData_PacketHeader), prepareDmxData_sizeOfDataToBeSent);
+        packetHeader->crc = crc_init();
+        packetHeader->crc = crc_update(packetHeader->crc, outData + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(Edp_DmxData_PacketHeader), prepareDmxData_sizeOfDataToBeSent);
+        packetHeader->crc = crc_finalize(packetHeader->crc);
 
         // Increase the size of the packet by the prepended header
         prepareDmxData_sizeOfDataToBeSent += sizeof(struct Edp_DmxData_PacketHeader);
@@ -226,7 +228,9 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
 
             // Check CRC and discard packet if it doesn't match
             LOG("Checksum first byte: %02x, len: %u", (outData + sizeof(struct Edp_DmxData_PacketHeader))[0], prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
-            crc = crc_ccitt_ffff(outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+            crc = crc_init();
+            crc = crc_update(crc, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+            crc = crc_finalize(crc);
             if (crc != packetHeader->crc) {
                 LOG("CRC mismatch! Expected: %04x, Calculated: %04x", packetHeader->crc, crc);
 //                return false;
