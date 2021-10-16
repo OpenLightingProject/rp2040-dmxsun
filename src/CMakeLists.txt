@@ -60,6 +60,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     tusb_lwip_glue.c
     usb_descriptors.c
     usb_generic.cpp
+    usb_EDP.cpp
     usb_NodleU1.cpp
     webserver.cpp
     wireless.cpp

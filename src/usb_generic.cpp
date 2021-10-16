@@ -1,7 +1,9 @@
 #include <tusb.h>
 
 #include "boardconfig.h"
+#include "log.h"
 
+#include "usb_EDP.h"
 #include "usb_NodleU1.h"
 
 uint8_t usb_buffer[24][512] = {0};
@@ -31,11 +33,15 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_t
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {
   uint8_t usbProtocol = getUsbProtocol();
-  if (usbProtocol == 1) {
+
+  if (usbProtocol == 0) {
+    Usb_EDP::hid_set_report_cb(instance, report_id, report_type, buffer, bufsize);
+  } else if (usbProtocol == 1) {
     // JaRule emulation
     // TODO
   } else if ((usbProtocol == 4) || (usbProtocol == 5)) {
     // Nodle U1 emulation
     Usb_NodleU1::hid_set_report_cb(instance, report_id, report_type, buffer, bufsize);
   }
+
 }

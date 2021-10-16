@@ -161,6 +161,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
 bool Edp::processIncomingChunk(uint16_t chunkSize) {
     Patching patching;
+    uint8_t universeId;
     uint16_t copySize;
     uint16_t crc;
     size_t uncompressedLength;
@@ -224,10 +225,11 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             struct Edp_DmxData_PacketHeader* packetHeader = (struct Edp_DmxData_PacketHeader*)outData;
 
             // Check CRC and discard packet if it doesn't match
-            crc = crc_modbus(outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+            LOG("Checksum first byte: %02x, len: %u", (outData + sizeof(struct Edp_DmxData_PacketHeader))[0], prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+            crc = crc_ccitt_ffff(outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
             if (crc != packetHeader->crc) {
                 LOG("CRC mismatch! Expected: %04x, Calculated: %04x", packetHeader->crc, crc);
-                return false;
+//                return false;
             }
 
             // The complete packet (compressed or not) sits at outData
@@ -250,8 +252,14 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             );
 
             // If this universe is not patched, no need to do anything
-            if (!patching.active) {
+            if ((!patching.active) && (patchingOffset != 255)) {
                 return true; // TODO: or better false?
+            }
+
+            if (patchingOffset == 255) {
+                universeId = packetHeader->universeId;
+            } else {
+                universeId = patching.buffer;
             }
 
             if (packetHeader->compressed) {
@@ -264,7 +272,7 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                     }
 
                     if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData + packetHeader->partialOffset) == true) {
-                        dmxBuffer.setBuffer(patching.buffer, inData, uncompressedLength + packetHeader->partialOffset);
+                        dmxBuffer.setBuffer(universeId, inData, uncompressedLength + packetHeader->partialOffset);
                         return true;
                     } else {
                         LOG("snappy::RawUncompress failed :(");
@@ -277,11 +285,11 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             } else {
                 // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
                 if (prepareDmxData_chunkOffset == (512 + sizeof(Edp_DmxData_PacketHeader))) {
-                    dmxBuffer.setBuffer(patching.buffer, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
+                    dmxBuffer.setBuffer(universeId, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
                     return true;
                 } else if (packetHeader->partial) {
                     memcpy(inData + packetHeader->partialOffset, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
-                    dmxBuffer.setBuffer(patching.buffer, inData, prepareDmxData_chunkOffset + packetHeader->partialOffset);
+                    dmxBuffer.setBuffer(universeId, inData, prepareDmxData_chunkOffset + packetHeader->partialOffset);
                     return true;
                 }
                 return false;

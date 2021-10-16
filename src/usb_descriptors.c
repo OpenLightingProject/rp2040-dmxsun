@@ -31,7 +31,7 @@
 #include "version.h"
 #include "boardconfig.h"
 
-// TODO: Get a USB ID for the "native" protocol
+// TODO: Get a USB ID for the "native"/EDP protocol
 #define DEFAULT_VID 0x1209
 #define DEFAULT_PID 0x2040
 
@@ -98,6 +98,7 @@ tusb_desc_device_t desc_device =
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
+// If none matches, the DEFAULT one will be used
 uint8_t const *tud_descriptor_device_cb(void) {
   uint8_t usbProtocol = getUsbProtocol();
   if (usbProtocol == 1) {

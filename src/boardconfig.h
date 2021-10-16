@@ -59,7 +59,7 @@ struct PortParams {
 };
 
 enum UsbProtocol : uint8_t {
-    Native                    = 0, // our "native"/edp protocol only
+    EDP                       = 0, // our "native"/edp protocol only
     JaRule                    = 1, // 8 ports, each IN OR OUT
     uDMX                      = 2, // One TX only, via CONTROL endpoint
     OpenDMX                   = 3, // Multiple (8?) serial endpoints
@@ -182,7 +182,7 @@ static const ConfigData constDefaultConfig = {
     .ownIp               = 0x0100fea9UL, // 169.254.X.1
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
-    .usbProtocol         = UsbProtocol::Native,
+    .usbProtocol         = UsbProtocol::EDP,
     .radioRole           = RadioRole::broadcast,
     .radioChannel        = 99,
     .radioAddress        = 0,

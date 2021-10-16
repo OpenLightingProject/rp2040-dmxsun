@@ -27,6 +27,9 @@ extern "C" {
 #include "wireless.h"
 #include "localdmx.h"
 
+#include "usb_EDP.h"
+#include "usb_NodleU1.h"
+
 #include "artnet_in.h"
 #include "e1_31_in.h"
 
@@ -114,6 +117,8 @@ int main() {
 
     // Phase 4, USB configuration happens in usb_descriptors (boardConfig is queried)
     //          However, we would need to instantiate the relevant class here
+    Usb_EDP::init();
+    Usb_NodleU1::init();
 
     // Phase 5: Enable the USB interface, the debugging console, ...
     tusb_init();
