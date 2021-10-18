@@ -233,7 +233,7 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             crc = crc_finalize(crc);
             if (crc != packetHeader->crc) {
                 LOG("CRC mismatch! Expected: %04x, Calculated: %04x", packetHeader->crc, crc);
-//                return false;
+                return false;
             }
 
             // The complete packet (compressed or not) sits at outData
