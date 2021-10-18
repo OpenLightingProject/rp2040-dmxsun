@@ -31,7 +31,7 @@ enum WirelessCommands : uint8_t {
 // 1 byte COMMAND
 // 1 byte "DmxData" chunk header (= universe & chunk counter)
 //     = 30 byte DMX data per packet maximum
-//       512 byte + 2 byte DmxData packet header (full/partial + offset/compressions) + 2 byte CRC
+//       512 byte + 2 byte DmxData packet header (full/sparse + offset/compressions) + 2 byte CRC
 //       = 516 Byte DmxData Playload
 //     516/30 = 18 packets MAX (= 540 byte)  => 5 bit required for the chunk counter => 32 possible values
 
@@ -53,9 +53,9 @@ struct DmxData_ChunkHeader {
 struct DmxData_PacketHeader {
     uint16_t              crc;
     uint8_t               compressed   : 1; // 0 = raw, 1 = compressed
-    uint8_t               partial      : 1; // 0 = full frame, 1 = partial
+    uint8_t               sparse      : 1; // 0 = full frame, 1 = sparse
     uint8_t               universeId    : 6; // For future use
-    uint8_t               partialOffset;    // If partial: Position the frame starts at
+    uint8_t               sparseOffset;    // If sparse: Position the frame starts at
 };
 
 // /Wireless protocol

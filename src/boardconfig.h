@@ -74,7 +74,7 @@ enum UsbProtocol : uint8_t {
 // Size: 2 byte
 struct RadioParams {
     uint8_t compression           : 1;
-    uint8_t allowPartial          : 1;
+    uint8_t allowSparse           : 1;
     rf24_datarate_e dataRate      : 3;
     rf24_pa_dbm_e txPower         : 3;
     uint8_t padding               : 8;
@@ -136,7 +136,7 @@ enum ConfigSource : uint8_t {
 struct E131out {
     uint8_t           active : 1;
     uint8_t           buffer : 5;
-    uint8_t           transmissionMode: 1; // 0 = partial, 1 = full
+    uint8_t           transmissionMode: 1; // 0 = sparse, 1 = full
     uint8_t           RESVD1 : 1;
     uint8_t           dstIp[4];
     uint16_t          dstPort; // network byte order I assume? depends on lwip
@@ -163,7 +163,7 @@ struct ConfigData {
     RadioRole           radioRole;
     uint8_t             radioChannel; // 0-127; Higher values maybe FHSS?
     uint16_t            radioAddress; // RF24Mesh: "nodeId"
-    struct RadioParams  radioParams;  // Bit field: 0,1: Compression, 2: Partial or Full transfers, 3,4: Data rate, 5,6: TX power
+    struct RadioParams  radioParams;  // Bit field: 0,1: Compression, 2: Sparse or Full transfers, 3,4: Data rate, 5,6: TX power
     struct Patching     patching[MAX_PATCHINGS];
     struct E131out      e131out[8];
     uint8_t             statusLedBrightness;
@@ -171,7 +171,7 @@ struct ConfigData {
 
 static const RadioParams constDefaultRadioParams = {
     .compression         = 1,
-    .allowPartial        = 1,
+    .allowSparse         = 1,
     .dataRate            = RF24_2MBPS,
     .txPower             = RF24_PA_MAX,
 };

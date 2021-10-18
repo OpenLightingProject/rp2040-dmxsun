@@ -29,7 +29,7 @@ void Edp::init(uint8_t* inData, uint8_t* outData, uint8_t patchingOffset, uint16
 // Then, chop it into chunks and store them in outData, one per call
 bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain) {
     uint16_t limitedInDataSize;
-    uint16_t partialSize;
+    uint16_t sparseSize;
     uint8_t* destination;
     uint16_t firstUsedChannel;
     uint16_t lastUsedChannel;
@@ -44,7 +44,7 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
 
         // Loop over the input data so we know:
         //   - if it's all empty / zero
-        //   - what the first and last used channels are so can send a partial frame
+        //   - what the first and last used channels are so can send a sparse frame
         firstUsedChannel = 600;  // Some invalid value so we can detect if NO channel is in use
         lastUsedChannel = 600;   // Some invalid value so we can detect if NO channel is in use
         for (uint16_t i = 0; i < inDataSize; i++) {
@@ -73,26 +73,26 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
         prepareDmxData_chunkOffset = maxSendChunkSize;
 
         // TODO: Not yet supported
-        // IF NOT SUPPORT PARTIAL
-        packetHeader->partial = 0;
-        packetHeader->partialOffset = 0;
-        partialSize = 512;
+        // IF NOT SUPPORT SPARSE
+        packetHeader->sparse = 0;
+        packetHeader->sparseOffset = 0;
+        sparseSize = 512;
         // ELSE
-        packetHeader->partial = 1;
-        packetHeader->partialOffset = MIN(firstUsedChannel, 255);
-        partialSize = MIN(lastUsedChannel, 511) - packetHeader->partialOffset + 1;
-        LOG("prepareDMX: firstUsedChannel: %u, lastUsedChannel: %u, partialOffset: %u, partialSize: %u", firstUsedChannel, lastUsedChannel, packetHeader->partialOffset, partialSize);
+        packetHeader->sparse = 1;
+        packetHeader->sparseOffset = MIN(firstUsedChannel, 255);
+        sparseSize = MIN(lastUsedChannel, 511) - packetHeader->sparseOffset + 1;
+        LOG("prepareDMX: firstUsedChannel: %u, lastUsedChannel: %u, sparseOffset: %u, sparseSize: %u", firstUsedChannel, lastUsedChannel, packetHeader->sparseOffset, sparseSize);
 
         // Compress inData to outData. If it's larger than the input, it will be overwritten later
         prepareDmxData_sizeOfDataToBeSent = 600 - sizeof(Edp_Commands) - sizeof(Edp_DmxData_ChunkHeader) - sizeof(Edp_DmxData_PacketHeader);
         destination = outData + sizeof(Edp_Commands) + sizeof(struct Edp_DmxData_ChunkHeader) + sizeof(Edp_DmxData_PacketHeader);
-        snappy::RawCompress((const char *)inData + packetHeader->partialOffset, partialSize, (char*)destination, &prepareDmxData_sizeOfDataToBeSent);
+        snappy::RawCompress((const char *)inData + packetHeader->sparseOffset, sparseSize, (char*)destination, &prepareDmxData_sizeOfDataToBeSent);
 
-        if (prepareDmxData_sizeOfDataToBeSent >= partialSize) {
-            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, partialSize);
+        if (prepareDmxData_sizeOfDataToBeSent >= sparseSize) {
+            LOG("Compressed size: %d (inSize: %d) => SENDING UNCOMPRESSED!", prepareDmxData_sizeOfDataToBeSent, sparseSize);
             packetHeader->compressed = 0;
-            memcpy(destination, inData + packetHeader->partialOffset, partialSize);
-            prepareDmxData_sizeOfDataToBeSent = partialSize;
+            memcpy(destination, inData + packetHeader->sparseOffset, sparseSize);
+            prepareDmxData_sizeOfDataToBeSent = sparseSize;
         } else {
             packetHeader->compressed = 1;
         }
@@ -239,18 +239,18 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             // The complete packet (compressed or not) sits at outData
             // inData contains the last chunk received + possibly garbage
 
-            // For partial packets to work, we need 512 byte of zeroed space, so we
+            // For sparse packets to work, we need 512 byte of zeroed space, so we
             // will re-use inData for that. So zero it here
             memset(inData, 0x00, 600);
 
             patching = findPatching(packetHeader->universeId + patchingOffset);
 
-            LOG("DmxData packet complete! universe: %u, packetLen: %u, compressed: %u, partial: %u, partialOffset: %u, patching active: %u buffer: %u",
+            LOG("DmxData packet complete! universe: %u, packetLen: %u, compressed: %u, sparse: %u, sparseOffset: %u, patching active: %u buffer: %u",
                 packetHeader->universeId,
                 prepareDmxData_chunkOffset,
                 packetHeader->compressed,
-                packetHeader->partial,
-                packetHeader->partialOffset,
+                packetHeader->sparse,
+                packetHeader->sparseOffset,
                 patching.active,
                 patching.buffer
             );
@@ -270,13 +270,13 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                 if (snappy::GetUncompressedLength((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), &uncompressedLength) == true) {
                     LOG("snappy::GetUncompressedLength: %d", uncompressedLength);
 
-                    // Sanity check: uncompressedLength must be 512 OR the frame is partial
-                    if ((!packetHeader->partial && uncompressedLength != 512) || (packetHeader->partial && uncompressedLength > 512)) {
+                    // Sanity check: uncompressedLength must be 512 OR the frame is sparse
+                    if ((!packetHeader->sparse && uncompressedLength != 512) || (packetHeader->sparse && uncompressedLength > 512)) {
                         return false;
                     }
 
-                    if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData + packetHeader->partialOffset) == true) {
-                        dmxBuffer.setBuffer(universeId, inData, uncompressedLength + packetHeader->partialOffset);
+                    if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData + packetHeader->sparseOffset) == true) {
+                        dmxBuffer.setBuffer(universeId, inData, uncompressedLength + packetHeader->sparseOffset);
                         return true;
                     } else {
                         LOG("snappy::RawUncompress failed :(");
@@ -291,9 +291,9 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                 if (prepareDmxData_chunkOffset == (512 + sizeof(Edp_DmxData_PacketHeader))) {
                     dmxBuffer.setBuffer(universeId, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
                     return true;
-                } else if (packetHeader->partial) {
-                    memcpy(inData + packetHeader->partialOffset, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
-                    dmxBuffer.setBuffer(universeId, inData, prepareDmxData_chunkOffset + packetHeader->partialOffset);
+                } else if (packetHeader->sparse) {
+                    memcpy(inData + packetHeader->sparseOffset, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
+                    dmxBuffer.setBuffer(universeId, inData, prepareDmxData_chunkOffset + packetHeader->sparseOffset);
                     return true;
                 }
                 return false;
