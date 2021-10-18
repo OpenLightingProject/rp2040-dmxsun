@@ -17,49 +17,6 @@
 // nRF24L01+ can tune to 128 channels with 1 MHz spacing from 2400MHz to 2527MHz
 #define MAXCHANNEL 128
 
-// DATA TYPES
-
-// Wireless protocol
-
-enum WirelessCommands : uint8_t {
-    WL_Ping                      = 0x00,
-    WL_DmxDataAllZero            = 0x10, // Followed by one byte (universeId)
-    WL_DmxData                   = 0x11, // One command for compressed and uncompressed data, sent in chunks
-};
-
-// 32 byte RF24 payload per packet MAX
-// 1 byte COMMAND
-// 1 byte "DmxData" chunk header (= universe & chunk counter)
-//     = 30 byte DMX data per packet maximum
-//       512 byte + 2 byte DmxData packet header (full/sparse + offset/compressions) + 2 byte CRC
-//       = 516 Byte DmxData Playload
-//     516/30 = 18 packets MAX (= 540 byte)  => 5 bit required for the chunk counter => 32 possible values
-
-// Special values for the chunk counter
-// actually only 5 bit => 0-31
-enum DmxData_ChunkCounter : uint8_t {
-    WL_FirstPacket               = 0,
-    WL_AllZero                   = 31,
-};
-
-// Should occupy one byte
-struct DmxData_ChunkHeader {
-    uint8_t               RESERVED0    : 2; // values 0-3
-    DmxData_ChunkCounter  chunkCounter : 5;
-    uint8_t               lastChunk    : 1; // 0 = first or middle chunk, 1 = last chunk
-};
-
-// 4 byte
-struct DmxData_PacketHeader {
-    uint16_t              crc;
-    uint8_t               compressed   : 1; // 0 = raw, 1 = compressed
-    uint8_t               sparse      : 1; // 0 = full frame, 1 = sparse
-    uint8_t               universeId    : 6; // For future use
-    uint8_t               sparseOffset;    // If sparse: Position the frame starts at
-};
-
-// /Wireless protocol
-
 class Wireless {
   public:
     void init();
