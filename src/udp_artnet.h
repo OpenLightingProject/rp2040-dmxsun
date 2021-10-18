@@ -1,5 +1,5 @@
-#ifndef ARTNET_IN_H
-#define ARTNET_IN_H
+#ifndef UDP_ARTNET_H
+#define UDP_ARTNET_H
 
 #include "pico/stdlib.h"
 
@@ -17,7 +17,7 @@
 // Data types (enums and structs) are defined in artnet_in.cpp since they
 // are used only there
 
-class ArtnetIn {
+class Udp_ArtNet {
   public:
     static void init();
     static void stop();
@@ -41,4 +41,4 @@ static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip
 }
 #endif
 
-#endif // ARTNET_IN_H
+#endif // UDP_ARTNET_H

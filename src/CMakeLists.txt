@@ -46,11 +46,9 @@ execute_process(
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
-    artnet_in.cpp
     boardconfig.cpp
     crc_X25.c
     dmxbuffer.cpp
-    e1_31_in.cpp
     edp.cpp
     localdmx.cpp
     log.cpp
@@ -58,6 +56,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     statusleds.cpp
     stdio_usb.c
     tusb_lwip_glue.c
+    udp_artnet.cpp
+    udp_e1_31.cpp
     usb_descriptors.c
     usb_generic.cpp
     usb_EDP.cpp

@@ -1,4 +1,4 @@
-#include "e1_31_in.h"
+#include "udp_e1_31.h"
 
 #include "log.h"
 #include "dmxbuffer.h"
@@ -40,14 +40,14 @@ struct __attribute__((__packed__)) e1_31_dmp_layer {
 // Constant to we can fast memcmp or memcpy
 const char AcnPacketIdentifier[12] = "ASC-E1.17\0\0"; // + implicit \0
 
-udp_pcb* E1_31In::pcb;
+udp_pcb* Udp_E1_31::pcb;
 
 // UDP recv callback (for C-based code, not part of the class)
 static void e1_31_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-  E1_31In::receive(arg, pcb, p, addr, port);
+  Udp_E1_31::receive(arg, pcb, p, addr, port);
 }
 
-void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
+void Udp_E1_31::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
   uint16_t universe = 0;
   uint16_t size = 0;
 
@@ -114,7 +114,7 @@ void E1_31In::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_a
   }
 }
 
-void E1_31In::init(void) {
+void Udp_E1_31::init(void) {
   if (pcb == NULL) {
     pcb = udp_new_ip_type(IPADDR_TYPE_V4);
     LWIP_ASSERT("Failed to allocate udp pcb for E1.31", pcb != NULL);
@@ -126,7 +126,7 @@ void E1_31In::init(void) {
   }
 }
 
-void E1_31In::stop(void) {
+void Udp_E1_31::stop(void) {
   LWIP_ASSERT_CORE_LOCKED();
   if (pcb != NULL) {
     udp_remove(pcb);

@@ -1,4 +1,4 @@
-#include "artnet_in.h"
+#include "udp_artnet.h"
 
 #include "log.h"
 #include "dmxbuffer.h"
@@ -69,16 +69,16 @@ struct __attribute__((__packed__)) ArtNet_OpPollReply {
 const char ArtNetId[8] = "Art-Net";
 
 // Readily-prepared OpPollReply so it's not re-created every time
-struct ArtNet_OpPollReply ArtnetIn::opPollReply;
+struct ArtNet_OpPollReply Udp_ArtNet::opPollReply;
 
-udp_pcb* ArtnetIn::pcb;
+udp_pcb* Udp_ArtNet::pcb;
 
 // UDP recv callback (for C-based code, not part of the class)
 static void artnet_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-  ArtnetIn::receive(arg, pcb, p, addr, port);
+  Udp_ArtNet::receive(arg, pcb, p, addr, port);
 }
 
-void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
+void Udp_ArtNet::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
     struct pbuf *p_send;
 
     //LOG("Received UDP packet. Length: %d, Total: %d", p->len, p->tot_len);
@@ -121,7 +121,7 @@ void ArtnetIn::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
     }
 }
 
-void ArtnetIn::init(void) {
+void Udp_ArtNet::init(void) {
   // Init our ArtPollReply so we have it ready fast when needed
   memcpy(opPollReply.id, ArtNetId, 8);
   opPollReply.opCode = 0x2100;
@@ -172,7 +172,7 @@ void ArtnetIn::init(void) {
   }
 }
 
-void ArtnetIn::stop(void) {
+void Udp_ArtNet::stop(void) {
   LWIP_ASSERT_CORE_LOCKED();
   if (pcb != NULL) {
     udp_remove(pcb);

@@ -1,5 +1,5 @@
-#ifndef E1_31_IN_H
-#define E1_31_IN_H
+#ifndef UDP_E1_31_H
+#define UDP_E1_31_H
 
 #include "pico/stdlib.h"
 
@@ -17,7 +17,7 @@
 // Data types (enums and structs) are defined in e1_31_in.cpp since they
 // are used only there
 
-class E1_31In {
+class Udp_E1_31 {
   public:
     static void init();
     static void stop();
@@ -40,4 +40,4 @@ static void e1_31_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_
 }
 #endif
 
-#endif // ARTNET_IN_H
+#endif // UDP_E1_31_H

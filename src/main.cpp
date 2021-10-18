@@ -30,8 +30,8 @@ extern "C" {
 #include "usb_EDP.h"
 #include "usb_NodleU1.h"
 
-#include "artnet_in.h"
-#include "e1_31_in.h"
+#include "udp_artnet.h"
+#include "udp_e1_31.h"
 
 extern "C" {
 #include <bsp/board.h>          // On-board-LED
@@ -138,8 +138,8 @@ int main() {
     // Patching is read from BoardConfig and actually nothing needs to be done here
 
     // Phase 10: Start our ArtNet- and E1.31 receiver
-    ArtnetIn::init();
-    E1_31In::init();
+    Udp_ArtNet::init();
+    Udp_E1_31::init();
 
     // Finally, turn on the green component of the SYSTEM status LED
     statusLeds.setStaticOn(4, 0, 1, 0);
