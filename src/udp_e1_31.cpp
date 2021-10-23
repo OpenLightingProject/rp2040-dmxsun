@@ -1,11 +1,13 @@
 #include "udp_e1_31.h"
 
 #include "log.h"
+#include "boardconfig.h"
 #include "dmxbuffer.h"
 
 #include <string.h>
 
 extern DmxBuffer dmxBuffer;
+extern BoardConfig boardConfig;
 
 struct __attribute__((__packed__)) ACN_Header {
   uint16_t preamble_size;
@@ -115,6 +117,9 @@ void Udp_E1_31::receive(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip
 }
 
 void Udp_E1_31::init(void) {
+  ip_addr_t ownIp;
+  ip_addr_t mCastGroup;
+
   if (pcb == NULL) {
     pcb = udp_new_ip_type(IPADDR_TYPE_V4);
     LWIP_ASSERT("Failed to allocate udp pcb for E1.31", pcb != NULL);
@@ -122,6 +127,14 @@ void Udp_E1_31::init(void) {
       udp_recv(pcb, e1_31_recv, NULL);
 
       udp_bind(pcb, IP4_ADDR_ANY, 5568);
+
+      ip4_addr_set_u32(&ownIp, boardConfig.activeConfig->ownIp);
+
+      for (uint8_t i = 0; i < 24; i++) {
+        ip4_addr_set_u32(&mCastGroup, (0x0000ffef | (i << 24)));
+        err_t igmp_result = igmp_joingroup(&ownIp, &mCastGroup);
+        LOG("IGMP group %08x join: %u", mCastGroup, igmp_result);
+      }
     }
   }
 }

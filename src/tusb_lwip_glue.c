@@ -29,6 +29,8 @@
 #include "tusb_lwip_glue.h"
 #include <pico/unique_id.h>
 
+#include "log.h"
+
 extern uint8_t usbTraffic;
 
 /* lwip context */
@@ -95,6 +97,7 @@ static err_t netif_init_cb(struct netif *netif)
 void init_lwip(void)
 {
     struct netif *netif = &netif_data;
+    err_t igmp_result;
     
     /* Fixup MAC address based on flash serial */
     pico_unique_board_id_t id;
@@ -115,6 +118,11 @@ void init_lwip(void)
     
     netif = netif_add(netif, &ipaddr, &netmask, &gateway, NULL, netif_init_cb, ip_input);
     netif_set_default(netif);
+
+
+    netif->flags |= NETIF_FLAG_IGMP;
+    igmp_result = igmp_start( netif );
+    LOG("IGMP START: %u", igmp_result);
 }
 
 void tud_network_init_cb(void)

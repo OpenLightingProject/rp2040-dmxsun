@@ -7,6 +7,7 @@
 #include "lwip/timeouts.h"
 #include "lwip/udp.h"
 #include "lwip/dns.h"
+#include "lwip/igmp.h"
 #include "lwip/ip_addr.h"
 #include "lwip/pbuf.h"
 

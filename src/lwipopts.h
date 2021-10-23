@@ -35,6 +35,10 @@
 /* Prevent having to link sys_arch.c (we don't test the API layers in unit tests) */
 #define NO_SYS                          1
 #define MEM_ALIGNMENT                   4
+#define MEM_SIZE                        16384
+#define MEMP_NUM_UDP_PCB                64
+#define MEMP_NUM_TCP_PCB                16
+#define MEMP_NUM_TCPIP_MSG_API          16
 #define LWIP_RAW                        0
 #define LWIP_NETCONN                    0
 #define LWIP_SOCKET                     0
@@ -45,10 +49,16 @@
 #define ETH_PAD_SIZE                    0
 #define LWIP_IP_ACCEPT_UDP_PORT(p)      ((p) == PP_NTOHS(67))
 
+#define LWIP_IGMP                       1
+#define MEMP_NUM_IGMP_GROUP             32
+
 #define TCP_MSS                         (1500 /*mtu*/ - 20 /*iphdr*/ - 20 /*tcphhr*/)
 #define TCP_SND_BUF                     (2 * TCP_MSS)
 
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1
+
+//#define LWIP_NETIF_STATUS_CALLBACK      1
+//#define LWIP_NETIF_LINK_CALLBACK        1
 
 #define LWIP_HTTPD_CGI                  1
 #define LWIP_HTTPD_SSI                  1

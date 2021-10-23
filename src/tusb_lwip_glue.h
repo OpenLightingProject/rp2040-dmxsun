@@ -8,6 +8,7 @@
 #include <tusb.h>
 #include <dhserver.h>
 #include <dnserver.h>
+#include <lwip/igmp.h>
 #include <lwip/init.h>
 #include <lwip/timeouts.h>
 #include <lwip/apps/httpd.h>
