@@ -32,6 +32,7 @@ extern "C" {
 
 #include "udp_artnet.h"
 #include "udp_e1_31.h"
+#include "udp_edp.h"
 
 extern "C" {
 #include <bsp/board.h>          // On-board-LED
@@ -140,6 +141,7 @@ int main() {
     // Phase 10: Start our ArtNet- and E1.31 receiver
     Udp_ArtNet::init();
     Udp_E1_31::init();
+    Udp_EDP::init();
 
     // Finally, turn on the green component of the SYSTEM status LED
     statusLeds.setStaticOn(4, 0, 1, 0);

@@ -128,8 +128,10 @@ void Udp_E1_31::init(void) {
 
       udp_bind(pcb, IP4_ADDR_ANY, 5568);
 
+      // Prepare for which interface we want to join the multicast groups
       ip4_addr_set_u32(&ownIp, boardConfig.activeConfig->ownIp);
 
+      // Join as many groups as we have DMX buffers
       for (uint8_t i = 0; i < 24; i++) {
         ip4_addr_set_u32(&mCastGroup, (0x0000ffef | (i << 24)));
         err_t igmp_result = igmp_joingroup(&ownIp, &mCastGroup);

@@ -58,6 +58,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     tusb_lwip_glue.c
     udp_artnet.cpp
     udp_e1_31.cpp
+    udp_edp.cpp
     usb_descriptors.c
     usb_generic.cpp
     usb_EDP.cpp
