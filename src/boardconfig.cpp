@@ -15,8 +15,12 @@ ConfigData* BoardConfig::activeConfig;
 ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
 
 DEFINE_ENUM(BoardType,BOARDTYPE)
-
+DEFINE_ENUM(PortParamsDirection,PORTPARAMSDIRECTION)
+DEFINE_ENUM(PortParamsConnector,PORTPARAMSCONNECTOR)
+DEFINE_ENUM(UsbProtocol,USBPROTOCOL)
+DEFINE_ENUM(RadioRole,RADIOROLE)
 DEFINE_ENUM(ConfigSource,CONFIGSOURCE)
+DEFINE_ENUM(BufferToNetworkType,BUFFERTONETWORKTYPE)
 
 
 void BoardConfig::init() {
