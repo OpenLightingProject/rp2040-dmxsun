@@ -81,8 +81,23 @@ static err_t output_fn(struct netif *netif, struct pbuf *p, const ip_addr_t *add
     return etharp_output(netif, p, addr);
 }
 
+static void netif_status_callback(struct netif *nif)
+{
+  LOG("netif_status_callback: %c%c%d is %s\n", nif->name[0], nif->name[1], nif->num, netif_is_up(nif) ? "UP" : "DOWN");
+}
+
+static void netif_link_callback(struct netif *state_netif)
+{
+  if (netif_is_link_up(state_netif)) {
+    LOG("netif_link_callback==UP\n");
+  } else {
+    LOG("netif_link_callback==DOWN\n");
+  }
+}
+
 static err_t netif_init_cb(struct netif *netif)
 {
+    LOG("netif_init_cb");
     LWIP_ASSERT("netif != NULL", (netif != NULL));
     netif->mtu = CFG_TUD_NET_MTU;
     netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP | NETIF_FLAG_UP;
@@ -117,6 +132,8 @@ void init_lwip(void)
     ip4_addr_set_u32(&gateway, 0);
     
     netif = netif_add(netif, &ipaddr, &netmask, &gateway, NULL, netif_init_cb, ip_input);
+    netif_set_status_callback(netif, netif_status_callback);
+    netif_set_link_callback(netif, netif_link_callback);
     netif_set_default(netif);
 
 
@@ -206,7 +223,8 @@ void dhcpd_init()
 
 void wait_for_netif_is_up()
 {
-    while (!netif_is_up(&netif_data));    
+    LOG("wait_for_netif_is_up: %u", netif_is_up(&netif_data));
+    while (!netif_is_up(&netif_data));
 }
 
 

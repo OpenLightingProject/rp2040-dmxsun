@@ -57,8 +57,8 @@
 
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1
 
-//#define LWIP_NETIF_STATUS_CALLBACK      1
-//#define LWIP_NETIF_LINK_CALLBACK        1
+#define LWIP_NETIF_STATUS_CALLBACK      1
+#define LWIP_NETIF_LINK_CALLBACK        1
 
 #define LWIP_HTTPD_CGI                  1
 #define LWIP_HTTPD_SSI                  1
