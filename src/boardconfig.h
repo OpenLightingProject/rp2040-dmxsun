@@ -171,10 +171,7 @@ struct __attribute__((__packed__)) BufferToNetwork {
 struct __attribute__((__packed__)) ConfigData {
 // Section 1: Area describing the individual IO board.
     BoardType              boardType;
-    struct PortParams      port0params;
-    struct PortParams      port1params;
-    struct PortParams      port2params;
-    struct PortParams      port3params;
+    struct PortParams      portParams[4];
 
 // Section 2: System configuration stored in this board.
     uint8_t                configVersion; // values 0x00 and 0xff => invalid
