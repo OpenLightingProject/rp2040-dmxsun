@@ -22,7 +22,6 @@
 
 /// define the access function names
 #define DEFINE_ENUM(EnumType,ENUM_DEF) \
-  extern "C" { \
   const char *Get##EnumType##String(EnumType value) \
   { \
     switch(value) \
@@ -35,5 +34,4 @@
   { \
     ENUM_DEF(ENUM_STRCMP) \
     return (EnumType)0; /* handle input error */ \
-  } \
   }

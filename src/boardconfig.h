@@ -90,20 +90,22 @@ struct __attribute__((__packed__)) RadioParams {
     uint8_t padding               : 8;
 };
 
-enum RadioRole : uint8_t {
-    sniffer                   = 0, // rx only for spectrum scanning
-    broadcast                 = 1, // simple broadcast sender and receiver
-    mesh                      = 2, // RF24Mesh, can RX and TX universes
-                                   // role in mesh (master / node) is set by radioAdress
-    // QuickDMX_TX               = 3,
-    // QuickDMX_RX               = 4,
-    // APE_TX                    = 5,
-    // APE_RX                    = 6,
-    // D-Fi_TX                   = 7,
-    // D-Fi_RX                   = 8,
-    // Cameo_WDMX_TX             = 9,
-    // Cameo_WDMX_RX             = 10,
-};
+#define RADIOROLE(XX) \
+    XX(sniffer,=0)        /* rx only for spectrum scanning */ \
+    XX(broadcast,=1)      /* simple broadcast sender and receiver */ \
+    XX(mesh,=2)           /* RF24Mesh, can RX and TX universes */ \
+                          /*role in mesh (master / node) is set by radioAdress */ \
+    XX(QuickDMX_TX,=3)    /* TODO: NOT IMPLEMENTED */ \
+    XX(QuickDMX_RX,=4)    /* TODO: NOT IMPLEMENTED */ \
+    XX(APE_TX,=5)         /* TODO: NOT IMPLEMENTED */ \
+    XX(APE_RX,=6)         /* TODO: NOT IMPLEMENTED */ \
+    XX(D_Fi_TX,=7)        /* TODO: NOT IMPLEMENTED */ \
+    XX(D_Fi_RX,=8)        /* TODO: NOT IMPLEMENTED */ \
+    XX(Cameo_WDMX_TX,=9)  /* TODO: NOT IMPLEMENTED */ \
+    XX(Cameo_WDMX_RX,=10) /* TODO: NOT IMPLEMENTED */ \
+
+DECLARE_ENUM(RadioRole,uint8_t,RADIOROLE)
+
 
 // Bit 0: 0 = inactive, 1 = active
 // Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somewhere to buffer
@@ -144,11 +146,13 @@ struct __attribute__((__packed__)) Patching {
 DECLARE_ENUM(ConfigSource,uint8_t,CONFIGSOURCE)
 
 
-enum BufferToNetworkType: uint8_t {
-    BTN_E1_31                = 0,
-    BTN_ArtNet               = 1,
-    BTN_EDP                  = 2
-};
+#define BUFFERTONETWORKTYPE(XX) \
+    XX(BTN_E1_31,=0) \
+    XX(BTN_ArtNet,=1) \
+    XX(BTN_EDP,=2) \
+
+DECLARE_ENUM(BufferToNetworkType,uint8_t,BUFFERTONETWORKTYPE)
+
 
 // An optional network output that can be assigned to a DMX buffer
 // Sends either E1:31, ArtNet or EDP
