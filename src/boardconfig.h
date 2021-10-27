@@ -39,21 +39,25 @@
 DECLARE_ENUM(BoardType,uint8_t,BOARDTYPE)
 
 
-enum PortParamsDirection: uint8_t {
-    unknown                   = 0, // or: port doesn't exist on board
-    out                       = 1, // DMX sending port
-    in                        = 2, // DMX receiving port
-    switchable                = 3
-};
+#define PORTPARAMSDIRECTION(XX) \
+    XX(unknown,=0)    /* or: port doesn't exist on board */ \
+    XX(out,=1)        /* DMX fixed sending port */ \
+    XX(in,=2)         /* DMX fixed receiving port */ \
+    XX(switchable,=3) /* software-switchable, RDM capable */ \
 
-enum PortParamsConnector: uint8_t {
-    xlr_5_female              = 0,
-    xlr_5_male                = 1,
-    xlr_3_female              = 2,
-    xlr_3_male                = 3,
-    rj45                      = 4,
-    screws                    = 5
-};
+DECLARE_ENUM(PortParamsDirection,uint8_t,PORTPARAMSDIRECTION)
+
+
+#define PORTPARAMSCONNECTOR(XX) \
+    XX(xlr_5_female,=0) \
+    XX(xlr_5_male,=1) \
+    XX(xlr_3_female,=2) \
+    XX(xlr_3_male,=3) \
+    XX(rj45,=4) \
+    XX(screws,=5) \
+
+DECLARE_ENUM(PortParamsConnector,uint8_t,PORTPARAMSCONNECTOR)
+
 
 // Bits 0-1: Data direction
 // Bits 2-4: Connector type
@@ -63,18 +67,19 @@ struct __attribute__((__packed__)) PortParams {
     uint8_t UNUSED                : 2;
 };
 
-enum UsbProtocol : uint8_t {
-    EDP                       = 0, // our "native"/edp protocol only
-    JaRule                    = 1, // 8 ports, each IN OR OUT
-    uDMX                      = 2, // One TX only, via CONTROL endpoint
-    OpenDMX                   = 3, // Multiple (8?) serial endpoints
-    NodleU1                   = 4, // Digital Enlightenment / DMXControl Projects e.V.
-                                   // 1 universe standard, 16 with protocol modifications
-    UsbPro                    = 5, // ENTTEC USB Pro. One in OR out
-                                   // Not sure if we can actually do this
-                                   // since we would need to properly emulate a
-                                   // FT*I chip for that
-};
+#define USBPROTOCOL(XX) \
+    XX(EDP,=0)          /* our "native"/edp protocol only */ \
+    XX(JaRule,=1)       /* MAX 8 ports, each IN OR OUT */ \
+    XX(uDMX,=2)         /* One TX only, data comes via CONTROL endpoint */ \
+    XX(OpenDMX,=3)      /* Multiple (8?) serial endpoints */ \
+    XX(NodleU1,=4)      /* Digital Enlightenment / DMXControl Projects e.V. */ \
+                        /* 1 universe standard, 16 with protocol modifications */ \
+    XX(UsbPro,=5)       /* ENTTEC USB Pro. One in OR out */ \
+                        /* Not sure if we can/should actually do this since we */ \
+                        /* would need to properly emulate an FT*I chip for that */ \
+
+DECLARE_ENUM(UsbProtocol,uint8_t,USBPROTOCOL)
+
 
 // Size: 2 byte
 struct __attribute__((__packed__)) RadioParams {
