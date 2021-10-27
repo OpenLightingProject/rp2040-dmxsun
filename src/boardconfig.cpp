@@ -14,6 +14,11 @@ const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLAS
 ConfigData* BoardConfig::activeConfig;
 ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
 
+DEFINE_ENUM(BoardType,BOARDTYPE)
+
+DEFINE_ENUM(ConfigSource,CONFIGSOURCE)
+
+
 void BoardConfig::init() {
     i2c_init(i2c0, 100 * 1000);
     gpio_set_function(PIN_I2C_SCL, GPIO_FUNC_I2C);

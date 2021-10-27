@@ -3,6 +3,8 @@
 
 #include "pins.h"
 
+#include "enumFactory.h"
+
 #ifdef __cplusplus
 #include <RF24.h>
 #endif
@@ -21,18 +23,21 @@
 
 #ifdef __cplusplus
 
-enum BoardType : uint8_t {
-    invalid_00                = 0x00,
-    dmx_4ports_unisolated     = 0x01,
-    dmx_4ports_isolated       = 0x02,
-    dmx_2ports_rdm_unisolated = 0x03,
-    dmx_2ports_rdm_isolated   = 0x04,
-    led_4ports                = 0x20,
+#define BOARDTYPE(XX) \
+    XX(invalid_00,=0x00) \
+    XX(dmx_4ports_unisolated,=0x01) \
+    XX(dmx_4ports_isolated,=0x02) \
+    XX(dmx_2ports_rdm_unisolated,=0x03) \
+    XX(dmx_2ports_rdm_isolated,=0x04) \
+    \
+    XX(led_4ports,=0x20) \
+    \
+    XX(config_only_dongle,=0xfd) \
+    XX(baseboard_fallback,=0xfe) \
+    XX(invalid_ff,=0xff) \
 
-    config_only_dongle        = 0xfd,
-    baseboard_fallback        = 0xfe,
-    invalid_ff                = 0xff
-};
+DECLARE_ENUM(BoardType,uint8_t,BOARDTYPE)
+
 
 enum PortParamsDirection: uint8_t {
     unknown                   = 0, // or: port doesn't exist on board
@@ -123,14 +128,16 @@ struct __attribute__((__packed__)) Patching {
     uint8_t port              : 5;
 };
 
-enum ConfigSource : uint8_t {
-    IOBoard00                 = 0,
-    IOBoard01                 = 1,
-    IOBoard10                 = 2,
-    IOBoard11                 = 3,
-    BaseBoard                 = 4,
-    Fallback                  = 5
-};
+#define CONFIGSOURCE(XX) \
+    XX(IOBoard00,=0) \
+    XX(IOBoard01,=1) \
+    XX(IOBoard10,=2) \
+    XX(IOBoard11,=3) \
+    XX(BaseBoard,=4) \
+    XX(Fallback,=5) \
+
+DECLARE_ENUM(ConfigSource,uint8_t,CONFIGSOURCE)
+
 
 enum BufferToNetworkType: uint8_t {
     BTN_E1_31                = 0,
