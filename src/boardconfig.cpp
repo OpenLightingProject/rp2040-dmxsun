@@ -1,6 +1,7 @@
 #include "boardconfig.h"
 
 #include "statusleds.h"
+#include "log.h"
 
 #include <hardware/gpio.h>
 #include <hardware/i2c.h>
@@ -159,6 +160,10 @@ ConfigData BoardConfig::defaultConfig() {
     }
 
     return cfg;
+}
+
+int BoardConfig::configureBoard(uint8_t slot, struct ConfigData* config) {
+
 }
 
 int BoardConfig::saveConfig(uint8_t slot) {

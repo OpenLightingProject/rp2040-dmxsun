@@ -27,7 +27,7 @@ enum BoardType : uint8_t {
     dmx_4ports_isolated       = 0x02,
     dmx_2ports_rdm_unisolated = 0x03,
     dmx_2ports_rdm_isolated   = 0x04,
-    led_4ports                = 0x05,
+    led_4ports                = 0x20,
 
     config_only_dongle        = 0xfd,
     baseboard_fallback        = 0xfe,
@@ -52,7 +52,7 @@ enum PortParamsConnector: uint8_t {
 
 // Bits 0-1: Data direction
 // Bits 2-4: Connector type
-struct PortParams {
+struct __attribute__((__packed__)) PortParams {
     PortParamsDirection direction : 2;
     PortParamsConnector connector : 4;
     uint8_t UNUSED                : 2;
@@ -72,7 +72,7 @@ enum UsbProtocol : uint8_t {
 };
 
 // Size: 2 byte
-struct RadioParams {
+struct __attribute__((__packed__)) RadioParams {
     uint8_t compression           : 1;
     uint8_t allowSparse           : 1;
     rf24_datarate_e dataRate      : 3;
@@ -111,7 +111,7 @@ enum RadioRole : uint8_t {
 //   Ports 24-27 are 4 wireless-DMX ports IN to this board
 //   Ports 28-31 are 4 wireless-DMX ports OUT of this board
 // TODO: Create an enum for the "ports"
-struct Patching {
+struct __attribute__((__packed__)) Patching {
     // First byte:
     uint8_t active            : 1;
     uint8_t direction         : 1;
@@ -132,41 +132,49 @@ enum ConfigSource : uint8_t {
     Fallback                  = 5
 };
 
-// An optional E131 output that can be assigned to a DMX buffer
-struct E131out {
-    uint8_t           active : 1;
-    uint8_t           buffer : 5;
-    uint8_t           transmissionMode: 1; // 0 = sparse, 1 = full
-    uint8_t           RESVD1 : 1;
-    uint8_t           dstIp[4];
-    uint16_t          dstPort; // network byte order I assume? depends on lwip
-    uint16_t          universeId;
-    uint8_t           priority;
+enum BufferToNetworkType: uint8_t {
+    BTN_E1_31                = 0,
+    BTN_ArtNet               = 1,
+    BTN_EDP                  = 2
 };
 
-struct ConfigData {
+// An optional network output that can be assigned to a DMX buffer
+// Sends either E1:31, ArtNet or EDP
+struct __attribute__((__packed__)) BufferToNetwork {
+    uint8_t             active : 1;
+    uint8_t             buffer : 5;
+    uint8_t             allowSparse: 1; // 1 = sparse, 0 = full
+    uint8_t             allowCompression : 1;
+    BufferToNetworkType type : 3;
+    uint8_t             RESERVED1: 5;
+    uint8_t             dstIp[4];
+    uint16_t            universeId;
+    uint8_t             params;      // E1:31 => priority
+};
+
+struct __attribute__((__packed__)) ConfigData {
 // Section 1: Area describing the individual IO board.
-    BoardType         boardType;
-    struct PortParams port0params;
-    struct PortParams port1params;
-    struct PortParams port2params;
-    struct PortParams port3params;
+    BoardType              boardType;
+    struct PortParams      port0params;
+    struct PortParams      port1params;
+    struct PortParams      port2params;
+    struct PortParams      port3params;
 
 // Section 2: System configuration stored in this board.
-    uint8_t             configVersion; // values 0x00 and 0xff => invalid
-    char                boardName[32];
-    uint32_t            ownIp;
-    uint32_t            ownMask;
-    uint32_t            hostIp;
-    UsbProtocol         usbProtocol;
-    uint8_t             usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
-    RadioRole           radioRole;
-    uint8_t             radioChannel; // 0-127; Higher values maybe FHSS?
-    uint16_t            radioAddress; // RF24Mesh: "nodeId"
-    struct RadioParams  radioParams;  // Bit field: 0,1: Compression, 2: Sparse or Full transfers, 3,4: Data rate, 5,6: TX power
-    struct Patching     patching[MAX_PATCHINGS];
-    struct E131out      e131out[8];
-    uint8_t             statusLedBrightness;
+    uint8_t                configVersion; // values 0x00 and 0xff => invalid
+    char                   boardName[32];
+    uint32_t               ownIp;
+    uint32_t               ownMask;
+    uint32_t               hostIp;
+    UsbProtocol            usbProtocol;
+    uint8_t                usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
+    RadioRole              radioRole;
+    uint8_t                radioChannel; // 0-127; Higher values maybe FHSS?
+    uint16_t               radioAddress; // RF24Mesh: "nodeId"
+    struct RadioParams     radioParams;  // Bit field: 0,1: Compression, 2: Sparse or Full transfers, 3,4: Data rate, 5,6: TX power
+    struct Patching        patching[MAX_PATCHINGS];
+    struct BufferToNetwork bufferToNetwork[12];
+    uint8_t                statusLedBrightness;
 };
 
 static const RadioParams constDefaultRadioParams = {
@@ -200,6 +208,7 @@ class BoardConfig {
     void prepareConfig();
     ConfigData defaultConfig();
     int saveConfig(uint8_t slot);
+    int configureBoard(uint8_t slot, struct ConfigData* config);
 
     ConfigData* configData_Board00;
     ConfigData* configData_Board01;
@@ -207,8 +216,9 @@ class BoardConfig {
     ConfigData* configData_Board11;
     ConfigData* configData_BaseBoard;
 
-  private:
     bool responding[4];       // True if the board resonded to the bus scan
+
+  private:
     uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each)
 };
 
