@@ -223,11 +223,7 @@ class BoardConfig {
     int saveConfig(uint8_t slot);
     int configureBoard(uint8_t slot, struct ConfigData* config);
 
-    ConfigData* configData_Board00;
-    ConfigData* configData_Board01;
-    ConfigData* configData_Board10;
-    ConfigData* configData_Board11;
-    ConfigData* configData_BaseBoard;
+    ConfigData* configData[5]; // 0-3 = IOBoards, 4 = BaseBoard
 
     bool responding[4];       // True if the board resonded to the bus scan
 

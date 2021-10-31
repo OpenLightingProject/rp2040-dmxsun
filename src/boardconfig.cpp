@@ -54,6 +54,7 @@ void BoardConfig::readIOBoards() {
                 // EEPROM detected but content invalid => yellow LED
                 statusLeds.setStatic(addr - 80, 1, 1, 0);
             } else {
+                // TODO: How do we want to light the LED is the config is valid but not in use?
                 // EEPROM detected and content seems valid => green LED
                 statusLeds.setStatic(addr - 80, 0, 1, 0);
             }
@@ -66,64 +67,38 @@ void BoardConfig::readIOBoards() {
 }
 
 void BoardConfig::prepareConfig() {
-    configData_Board00 = (ConfigData*)this->rawData[0];
-    configData_Board01 = (ConfigData*)this->rawData[1];
-    configData_Board10 = (ConfigData*)this->rawData[2];
-    configData_Board11 = (ConfigData*)this->rawData[3];
-    configData_BaseBoard = (ConfigData*)this->rawData[4];
+    configData[0] = (ConfigData*)this->rawData[0];
+    configData[1] = (ConfigData*)this->rawData[1];
+    configData[2] = (ConfigData*)this->rawData[2];
+    configData[3] = (ConfigData*)this->rawData[3];
+    configData[4] = (ConfigData*)this->rawData[4];
 
     // Also copy the data from the internal flash to RAM so it can be modified
     memcpy(this->rawData[4], config_flash_contents, 256);
 
     // Check if any board is connected and has a valid config
     // All IO boards in order, followed by baseboard
-    if (
-        (configData_Board00->boardType > BoardType::invalid_00) &&
-        (configData_Board00->boardType < BoardType::invalid_ff) &&
-        (configData_Board00->configVersion == CONFIG_VERSION)
-    ) {
-        BoardConfig::activeConfig = configData_Board00;
-        BoardConfig::configSource = ConfigSource::IOBoard00;
-        statusLeds.setStaticOn(0, 0, 0, 1);
-    } else if (
-        (configData_Board01->boardType > BoardType::invalid_00) &&
-        (configData_Board01->boardType < BoardType::invalid_ff) &&
-        (configData_Board01->configVersion == CONFIG_VERSION)
-    ) {
-        BoardConfig::activeConfig = configData_Board01;
-        BoardConfig::configSource = ConfigSource::IOBoard01;
-        statusLeds.setStaticOn(1, 0, 0, 1);
-    } else if (
-        (configData_Board10->boardType > BoardType::invalid_00) &&
-        (configData_Board10->boardType < BoardType::invalid_ff) &&
-        (configData_Board10->configVersion == CONFIG_VERSION)
-    ) {
-        BoardConfig::activeConfig = configData_Board10;
-        BoardConfig::configSource = ConfigSource::IOBoard10;
-        statusLeds.setStaticOn(2, 0, 0, 1);
-    } else if (
-        (configData_Board11->boardType > BoardType::invalid_00) &&
-        (configData_Board11->boardType < BoardType::invalid_ff) &&
-        (configData_Board11->configVersion == CONFIG_VERSION)
-    ) {
-        BoardConfig::activeConfig = configData_Board11;
-        BoardConfig::configSource = ConfigSource::IOBoard11;
-        statusLeds.setStaticOn(3, 0, 0, 1);
-    } else if (
-        (configData_BaseBoard->boardType > BoardType::invalid_00) &&
-        (configData_BaseBoard->boardType < BoardType::invalid_ff) &&
-        (configData_BaseBoard->configVersion == CONFIG_VERSION)
-    ) {
-        BoardConfig::activeConfig = configData_BaseBoard;
-        BoardConfig::configSource = ConfigSource::BaseBoard;
-        statusLeds.setStaticOn(4, 0, 0, 1);
-    } else {
+    bool foundConfig = false;
+    for (int i = 0; i < 5; i++) {
+        if (
+            (configData[i]->boardType > BoardType::invalid_00) &&
+            (configData[i]->boardType < BoardType::invalid_ff) &&
+            (configData[i]->configVersion == CONFIG_VERSION)
+        ) {
+            BoardConfig::activeConfig = configData[i];
+            BoardConfig::configSource = (ConfigSource)i;
+            statusLeds.setStaticOn(i, 0, 0, 1);
+            foundConfig = true;
+            break;
+        }
+    }
+    if (!foundConfig) {
         // We don't have any valid configuration at all :-O
         // Create a default one and use it for now
         // Since we don't know the nature of the IO boards, we save that
         // default config in the slot of the base board!
-        *configData_BaseBoard = this->defaultConfig();
-        BoardConfig::activeConfig = configData_BaseBoard;
+        *configData[4] = this->defaultConfig();
+        BoardConfig::activeConfig = configData[4];
         BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setStatic(4, 1, 0, 1);
     }

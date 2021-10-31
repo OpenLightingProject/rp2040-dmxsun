@@ -196,26 +196,18 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
     } else if (tagName == "OverviewIoBoardsGet") {
         // TODO: Some kind of loop, please
         output["base"]["exist"] = true;
-        output["base"]["type"] = GetBoardTypeString(boardConfig.configData_BaseBoard->boardType);
-        output["base"]["ports"][0]["direction"] = GetPortParamsDirectionString(boardConfig.configData_BaseBoard->portParams[0].direction);
-        output["base"]["ports"][0]["connector"] = GetPortParamsConnectorString(boardConfig.configData_BaseBoard->portParams[0].connector);
-        output["base"]["ports"][1]["direction"] = GetPortParamsDirectionString(boardConfig.configData_BaseBoard->portParams[1].direction);
-        output["base"]["ports"][1]["connector"] = GetPortParamsConnectorString(boardConfig.configData_BaseBoard->portParams[1].connector);
-        output["base"]["ports"][2]["direction"] = GetPortParamsDirectionString(boardConfig.configData_BaseBoard->portParams[2].direction);
-        output["base"]["ports"][2]["connector"] = GetPortParamsConnectorString(boardConfig.configData_BaseBoard->portParams[2].connector);
-        output["base"]["ports"][3]["direction"] = GetPortParamsDirectionString(boardConfig.configData_BaseBoard->portParams[3].direction);
-        output["base"]["ports"][3]["connector"] = GetPortParamsConnectorString(boardConfig.configData_BaseBoard->portParams[3].connector);
+        output["base"]["type"] = GetBoardTypeString(boardConfig.configData[4]->boardType);
+        for (uint8_t i = 0; i < 4; i++) {
+            output["base"]["ports"][i]["direction"] = GetPortParamsDirectionString(boardConfig.configData[4]->portParams[i].direction);
+            output["base"]["ports"][i]["connector"] = GetPortParamsConnectorString(boardConfig.configData[4]->portParams[i].connector);
+        }
 
         output["board00"]["exist"] = boardConfig.responding[0];
-        output["board00"]["type"] = GetBoardTypeString(boardConfig.configData_Board00->boardType);
-        output["board00"]["ports"][0]["direction"] = GetPortParamsDirectionString(boardConfig.configData_Board00->portParams[0].direction);
-        output["board00"]["ports"][0]["connector"] = GetPortParamsConnectorString(boardConfig.configData_Board00->portParams[0].connector);
-        output["board00"]["ports"][1]["direction"] = GetPortParamsDirectionString(boardConfig.configData_Board00->portParams[1].direction);
-        output["board00"]["ports"][1]["connector"] = GetPortParamsConnectorString(boardConfig.configData_Board00->portParams[1].connector);
-        output["board00"]["ports"][2]["direction"] = GetPortParamsDirectionString(boardConfig.configData_Board00->portParams[2].direction);
-        output["board00"]["ports"][2]["connector"] = GetPortParamsConnectorString(boardConfig.configData_Board00->portParams[2].connector);
-        output["board00"]["ports"][3]["direction"] = GetPortParamsDirectionString(boardConfig.configData_Board00->portParams[3].direction);
-        output["board00"]["ports"][3]["connector"] = GetPortParamsConnectorString(boardConfig.configData_Board00->portParams[3].connector);
+        output["board00"]["type"] = GetBoardTypeString(boardConfig.configData[0]->boardType);
+        for (uint8_t i = 0; i < 4; i++) {
+            output["board00"]["ports"][i]["direction"] = GetPortParamsDirectionString(boardConfig.configData[0]->portParams[i].direction);
+            output["board00"]["ports"][i]["connector"] = GetPortParamsConnectorString(boardConfig.configData[0]->portParams[i].connector);
+        }
 
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
