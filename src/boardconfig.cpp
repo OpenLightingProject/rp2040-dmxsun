@@ -147,7 +147,22 @@ ConfigData BoardConfig::defaultConfig() {
 }
 
 int BoardConfig::configureBoard(uint8_t slot, struct ConfigData* config) {
+    LOG("Configure board %u: type: %u", slot, config->boardType);
 
+    // configuring a board only makes sense for the IO boards, not for the baseboard
+    if ((slot >= 0) && (slot <= 3)) {
+        uint8_t addr = 80 + slot;
+        // The I2C EEPROM works with 16-byte pages. The configuration data
+        // fits all in one page
+        // Since a prepended "0" (for the address to write in the EEPROM) is
+        // required, do this in a new buffer
+        uint8_t bufSize = 1 + ConfigData_ConfigOffset;
+        uint8_t buffer[1 + ConfigData_ConfigOffset];
+        memset(buffer, 0x00, bufSize);
+        memcpy(buffer + 1, config, ConfigData_ConfigOffset);
+        return i2c_write_blocking(i2c0, addr, buffer, bufSize, false);
+    }
+    return 0;
 }
 
 int BoardConfig::saveConfig(uint8_t slot) {
@@ -161,8 +176,7 @@ int BoardConfig::saveConfig(uint8_t slot) {
             (targetConfig->boardType < BoardType::invalid_ff)
         ) {
             // Save only the non-board-specific part
-            uint8_t offset = sizeof(BoardType) + 4 * sizeof(PortParams);
-            memcpy(targetConfig + offset, BoardConfig::activeConfig + offset, sizeof(ConfigData) - offset);
+            memcpy(targetConfig + ConfigData_ConfigOffset, BoardConfig::activeConfig + ConfigData_ConfigOffset, sizeof(ConfigData) - ConfigData_ConfigOffset);
             // TODO: EEPROM writing (page-wise!)
             // TODO: Compare after writing
             return 0;

@@ -36,6 +36,10 @@ static const tCGI cgi_handlers[] = {
     cgi_config_statusLeds_brightness_set
   },
   {
+    "/config/ioBoards/config.json",
+    cgi_config_ioBoards_config
+  },
+  {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
@@ -75,6 +79,44 @@ static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumPara
     uint8_t brightness = atoi(pcValue[0]);
     boardConfig.activeConfig->statusLedBrightness = brightness;
     statusLeds.setBrightness(brightness);
+    return "/empty.json";
+}
+
+static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+    ConfigData newConf = constDefaultConfig;
+
+    LOG("cgi_config_ioBoards_config PRE slot %u: type: %u", slot, newConf.boardType);
+
+    for (int i = 0; i < iNumParams; i++) {
+        if (!strcmp(pcParam[i], "slot")) {
+            slot = atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "boardType")) {
+            newConf.boardType = (BoardType)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port0dir")) {
+            newConf.portParams[0].direction = (PortParamsDirection)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port0con")) {
+            newConf.portParams[0].connector = (PortParamsConnector)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port1dir")) {
+            newConf.portParams[1].direction = (PortParamsDirection)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port1con")) {
+            newConf.portParams[1].connector = (PortParamsConnector)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port2dir")) {
+            newConf.portParams[2].direction = (PortParamsDirection)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port2con")) {
+            newConf.portParams[2].connector = (PortParamsConnector)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port3dir")) {
+            newConf.portParams[3].direction = (PortParamsDirection)atoi(pcValue[i]);
+        } else if (!strcmp(pcParam[i], "port3con")) {
+            newConf.portParams[3].connector = (PortParamsConnector)atoi(pcValue[i]);
+        }
+    }
+
+    LOG("cgi_config_ioBoards_config POST slot %u: type: %u", slot, newConf.boardType);
+
+    boardConfig.configureBoard(slot, &newConf);
+
     return "/empty.json";
 }
 
@@ -194,7 +236,8 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName == "OverviewIoBoardsGet") {
-        // TODO: Some kind of loop, please
+        char boardName[10];
+
         output["base"]["exist"] = true;
         output["base"]["type"] = GetBoardTypeString(boardConfig.configData[4]->boardType);
         for (uint8_t i = 0; i < 4; i++) {
@@ -202,11 +245,14 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
             output["base"]["ports"][i]["connector"] = GetPortParamsConnectorString(boardConfig.configData[4]->portParams[i].connector);
         }
 
-        output["board00"]["exist"] = boardConfig.responding[0];
-        output["board00"]["type"] = GetBoardTypeString(boardConfig.configData[0]->boardType);
         for (uint8_t i = 0; i < 4; i++) {
-            output["board00"]["ports"][i]["direction"] = GetPortParamsDirectionString(boardConfig.configData[0]->portParams[i].direction);
-            output["board00"]["ports"][i]["connector"] = GetPortParamsConnectorString(boardConfig.configData[0]->portParams[i].connector);
+            snprintf(boardName, 10, "board%u", i);
+            output[boardName]["exist"] = boardConfig.responding[i];
+            output[boardName]["type"] = GetBoardTypeString(boardConfig.configData[i]->boardType);
+            for (uint8_t j = 0; j < 4; j++) {
+                output[boardName]["ports"][j]["direction"] = GetPortParamsDirectionString(boardConfig.configData[i]->portParams[j].direction);
+                output[boardName]["ports"][j]["connector"] = GetPortParamsConnectorString(boardConfig.configData[i]->portParams[j].connector);
+            }
         }
 
         output_string = Json::writeString(wbuilder, output);

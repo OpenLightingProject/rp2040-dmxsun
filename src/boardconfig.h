@@ -190,6 +190,9 @@ struct __attribute__((__packed__)) ConfigData {
     uint8_t                statusLedBrightness;
 };
 
+// Offset after board-specific data since we shouldn't normally overwrite the board-specific info
+static const uint8_t ConfigData_ConfigOffset = sizeof(BoardType) + 4 * sizeof(struct PortParams);
+
 static const RadioParams constDefaultRadioParams = {
     .compression         = 1,
     .allowSparse         = 1,
