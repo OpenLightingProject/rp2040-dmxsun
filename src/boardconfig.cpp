@@ -9,6 +9,7 @@
 #include <pico/unique_id.h>
 
 extern StatusLeds statusLeds;
+
 const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 
 ConfigData* BoardConfig::activeConfig;
@@ -102,6 +103,7 @@ void BoardConfig::prepareConfig() {
         BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setStatic(4, 1, 0, 1);
     }
+    statusLeds.setBrightness(activeConfig->statusLedBrightness);
     statusLeds.writeLeds();
 }
 
@@ -147,10 +149,12 @@ ConfigData BoardConfig::defaultConfig() {
 }
 
 int BoardConfig::configureBoard(uint8_t slot, struct ConfigData* config) {
+    int written = 0;
+
     LOG("Configure board %u: type: %u", slot, config->boardType);
 
     // configuring a board only makes sense for the IO boards, not for the baseboard
-    if ((slot >= 0) && (slot <= 3)) {
+    if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
         uint8_t addr = 80 + slot;
         // The I2C EEPROM works with 16-byte pages. The configuration data
         // fits all in one page
@@ -160,13 +164,22 @@ int BoardConfig::configureBoard(uint8_t slot, struct ConfigData* config) {
         uint8_t buffer[1 + ConfigData_ConfigOffset];
         memset(buffer, 0x00, bufSize);
         memcpy(buffer + 1, config, ConfigData_ConfigOffset);
-        return i2c_write_blocking(i2c0, addr, buffer, bufSize, false);
+        written = i2c_write_blocking(i2c0, addr, buffer, bufSize, false);
+        sleep_ms(5); // Give the EEPROM some time to finish the operation
     }
-    return 0;
+    LOG("BoardConfig written: %u", written);
+    return written;
 }
 
 int BoardConfig::saveConfig(uint8_t slot) {
     ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
+    uint8_t bytesToWrite;
+    uint8_t bytesWritten;
+    uint8_t writeSize;
+    int actuallyWritten;
+    uint8_t buffer[17];
+
+    LOG("saveConfig to slot %u. Responding: %u", slot, this->responding[slot]);
 
     if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
         // Save to an IO board, so check if it's connected and configured
@@ -176,8 +189,26 @@ int BoardConfig::saveConfig(uint8_t slot) {
             (targetConfig->boardType < BoardType::invalid_ff)
         ) {
             // Save only the non-board-specific part
-            memcpy(targetConfig + ConfigData_ConfigOffset, BoardConfig::activeConfig + ConfigData_ConfigOffset, sizeof(ConfigData) - ConfigData_ConfigOffset);
-            // TODO: EEPROM writing (page-wise!)
+            uint8_t* dest = (uint8_t*)targetConfig + ConfigData_ConfigOffset;
+            uint8_t* src = (uint8_t*)BoardConfig::activeConfig + ConfigData_ConfigOffset;
+            uint8_t copySize = sizeof(ConfigData) - ConfigData_ConfigOffset;
+            memcpy(dest, src, copySize);
+            bytesToWrite = sizeof(struct ConfigData);
+            bytesWritten = 0;
+            LOG("START bytesToWrite: %u. ConfigVersion: %u", bytesToWrite, targetConfig->configVersion);
+            while (bytesToWrite)
+            {
+                writeSize = bytesToWrite > 16 ? 16 : bytesToWrite;
+                memset(buffer, 0x00, 17);
+                buffer[0] = bytesWritten;
+                memcpy(buffer + 1, (uint8_t*)targetConfig + bytesWritten, writeSize);
+                actuallyWritten = i2c_write_blocking(i2c0, 80 + slot, buffer, writeSize + 1, false);
+                sleep_ms(5); // Give the EEPROM some time to finish the operation
+                LOG("actuallyWritten: %u", actuallyWritten);
+                bytesWritten += writeSize;
+                bytesToWrite -= writeSize;
+                LOG("POST bytesToWrite: %u, writeSize: %u, bytesWritten: %u", bytesToWrite, writeSize, bytesWritten);
+            }
             // TODO: Compare after writing
             return 0;
         } else if (!this->responding[slot]) {

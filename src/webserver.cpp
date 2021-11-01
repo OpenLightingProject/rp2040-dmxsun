@@ -40,6 +40,10 @@ static const tCGI cgi_handlers[] = {
     cgi_config_ioBoards_config
   },
   {
+    "/config/save.json",
+    cgi_config_save
+  },
+  {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
@@ -87,8 +91,6 @@ static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *
     uint8_t slot = 0;
     ConfigData newConf = constDefaultConfig;
 
-    LOG("cgi_config_ioBoards_config PRE slot %u: type: %u", slot, newConf.boardType);
-
     for (int i = 0; i < iNumParams; i++) {
         if (!strcmp(pcParam[i], "slot")) {
             slot = atoi(pcValue[i]);
@@ -113,9 +115,23 @@ static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *
         }
     }
 
-    LOG("cgi_config_ioBoards_config POST slot %u: type: %u", slot, newConf.boardType);
-
     boardConfig.configureBoard(slot, &newConf);
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+
+    // Parse all arguments. // TODO: std::map ?
+    for (int i = 0; i < iNumParams; i++) {
+        if (!strcmp(pcParam[i], "slot")) {
+            slot = atoi(pcValue[i]);
+        }
+    }
+
+    boardConfig.saveConfig(slot);
 
     return "/empty.json";
 }
