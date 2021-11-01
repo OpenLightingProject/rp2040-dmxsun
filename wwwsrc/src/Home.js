@@ -1,5 +1,7 @@
 import React from 'react';
 //import * as Icon from 'react-bootstrap-icons';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip';
 import Slider from 'react-input-slider';
 
 class Home extends React.Component {
@@ -165,10 +167,20 @@ class Home extends React.Component {
                         <table class="table" style={{ padding: '0px' }}>
                             <tbody>
                                 <tr style={{ padding: '0px' }}>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div><br />
-                                        Slot 00
-                                    </td>
+                                    <OverlayTrigger placement="bottom" overlay={<Tooltip>
+                                        <table><tbody>
+                                            <tr><td>RED</td><td>No module detected in slot</td></tr>
+                                            <tr><td>&nbsp;</td></tr>
+                                            <tr><td>YELLOW</td><td>Module detected but type unknown</td></tr>
+                                            <tr><td>GREEN</td><td>Module with valid type detected</td></tr>
+                                            <tr><td>BLUE</td><td>Module detected and config loaded from this slot</td></tr>
+                                        </tbody></table>
+                                        </Tooltip>}>
+                                        <td style={{ textAlign: 'center' }} >
+                                            <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div><br />
+                                            Slot 00
+                                        </td>
+                                    </OverlayTrigger>
                                     <td style={{ textAlign: 'center' }}>
                                         <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div><br />
                                         Slot 01
@@ -181,10 +193,18 @@ class Home extends React.Component {
                                         <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div><br />
                                         Slot 11
                                     </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div><br />
-                                        System
-                                    </td>
+                                    <OverlayTrigger placement="bottom" overlay={<Tooltip>
+                                        <table><tbody>
+                                            <tr><td>GREEN</td><td>Config loaded from an IOBoard</td></tr>
+                                            <tr><td>CYAN</td><td>Config loaded from the base board</td></tr>
+                                            <tr><td>WHITE</td><td>Fallback configuration active (no valid config found)</td></tr>
+                                        </tbody></table>
+                                        </Tooltip>}>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div><br />
+                                            System
+                                        </td>
+                                    </OverlayTrigger>
                                     <td style={{ textAlign: 'center' }}>
                                         <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[5].static + ' 0%, ' + this.state.leds[5].static + ' 59%, ' + this.state.leds[5].blink + ' 61%, ' + this.state.leds[5].blink + ' 100%)' }}></div><br />
                                         USB
