@@ -7,8 +7,11 @@
 #include <hardware/i2c.h>
 #include <hardware/flash.h>
 #include <pico/unique_id.h>
+#include "pico/multicore.h"
 
 extern StatusLeds statusLeds;
+
+extern void core1_tasks();
 
 const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 
@@ -178,6 +181,7 @@ int BoardConfig::saveConfig(uint8_t slot) {
     uint8_t writeSize;
     int actuallyWritten;
     uint8_t buffer[17];
+    int retVal;
 
     LOG("saveConfig to slot %u. Responding: %u", slot, this->responding[slot]);
 
@@ -221,7 +225,13 @@ int BoardConfig::saveConfig(uint8_t slot) {
     } else if (slot == 4) {
         // Save to the base board
         memcpy(targetConfig, BoardConfig::activeConfig, sizeof(ConfigData));
-        targetConfig->boardType = BoardType::baseboard_fallback;
+        targetConfig->boardType = BoardType::config_only_dongle;
+
+        // We need to make sure core1 is not running when writing to the flash
+        multicore_reset_core1();
+
+        // Also disables interrupts
+        uint32_t saved = save_and_disable_interrupts();
 
         // Erase the flash sector
         // Note that a whole number of sectors must be erased at a time.
@@ -233,11 +243,18 @@ int BoardConfig::saveConfig(uint8_t slot) {
         // Compare that what should have been written has been written
         if (memcmp(targetConfig, config_flash_contents, sizeof(ConfigData))) {
             // Comparison failed :-O
-            return 3;
+            retVal = 3;
         }
 
+        // Restore and enable interrupts
+        restore_interrupts(saved);
+
+        // Restart core1
+        multicore_launch_core1(core1_tasks);
+
         // All good :)
-        return 0;
+        retVal = 0;
+        return retVal;
     }
 
     // Slot unknown

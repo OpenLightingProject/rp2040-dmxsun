@@ -172,7 +172,8 @@ int main() {
             statusLeds.setStaticOff(5, 0, 1, 0);
         }
 
-        webServer.cyclicTask();
+        webServer.cyclicTask(); // Make sure this is on core0 since it
+                                // WILL halt core1 when writing to the flash!
 //        wireless.cyclicTask();
 //        statusLeds.cyclicTask();
 //        led_blinking_task();
