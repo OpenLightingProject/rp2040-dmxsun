@@ -91,7 +91,7 @@ void BoardConfig::prepareConfig() {
         ) {
             BoardConfig::activeConfig = configData[i];
             BoardConfig::configSource = (ConfigSource)i;
-            statusLeds.setStaticOn(i, 0, 0, 1);
+            statusLeds.setStatic(i, 0, 0, 1);
             foundConfig = true;
             break;
         }
