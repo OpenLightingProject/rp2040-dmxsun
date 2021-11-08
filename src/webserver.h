@@ -14,14 +14,19 @@ extern "C" {
 
 #include "version.h"
 
+#include <string>
+#include <map>
+
 #ifdef __cplusplus
 
 class WebServer {
   public:
     void init();
     void cyclicTask();
-    static void ipToString(uint32_t ip, char* ipString);
+    static inline void ipToString(uint32_t ip, char* ipString);
     static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
+
+    static inline void paramsToMap(int iNumParams, char *pcParam[], char *pcValue[], std::map<std::string, std::string>* params);
 
     static base64_encodestate b64Encode;
     static base64_decodestate b64Decode;
@@ -42,6 +47,8 @@ static const char *cgi_system_reset_boot(int iIndex, int iNumParams, char *pcPar
 static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);

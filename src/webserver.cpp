@@ -44,6 +44,14 @@ static const tCGI cgi_handlers[] = {
     cgi_config_save
   },
   {
+    "/config/enable.json",
+    cgi_config_enable
+  },
+  {
+    "/config/disable.json",
+    cgi_config_disable
+  },
+  {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
@@ -91,31 +99,52 @@ static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *
     uint8_t slot = 0;
     ConfigData newConf = constDefaultConfig;
 
-    for (int i = 0; i < iNumParams; i++) {
-        if (!strcmp(pcParam[i], "slot")) {
-            slot = atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "boardType")) {
-            newConf.boardType = (BoardType)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port0dir")) {
-            newConf.portParams[0].direction = (PortParamsDirection)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port0con")) {
-            newConf.portParams[0].connector = (PortParamsConnector)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port1dir")) {
-            newConf.portParams[1].direction = (PortParamsDirection)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port1con")) {
-            newConf.portParams[1].connector = (PortParamsConnector)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port2dir")) {
-            newConf.portParams[2].direction = (PortParamsDirection)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port2con")) {
-            newConf.portParams[2].connector = (PortParamsConnector)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port3dir")) {
-            newConf.portParams[3].direction = (PortParamsDirection)atoi(pcValue[i]);
-        } else if (!strcmp(pcParam[i], "port3con")) {
-            newConf.portParams[3].connector = (PortParamsConnector)atoi(pcValue[i]);
-        }
-    }
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
 
-    boardConfig.configureBoard(slot, &newConf);
+    // TODO: Check if all required parameters have been given
+
+    newConf.boardType = (BoardType)atoi(params["boardType"].c_str());
+    newConf.portParams[0].direction = (PortParamsDirection)atoi(params["port0dir"].c_str());
+    newConf.portParams[0].connector = (PortParamsConnector)atoi(params["port0con"].c_str());
+    newConf.portParams[1].direction = (PortParamsDirection)atoi(params["port1dir"].c_str());
+    newConf.portParams[1].connector = (PortParamsConnector)atoi(params["port1con"].c_str());
+    newConf.portParams[2].direction = (PortParamsDirection)atoi(params["port2dir"].c_str());
+    newConf.portParams[2].connector = (PortParamsConnector)atoi(params["port2con"].c_str());
+    newConf.portParams[3].direction = (PortParamsDirection)atoi(params["port3dir"].c_str());
+    newConf.portParams[3].connector = (PortParamsConnector)atoi(params["port3con"].c_str());
+
+    boardConfig.configureBoard(atoi(params["slot"].c_str()), &newConf);
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    // TODO: Check if all required parameters have been given
+    slot = atoi(params["slot"].c_str());
+
+    boardConfig.enableConfig(slot);
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    // TODO: Check if all required parameters have been given
+    slot = atoi(params["slot"].c_str());
+
+    boardConfig.disableConfig(slot);
 
     return "/empty.json";
 }
@@ -124,12 +153,11 @@ static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], 
 {
     uint8_t slot = 0;
 
-    // Parse all arguments. // TODO: std::map ?
-    for (int i = 0; i < iNumParams; i++) {
-        if (!strcmp(pcParam[i], "slot")) {
-            slot = atoi(pcValue[i]);
-        }
-    }
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    // TODO: Check if all required parameters have been given
+    slot = atoi(params["slot"].c_str());
 
     boardConfig.saveConfig(slot);
 
@@ -146,6 +174,9 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
     bool compStatus = false;
     char* data = nullptr;    // Sets the complete buffer
 
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
     // Parse all arguments. // TODO: std::map ?
     for (int i = 0; i < iNumParams; i++) {
         if (!strcmp(pcParam[i], "buffer")) {
@@ -159,7 +190,7 @@ static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[]
         }
     }
 
-    if (data == nullptr) {
+    if (!params.contains(std::string("data"))) {
         // Set a single channel
         dmxBuffer.setChannel(bufferId, channel, value);
     } else {
@@ -387,5 +418,11 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
     } else {
         return HTTPD_SSI_TAG_UNKNOWN;
+    }
+}
+
+void WebServer::paramsToMap(int iNumParams, char *pcParam[], char *pcValue[], std::map<std::string, std::string>* params) {
+    for (int i = 0; i < iNumParams; i++) {
+        (*params)[std::string(pcParam[i])] = std::string(pcValue[i]);
     }
 }

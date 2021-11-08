@@ -135,7 +135,7 @@ void Udp_E1_31::init(void) {
       for (uint8_t i = 0; i < 24; i++) {
         ip4_addr_set_u32(&mCastGroup, (0x0000ffef | (i << 24)));
         err_t igmp_result = igmp_joingroup(&ownIp, &mCastGroup);
-        LOG("IGMP group %08x join: %u", mCastGroup, igmp_result);
+        //LOG("IGMP group %08x join: %u", mCastGroup, igmp_result);
       }
     }
   }

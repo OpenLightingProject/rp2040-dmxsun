@@ -55,10 +55,9 @@ void BoardConfig::readIOBoards() {
         if (ret > 0) {
             this->responding[addr - 80] = true;
             if (this->rawData[addr - 80][0] == 0xff) {
-                // EEPROM detected but content invalid => yellow LED
+                // EEPROM detected but content (boardType) invalid => yellow LED
                 statusLeds.setStatic(addr - 80, 1, 1, 0);
             } else {
-                // TODO: How do we want to light the LED is the config is valid but not in use?
                 // EEPROM detected and content seems valid => green LED
                 statusLeds.setStatic(addr - 80, 0, 1, 0);
             }
@@ -226,6 +225,138 @@ int BoardConfig::saveConfig(uint8_t slot) {
         // Save to the base board
         memcpy(targetConfig, BoardConfig::activeConfig, sizeof(ConfigData));
         targetConfig->boardType = BoardType::config_only_dongle;
+
+        // We need to make sure core1 is not running when writing to the flash
+        multicore_reset_core1();
+
+        // Also disables interrupts
+        uint32_t saved = save_and_disable_interrupts();
+
+        // Erase the flash sector
+        // Note that a whole number of sectors must be erased at a time.
+        flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
+
+        // Program the flash sector with the new values
+        flash_range_program(CONFIG_FLASH_OFFSET, (const uint8_t*)targetConfig, sizeof(ConfigData));
+
+        // Compare that what should have been written has been written
+        if (memcmp(targetConfig, config_flash_contents, sizeof(ConfigData))) {
+            // Comparison failed :-O
+            retVal = 3;
+        }
+
+        // Restore and enable interrupts
+        restore_interrupts(saved);
+
+        // Restart core1
+        multicore_launch_core1(core1_tasks);
+
+        // All good :)
+        retVal = 0;
+        return retVal;
+    }
+
+    // Slot unknown
+    return 4;
+}
+
+int BoardConfig::enableConfig(uint8_t slot) {
+    ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
+    uint8_t buffer[17];
+    int retVal;
+
+    LOG("Enabling config in slot %u. Responding: %u", slot, this->responding[slot]);
+
+    if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
+        // Save to an IO board, so check if it's connected and configured
+        if (
+            (this->responding[slot]) &&
+            (targetConfig->boardType > BoardType::invalid_00) &&
+            (targetConfig->boardType < BoardType::invalid_ff)
+        ) {
+            // Save only the non-board-specific part
+            buffer[0] = ConfigData_ConfigOffset; // byte address in the eeprom
+            buffer[1] = CONFIG_VERSION; // configVersion => valid
+            i2c_write_blocking(i2c0, 80 + slot, buffer, 2, false);
+            sleep_ms(5); // Give the EEPROM some time to finish the operation
+            return 0;
+        } else if (!this->responding[slot]) {
+            // IO board is not connected
+            return 1;
+        } else {
+            // IO board is connected but not configured
+            return 2;
+        }
+    } else if (slot == 4) {
+        // Save to the base board
+        memcpy(targetConfig, BoardConfig::activeConfig, sizeof(ConfigData));
+        targetConfig->configVersion = CONFIG_VERSION; // configVersion => valid
+
+        // We need to make sure core1 is not running when writing to the flash
+        multicore_reset_core1();
+
+        // Also disables interrupts
+        uint32_t saved = save_and_disable_interrupts();
+
+        // Erase the flash sector
+        // Note that a whole number of sectors must be erased at a time.
+        flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
+
+        // Program the flash sector with the new values
+        flash_range_program(CONFIG_FLASH_OFFSET, (const uint8_t*)targetConfig, sizeof(ConfigData));
+
+        // Compare that what should have been written has been written
+        if (memcmp(targetConfig, config_flash_contents, sizeof(ConfigData))) {
+            // Comparison failed :-O
+            retVal = 3;
+        }
+
+        // Restore and enable interrupts
+        restore_interrupts(saved);
+
+        // Restart core1
+        multicore_launch_core1(core1_tasks);
+
+        // All good :)
+        retVal = 0;
+        return retVal;
+    }
+
+    // Slot unknown
+    return 4;
+}
+
+int BoardConfig::disableConfig(uint8_t slot) {
+    ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
+    uint8_t buffer[17];
+    int retVal;
+
+    LOG("Disabling config in slot %u. Responding: %u", slot, this->responding[slot]);
+
+    if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
+        // Save to an IO board, so check if it's connected and configured
+        if (
+            (this->responding[slot]) &&
+            (targetConfig->boardType > BoardType::invalid_00) &&
+            (targetConfig->boardType < BoardType::invalid_ff)
+        ) {
+            // Save only the non-board-specific part
+            buffer[0] = ConfigData_ConfigOffset; // byte address in the eeprom
+            buffer[1] = 0; // configVersion = 0 => invalid / disabled
+            i2c_write_blocking(i2c0, 80 + slot, buffer, 2, false);
+            sleep_ms(5); // Give the EEPROM some time to finish the operation
+            return 0;
+        } else if (!this->responding[slot]) {
+            // IO board is not connected
+            return 1;
+        } else {
+            // IO board is connected but not configured
+            return 2;
+        }
+    } else if (slot == 4) {
+        // Save to the base board
+        memcpy(targetConfig, BoardConfig::activeConfig, sizeof(ConfigData));
+        targetConfig->configVersion = 0; // invalid / disabled
 
         // We need to make sure core1 is not running when writing to the flash
         multicore_reset_core1();

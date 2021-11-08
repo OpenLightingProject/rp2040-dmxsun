@@ -174,7 +174,9 @@ struct __attribute__((__packed__)) ConfigData {
     struct PortParams      portParams[4];
 
 // Section 2: System configuration stored in this board.
-    uint8_t                configVersion; // values 0x00 and 0xff => invalid
+    uint8_t                configVersion; // 0xff = Invalid / blank
+                                          // 0x00 is also treated as invalid but
+                                          // also used to just disable a config
     char                   boardName[32];
     uint32_t               ownIp;
     uint32_t               ownMask;
@@ -188,6 +190,7 @@ struct __attribute__((__packed__)) ConfigData {
     struct Patching        patching[MAX_PATCHINGS];
     struct BufferToNetwork bufferToNetwork[12];
     uint8_t                statusLedBrightness;
+    // TODO: CRC for the configuration?
 };
 
 // Offset after board-specific data since we shouldn't normally overwrite the board-specific info
@@ -224,6 +227,8 @@ class BoardConfig {
     void prepareConfig();
     ConfigData defaultConfig();
     int saveConfig(uint8_t slot);
+    int enableConfig(uint8_t slot);
+    int disableConfig(uint8_t slot);
     int configureBoard(uint8_t slot, struct ConfigData* config);
 
     ConfigData* configData[5]; // 0-3 = IOBoards, 4 = BaseBoard

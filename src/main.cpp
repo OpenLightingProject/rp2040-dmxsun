@@ -94,6 +94,8 @@ int main() {
     // without having to do this in software because we're busy with other stuff
     BLINK_LED(BLINK_INIT);
 
+    // /!\ Do NOT use LOG() until TinyUSB-stack has been initialized /!\
+
     // Phase 0: Overclock the board to 250MHz. According to
     //          https://www.youtube.com/watch?v=G2BuoFNLo this should be
     //          totally safe with the default 1.10V Vcore
@@ -149,6 +151,7 @@ int main() {
     statusLeds.writeLeds();
 
     // SETUP COMPLETE
+    LOG("SYSTEM: SETUP COMPLETE :D");
 
     // Run all important tasks at least once before we start AUX tasks on core1
     // so the USB device enumeration doesn't time-out
@@ -158,7 +161,10 @@ int main() {
     webServer.cyclicTask();
 
     // Now get core1 running ...
+    LOG("SYSTEM: Starting core 1 ...");
     multicore_launch_core1(core1_tasks);
+
+    LOG("SYSTEM: Time to party, entering main loop");
 
     // Enter the main loop on core0. localDmx (PIO) is interrupt driven.
     // Everything else (I assume) is polled and handled here.
