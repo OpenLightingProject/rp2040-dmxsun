@@ -403,7 +403,7 @@ class Home extends React.Component {
                                             <td style={{ textAlign: 'center' }}>
                                                 { (
                                                     this.state.ioBoards.boards[slot].exist &&
-                                                    this.state.ioBoards.boards[slot].ports[port].direction != "unkown" &&
+                                                    this.state.ioBoards.boards[slot].ports[port].direction != "unknown" &&
                                                     this.state.ioBoards.boards[slot].ports[port].direction != ""
                                                     ) ?
                                                 <div>
