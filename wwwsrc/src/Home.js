@@ -403,20 +403,20 @@ class Home extends React.Component {
                                             <td style={{ textAlign: 'center' }}>
                                                 { (
                                                     this.state.ioBoards.boards[slot].exist &&
-                                                    this.state.ioBoards.boards[slot].ports[port].direction != "unknown" &&
-                                                    this.state.ioBoards.boards[slot].ports[port].direction != ""
+                                                    this.state.ioBoards.boards[slot].ports[port].direction !== "unknown" &&
+                                                    this.state.ioBoards.boards[slot].ports[port].direction !== ""
                                                     ) ?
                                                 <div>
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_5_female" && <img src="media/icon-xlr-5-female.svg" width={32} height={32} ></img> }
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_5_male" && <img src="media/icon-xlr-5-male.svg" width={32} height={32}></img> }
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_3_female" && <img src="media/icon-xlr-3-female.svg" width={32} height={32}></img> }
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_3_male" && <img src="media/icon-xlr-3-male.svg" width={32} height={32}></img> }
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "rj45" && <img src="media/icon-rj45.svg" width={32} height={32}></img> }
-                                                { this.state.ioBoards.boards[slot].ports[port].connector == "screws" && <img src="media/icon-screws.svg" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "xlr_5_female" && <img src="media/icon-xlr-5-female.svg" alt="icon-xlr-5-female" width={32} height={32} ></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "xlr_5_male" && <img src="media/icon-xlr-5-male.svg" alt="icon-xlr-5-male" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "xlr_3_female" && <img src="media/icon-xlr-3-female.svg" alt="icon-xlr-3-female" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "xlr_3_male" && <img src="media/icon-xlr-3-male.svg" alt="icon-xlr-3-male" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "rj45" && <img src="media/icon-rj45.svg" alt="icon-rj45" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector === "screws" && <img src="media/icon-screws.svg" alt="icon-screws" width={32} height={32}></img> }
                                                 <br />
-                                                { this.state.ioBoards.boards[slot].ports[port].direction == "out" && <Icon.ArrowDown width={32} height={32} /> }
-                                                { this.state.ioBoards.boards[slot].ports[port].direction == "in" && <Icon.ArrowUp width={32} height={32} /> }
-                                                { this.state.ioBoards.boards[slot].ports[port].direction == "switchable" && <Icon.ArrowDownUp width={32} height={32} /> }
+                                                { this.state.ioBoards.boards[slot].ports[port].direction === "out" && <Icon.ArrowDown width={32} height={32} /> }
+                                                { this.state.ioBoards.boards[slot].ports[port].direction === "in" && <Icon.ArrowUp width={32} height={32} /> }
+                                                { this.state.ioBoards.boards[slot].ports[port].direction === "switchable" && <Icon.ArrowDownUp width={32} height={32} /> }
                                                 </div>
                                                 :
                                                 <div><Icon.XSquareFill width={32} height={32} /></div>}

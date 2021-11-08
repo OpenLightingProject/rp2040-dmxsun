@@ -27,7 +27,7 @@ export default function App() {
     <Router>
       <div>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <span class="navbar-brand"><img src="media/icon-dmxsun.svg" width={56} height={56} style={{ marginLeft: "20px" }} ></img></span>
+          <span class="navbar-brand"><img src="media/icon-dmxsun.svg" alt="icon-dmxsun" width={56} height={56} style={{ marginLeft: "20px" }} ></img></span>
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
               <Link to="/" class="nav-link">Home</Link>
