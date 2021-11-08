@@ -285,20 +285,18 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
     } else if (tagName == "OverviewIoBoardsGet") {
         char boardName[10];
 
+        // Does printing the base board info make sense?
+        // Basically it's only to know if it has an invalid, valid or disabled config ...
         output["base"]["exist"] = true;
         output["base"]["type"] = GetBoardTypeString(boardConfig.configData[4]->boardType);
-        for (uint8_t i = 0; i < 4; i++) {
-            output["base"]["ports"][i]["direction"] = GetPortParamsDirectionString(boardConfig.configData[4]->portParams[i].direction);
-            output["base"]["ports"][i]["connector"] = GetPortParamsConnectorString(boardConfig.configData[4]->portParams[i].connector);
-        }
 
+        // Iterate over the max 4 io boards
         for (uint8_t i = 0; i < 4; i++) {
-            snprintf(boardName, 10, "board%u", i);
-            output[boardName]["exist"] = boardConfig.responding[i];
-            output[boardName]["type"] = GetBoardTypeString(boardConfig.configData[i]->boardType);
+            output["boards"][i]["exist"] = boardConfig.responding[i];
+            output["boards"][i]["type"] = GetBoardTypeString(boardConfig.configData[i]->boardType);
             for (uint8_t j = 0; j < 4; j++) {
-                output[boardName]["ports"][j]["direction"] = GetPortParamsDirectionString(boardConfig.configData[i]->portParams[j].direction);
-                output[boardName]["ports"][j]["connector"] = GetPortParamsConnectorString(boardConfig.configData[i]->portParams[j].connector);
+                output["boards"][i]["ports"][j]["direction"] = GetPortParamsDirectionString(boardConfig.configData[i]->portParams[j].direction);
+                output["boards"][i]["ports"][j]["connector"] = GetPortParamsConnectorString(boardConfig.configData[i]->portParams[j].connector);
             }
         }
 

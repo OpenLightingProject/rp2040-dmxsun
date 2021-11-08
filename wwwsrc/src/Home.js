@@ -1,5 +1,5 @@
 import React from 'react';
-//import * as Icon from 'react-bootstrap-icons';
+import * as Icon from 'react-bootstrap-icons';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip';
 import Slider from 'react-input-slider';
@@ -9,6 +9,15 @@ class Home extends React.Component {
         super();
         this.state = {
             config: {},
+            ioBoards: {
+                "base": {},
+                "boards": [
+                    {ports: [{connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}]},
+                    {ports: [{connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}]},
+                    {ports: [{connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}]},
+                    {ports: [{connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}]},
+                ],
+            },
             inFlight: false,
             leds: [
                 {"blink":"#000000","static":"#000000"},
@@ -30,7 +39,7 @@ class Home extends React.Component {
 
 
     componentDidMount() {
-        this.updateValues.bind(this)();
+        this.updateOverview.bind(this)();
         let interval = window.setInterval(this.updateStatuLeds.bind(this), 2000);
         this.setState({
             updateStatusLedsInterval: interval
@@ -43,7 +52,7 @@ class Home extends React.Component {
         }
     }
 
-    updateValues() {
+    updateOverview() {
         // Check if there is already a request running. If so, do nothing
         if (this.state.inFlight) {
             return;
@@ -54,13 +63,39 @@ class Home extends React.Component {
         fetch(url)
             .then(res => res.json())
             .catch(
-                () => { this.setState({ inFlight: false }); this.updateValues(); }
+                () => { this.setState({ inFlight: false }); this.updateOverview(); }
             )
             .then(
                 (result) => {
                     if (result) {
-                        console.log('Values fetched: ', result);
+                        console.log('Overview fetched: ', result);
                         this.setState({ inFlight: false, config: result });
+                        this.updateIoBoards();
+                    }
+                }
+            ).finally(
+                () => {this.setState({ inFlight: false });}
+            );
+    }
+
+    updateIoBoards() {
+        // Check if there is already a request running. If so, do nothing
+        if (this.state.inFlight) {
+            return;
+        }
+
+        this.setState({ inFlight: true });
+        const url = window.urlPrefix + '/overview/ioBoards/get.json';
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => { this.setState({ inFlight: false }); this.updateIoBoards(); }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('IoBoards fetched: ', result);
+                        this.setState({ inFlight: false, ioBoards: result });
                     }
                 }
             ).finally(
@@ -101,7 +136,7 @@ class Home extends React.Component {
 
     realSetStatusLedBrightness(newValue) {
         const url = window.urlPrefix + '/config/statusLeds/brightness/set.json?value=' + newValue;
-        fetch(url).finally(() => { this.updateValues() })
+        fetch(url).finally(() => { this.updateOverview() })
     }
 
     getToolTipStatusLeds() {
@@ -331,6 +366,67 @@ class Home extends React.Component {
                     </div>
 
                     <div class="col">{ this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }</div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        &nbsp;
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        Connected IoBoards:
+                        <table class="table" style={{ padding: '0px' }}>
+                            <tbody>
+                                <tr style={{ padding: '0px' }}>
+                                    <td colspan="16" style={{ textAlign: 'center' }} >
+                                        Base board
+                                    </td>
+                                </tr>
+                                <tr>
+                                    {[...Array(4)].map((value, slot) => {
+                                        return (
+                                            <td colspan="4" style={{ textAlign: 'center' }}>
+                                                Slot&nbsp;{slot} { this.state.ioBoards.boards[slot].exist ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }<br />
+                                                Type: { this.state.ioBoards.boards[slot].exist ? this.state.ioBoards.boards[slot].type : <Icon.QuestionSquare width={32} height={32} /> }
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+
+                                <tr>
+                                    {[...Array(16)].map((value, index) => {
+                                        let slot = Math.floor(index / 4);
+                                        let port = index % 4;
+                                        return (
+                                            <td style={{ textAlign: 'center' }}>
+                                                { (
+                                                    this.state.ioBoards.boards[slot].exist &&
+                                                    this.state.ioBoards.boards[slot].ports[port].direction != "unkown" &&
+                                                    this.state.ioBoards.boards[slot].ports[port].direction != ""
+                                                    ) ?
+                                                <div>
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_5_female" && <img src="media/icon-xlr-5-female.svg" width={32} height={32} ></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_5_male" && <img src="media/icon-xlr-5-male.svg" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_3_female" && <img src="media/icon-xlr-3-female.svg" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "xlr_3_male" && <img src="media/icon-xlr-3-male.svg" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "rj45" && <img src="media/icon-rj45.svg" width={32} height={32}></img> }
+                                                { this.state.ioBoards.boards[slot].ports[port].connector == "screws" && <img src="media/icon-screws.svg" width={32} height={32}></img> }
+                                                <br />
+                                                { this.state.ioBoards.boards[slot].ports[port].direction == "out" && <Icon.ArrowDown width={32} height={32} /> }
+                                                { this.state.ioBoards.boards[slot].ports[port].direction == "in" && <Icon.ArrowUp width={32} height={32} /> }
+                                                { this.state.ioBoards.boards[slot].ports[port].direction == "switchable" && <Icon.ArrowDownUp width={32} height={32} /> }
+                                                </div>
+                                                :
+                                                <div><Icon.XSquareFill width={32} height={32} /></div>}
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );
