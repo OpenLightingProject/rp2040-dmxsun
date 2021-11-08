@@ -42,6 +42,10 @@ execute_process(
 #add_compile_options(-flto -fno-fat-lto-objects -flto-partition=1to1 -fuse-ld=bfd -v)
 #add_link_options(-Wl,-v -v -t -t)
 
+## We want C++20 and will fail if not supported
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
