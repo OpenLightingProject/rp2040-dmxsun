@@ -187,7 +187,7 @@ int main() {
     }
 };
 
-// Core1 currently only handles wireless
+// Core1 handles wireless (which can delay quite a bit) + status LEDs
 void core1_tasks() {
     while (true) {
 //        tud_task();

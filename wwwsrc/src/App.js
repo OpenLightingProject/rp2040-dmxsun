@@ -13,15 +13,17 @@ import Wireless from "./Wireless.js";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// TODO: I'm not yet sure if this is really required
-//import 'bootstrap/dist/js/bootstrap.min.js';
+// Required so that we can initialize the tooltips using the example
+// mentioned in the official docs at
+// https://getbootstrap.com/docs/5.0/components/tooltips/#example-enable-tooltips-everywhere
+window.bootstrap = require('bootstrap/dist/js/bootstrap.bundle.min.js');
 
 export default function App() {
   // Have a global, optional URL "prefix" so one can have the App
   // served by localhost during development but talk to the API of
   // a REAL dongle
   window.urlPrefix = '';
-  //window.urlPrefix = 'http://169.254.53.1'; // comment line if not used
+  //window.urlPrefix = 'http://169.254.53.1'; // comment line if not used; NEVER COMMIT
 
   return (
     <Router>

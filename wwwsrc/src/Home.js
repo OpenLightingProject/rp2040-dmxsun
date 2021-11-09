@@ -44,6 +44,12 @@ class Home extends React.Component {
         this.setState({
             updateStatusLedsInterval: interval
         });
+
+        // Initialize all tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new window.bootstrap.Tooltip(tooltipTriggerEl)
+        });
     }
 
     componentWillUnmount() {
@@ -246,6 +252,75 @@ class Home extends React.Component {
         )
     }
 
+    saveConfig(slot, e) {
+        console.log('Saving configuration to slot ' +  slot, e.target);
+
+        const url = window.urlPrefix + '/config/save.json?slot=' + slot;
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => {
+                    e.target.className = "btn btn-danger";
+                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Overview fetched: ', result);
+                        e.target.className = "btn btn-success";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                }
+            );
+    }
+
+    enableConfig(slot, e) {
+        console.log('enableConfig configuration to slot ', slot);
+
+        const url = window.urlPrefix + '/config/enable.json?slot=' + slot;
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => {
+                    e.target.className = "btn btn-danger";
+                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Overview fetched: ', result);
+                        e.target.className = "btn btn-success";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                }
+            );
+    }
+
+    disableConfig(slot, e) {
+        console.log('disableConfig configuration to slot ', slot);
+
+        const url = window.urlPrefix + '/config/disable.json?slot=' + slot;
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => {
+                    e.target.className = "btn btn-danger";
+                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Overview fetched: ', result);
+                        e.target.className = "btn btn-success";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                }
+            );
+    }
+
     render() {
         return (
             <div className="console" class="container-fluid">
@@ -257,105 +332,54 @@ class Home extends React.Component {
 
                 <div class="row">
                     <div class="col">
-
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <td class="text-center">Board name:</td>
-                                    <td>{this.state.config.boardName}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Config source:</td>
-                                    <td>{this.state.config.configSource}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Dongle IP address:</td>
-                                    <td>{this.state.config.ownIp}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">IP address assigned to host:</td>
-                                    <td>{this.state.config.hostIp}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Network mask:</td>
-                                    <td>{this.state.config.ownMask}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Serial number:</td>
-                                    <td>{this.state.config.serial}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Firmware version:</td>
-                                    <td>{this.state.config.version}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">Status LED brightness:</td>
-                                    <td>
-                                        {this.state.config.statusLedBrightness}
-                                        &nbsp;&nbsp;
-                                        <Slider
-                                            axis="x"
-                                            xstep={10}
-                                            xmin={1}
-                                            xmax={255}
-                                            x={this.state.config.statusLedBrightness}
-                                            onChange={({ x }) => this.setStatusLedBrightness(x)}
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="col">
                         Status Leds (lower half shows blinking aspect):
-                        <table class="table" style={{ padding: '0px' }}>
+                        <table class="table text-center" style={{ padding: '0px' }}>
                             <tbody>
                                 <tr style={{ padding: '0px' }}>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipStatusLeds() }>
-                                        <td style={{ textAlign: 'center' }} >
+                                        <td>
                                             <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[0].static + ' 0%, ' + this.state.leds[0].static + ' 59%, ' + this.state.leds[0].blink + ' 61%, ' + this.state.leds[0].blink + ' 100%)' }}></div><br />
                                             Slot 00
                                         </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipStatusLeds() }>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div><br />
-                                        Slot 01
-                                    </td>
+                                        <td>
+                                            <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[1].static + ' 0%, ' + this.state.leds[1].static + ' 59%, ' + this.state.leds[1].blink + ' 61%, ' + this.state.leds[1].blink + ' 100%)' }}></div><br />
+                                            Slot 01
+                                        </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipStatusLeds() }>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[2].static + ' 0%, ' + this.state.leds[2].static + ' 59%, ' + this.state.leds[2].blink + ' 61%, ' + this.state.leds[2].blink + ' 100%)' }}></div><br />
-                                        Slot 10
-                                    </td>
+                                        <td>
+                                            <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[2].static + ' 0%, ' + this.state.leds[2].static + ' 59%, ' + this.state.leds[2].blink + ' 61%, ' + this.state.leds[2].blink + ' 100%)' }}></div><br />
+                                            Slot 10
+                                        </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipStatusLeds() }>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div><br />
-                                        Slot 11
-                                    </td>
+                                        <td>
+                                            <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[3].static + ' 0%, ' + this.state.leds[3].static + ' 59%, ' + this.state.leds[3].blink + ' 61%, ' + this.state.leds[3].blink + ' 100%)' }}></div><br />
+                                            Slot 11
+                                        </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipSystemLed() }>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>
                                             <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[4].static + ' 0%, ' + this.state.leds[4].static + ' 59%, ' + this.state.leds[4].blink + ' 61%, ' + this.state.leds[4].blink + ' 100%)' }}></div><br />
                                             System
                                         </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipUSBLed() }>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>
                                             <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[5].static + ' 0%, ' + this.state.leds[5].static + ' 59%, ' + this.state.leds[5].blink + ' 61%, ' + this.state.leds[5].blink + ' 100%)' }}></div><br />
                                             USB
                                         </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipWirelessLed() }>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>
                                             <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[6].static + ' 0%, ' + this.state.leds[6].static + ' 59%, ' + this.state.leds[6].blink + ' 61%, ' + this.state.leds[6].blink + ' 100%)' }}></div><br />
                                             Wireless
                                         </td>
                                     </OverlayTrigger>
                                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipUniversesLed() }>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>
                                             <div style={{ border: '1px solid black', borderRadius: '50%', padding: '0px', width: '75px', height: '75px', background: 'linear-gradient(180deg, ' + this.state.leds[7].static + ' 0%, ' + this.state.leds[7].static + ' 59%, ' + this.state.leds[7].blink + ' 61%, ' + this.state.leds[7].blink + ' 100%)' }}></div><br />
                                             Universes<br />in use
                                         </td>
@@ -366,6 +390,10 @@ class Home extends React.Component {
                     </div>
 
                     <div class="col">{ this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }</div>
+
+                    <div class="col">
+                        &nbsp;
+                    </div>
                 </div>
 
                 <div class="row">
@@ -376,20 +404,109 @@ class Home extends React.Component {
 
                 <div class="row">
                     <div class="col">
-                        Connected IoBoards:
+                        Running configuration and connected Io boards:
                         <table class="table" style={{ padding: '0px' }}>
                             <tbody>
                                 <tr style={{ padding: '0px' }}>
-                                    <td colspan="16" style={{ textAlign: 'center' }} >
-                                        Base board
+                                    <td colspan="16" style={{ textAlign: 'left', border: '2px solid black' }} >
+
+                                       <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td style={{ fontWeight: 'bold' }}>Board Name:</td>
+                                                    <td>{this.state.config.boardName}</td>
+
+                                                    <td style={{ fontWeight: 'bold' }}>Dongle IP address:</td>
+                                                    <td>{this.state.config.ownIp}</td>
+
+                                                    <td style={{ fontWeight: 'bold' }}>Serial number:</td>
+                                                    <td>{this.state.config.serial}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style={{ fontWeight: 'bold' }}>Config source:</td>
+                                                    <td>{this.state.config.configSource}</td>
+
+                                                    <td style={{ fontWeight: 'bold' }}>IP address assigned to host:</td>
+                                                    <td>{this.state.config.hostIp}</td>
+
+                                                    <td style={{ fontWeight: 'bold' }}>Wireless module available:</td>
+                                                    <td>{ this.state.config.wirelessModule ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style={{ fontWeight: 'bold' }}>Firmware version:</td>
+                                                    <td>{this.state.config.version}</td>
+
+                                                    <td style={{ fontWeight: 'bold' }}>Network mask:</td>
+                                                    <td>{this.state.config.ownMask}</td>
+
+                                                    <td  style={{ fontWeight: 'bold' }}>Status LED brightness:</td>
+                                                    <td>
+                                                        {this.state.config.statusLedBrightness}
+                                                        &nbsp;&nbsp;
+                                                        <Slider
+                                                            axis="x"
+                                                            xstep={10}
+                                                            xmin={1}
+                                                            xmax={255}
+                                                            x={this.state.config.statusLedBrightness}
+                                                            onChange={({ x }) => this.setStatusLedBrightness(x)}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colSpan="6" class="text-center">
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                          data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                          title="Save configuration to base board"
+                                                          onClick={this.saveConfig.bind(this, 4)}>
+                                                            <Icon.JournalArrowDown width={32} height={32} pointerEvents="none"/>
+                                                        </button>
+                                                        &nbsp;
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                          data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                          title="Enable the configuration saved on the base board"
+                                                          onClick={this.enableConfig.bind(this, 4)}>
+                                                              <Icon.JournalCheck width={32} height={32} pointerEvents="none"/>
+                                                        </button>
+                                                        &nbsp;
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                          data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                          title="Disable the configuration saved on the base board"
+                                                          onClick={this.disableConfig.bind(this, 4)}>
+                                                              <Icon.JournalX width={32} height={32} pointerEvents="none"/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </td>
                                 </tr>
                                 <tr>
                                     {[...Array(4)].map((value, slot) => {
                                         return (
-                                            <td colspan="4" style={{ textAlign: 'center' }}>
+                                            <td colspan="4" style={{ textAlign: 'center', border: '2px solid black' }}>
                                                 Slot&nbsp;{slot} { this.state.ioBoards.boards[slot].exist ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }<br />
-                                                Type: { this.state.ioBoards.boards[slot].exist ? this.state.ioBoards.boards[slot].type : <Icon.QuestionSquare width={32} height={32} /> }
+                                                Type: { this.state.ioBoards.boards[slot].exist ? this.state.ioBoards.boards[slot].type : '???' }<br />
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                  title="Save configuration to this io board"
+                                                  onClick={this.saveConfig.bind(this, slot)}>
+                                                    <Icon.JournalArrowDown width={32} height={32} pointerEvents="none"/>
+                                                </button>
+                                                &nbsp;
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                  title="Enable the configuration saved on this io board"
+                                                  onClick={this.enableConfig.bind(this, slot)}>
+                                                      <Icon.JournalCheck width={32} height={32} pointerEvents="none"/>
+                                                </button>
+                                                &nbsp;
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                  title="Disable the configuration saved on this io board"
+                                                  onClick={this.disableConfig.bind(this, slot)}>
+                                                      <Icon.JournalX width={32} height={32} pointerEvents="none"/>
+                                                </button>
                                             </td>
                                         )
                                     })}
@@ -400,7 +517,7 @@ class Home extends React.Component {
                                         let slot = Math.floor(index / 4);
                                         let port = index % 4;
                                         return (
-                                            <td style={{ textAlign: 'center' }}>
+                                            <td style={{ textAlign: 'center', border: '2px solid black' }}>
                                                 { (
                                                     this.state.ioBoards.boards[slot].exist &&
                                                     this.state.ioBoards.boards[slot].ports[port].direction !== "unknown" &&
