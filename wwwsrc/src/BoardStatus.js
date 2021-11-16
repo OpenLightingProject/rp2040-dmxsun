@@ -25,15 +25,19 @@ class BoardStatus extends React.Component{
 
         myModal = document.getElementById('modalBoardName')
         myInput = document.getElementById('modalBoardNameInput')
-        myModal.addEventListener('shown.bs.modal', function () {
-            myInput.focus()
-        });
+        if (myModal && myInput) {
+            myModal.addEventListener('shown.bs.modal', function () {
+                myInput.focus()
+            });
+        }
 
         myModal = document.getElementById('modalOwnIp')
         myInput = document.getElementById('modalOwnIpInput')
-        myModal.addEventListener('shown.bs.modal', function () {
-            myInput.focus()
-        });
+        if (myModal && myInput) {
+            myModal.addEventListener('shown.bs.modal', function () {
+                myInput.focus()
+            });
+        }
 
     }
 
