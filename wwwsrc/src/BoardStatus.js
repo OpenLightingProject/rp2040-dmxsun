@@ -8,6 +8,8 @@ class BoardStatus extends React.Component{
         super();
 
         this.setBrightnessTimeout = undefined;
+
+        this.modalBoardName = this.modalBoardName.bind(this);
     }
 
     componentDidMount() {
@@ -16,6 +18,16 @@ class BoardStatus extends React.Component{
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new window.bootstrap.Tooltip(tooltipTriggerEl)
         });
+
+        // Focus the modals' input fields when they open
+        var myModal, myInput;
+
+        myModal = document.getElementById('modalBoardName')
+        myInput = document.getElementById('modalBoardNameInput')
+        myModal.addEventListener('shown.bs.modal', function () {
+            myInput.focus()
+        });
+
     }
 
     setStatusLedBrightness(newValue) {
@@ -125,6 +137,54 @@ class BoardStatus extends React.Component{
             );
     }
 
+    handleModalInput(e) {
+        let modalName = e.currentTarget.parentNode.parentNode.parentNode.parentNode.id;
+        let paramName = modalName.substring(5);
+        let newValue = document.getElementById(modalName + 'Input').value;
+
+        const url = window.urlPrefix + '/config/set.json?' + paramName + '=' + encodeURIComponent(newValue);
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => {
+                    e.target.className = "btn btn-danger";
+                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Overview fetched: ', result);
+                        e.target.className = "btn btn-success";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                }
+            )
+            .finally(() => { this.props.updateOverview() })
+    }
+
+    modalBoardName() {
+        return(
+            <div class="modal fade" id="modalBoardName" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardNameLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalBoardNameLabel">Edit board name</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" class="form-control" id="modalBoardNameInput" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
   render() {
     return(
         <table class="table" style={{ padding: '0px' }}>
@@ -136,7 +196,18 @@ class BoardStatus extends React.Component{
                             <tbody>
                                 <tr>
                                     <td style={{ fontWeight: 'bold' }}>Board Name:</td>
-                                    <td>{this.props.config.boardName}</td>
+                                    <td>
+                                        { this.props.withEdit &&
+                                        <span data-bs-toggle="modal" data-bs-target="#modalBoardName">
+                                            <this.modalBoardName />
+                                            <button type="button" class="btn btn-outline-secondary p-1 m-1"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                            title="Edit">
+                                                <Icon.Pencil width={24} height={24} pointerEvents="none"/>
+                                            </button>
+                                        </span> }
+                                        {this.props.config.boardName}
+                                    </td>
 
                                     <td style={{ fontWeight: 'bold' }}>Dongle IP address:</td>
                                     <td>{this.props.config.ownIp}</td>

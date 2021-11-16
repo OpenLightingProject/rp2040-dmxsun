@@ -27,6 +27,7 @@ class WebServer {
     static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
 
     static inline void paramsToMap(int iNumParams, char *pcParam[], char *pcValue[], std::map<std::string, std::string>* params);
+    static std::string urlDecode(std::string &input);
 
     static base64_encodestate b64Encode;
     static base64_decodestate b64Decode;
@@ -51,6 +52,7 @@ static const char *cgi_config_load(int iIndex, int iNumParams, char *pcParam[], 
 static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);

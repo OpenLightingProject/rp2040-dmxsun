@@ -56,6 +56,10 @@ static const tCGI cgi_handlers[] = {
     cgi_config_disable
   },
   {
+    "/config/set.json",
+    cgi_config_set
+  },
+  {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
@@ -179,6 +183,21 @@ static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[
     slot = atoi(params["slot"].c_str());
 
     boardConfig.disableConfig(slot);
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    if (params.contains(std::string("BoardName"))) {
+        std::string value = params["BoardName"];
+        std::string decoded = WebServer::urlDecode(value);
+        LOG("INPUT: %s, DECODED: %s", value.c_str(), decoded.c_str());
+        snprintf(boardConfig.activeConfig->boardName, 32, "%s", decoded.c_str());
+    }
 
     return "/empty.json";
 }
@@ -443,4 +462,22 @@ void WebServer::paramsToMap(int iNumParams, char *pcParam[], char *pcValue[], st
     for (int i = 0; i < iNumParams; i++) {
         (*params)[std::string(pcParam[i])] = std::string(pcValue[i]);
     }
+}
+
+// From: https://stackoverflow.com/a/4823686
+std::string WebServer::urlDecode(std::string &SRC) {
+    std::string ret;
+    char ch;
+    int i, ii;
+    for (i = 0; i < SRC.length(); i++) {
+        if (int(SRC[i]) == '%') {
+            sscanf(SRC.substr(i+1,2).c_str(), "%x", &ii);
+            ch = static_cast<char>(ii);
+            ret += ch;
+            i = i + 2;
+        } else {
+            ret += SRC[i];
+        }
+    }
+    return (ret);
 }
