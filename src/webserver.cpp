@@ -40,6 +40,10 @@ static const tCGI cgi_handlers[] = {
     cgi_config_ioBoards_config
   },
   {
+    "/config/load.json",
+    cgi_config_load
+  },
+  {
     "/config/save.json",
     cgi_config_save
   },
@@ -119,6 +123,36 @@ static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *
     return "/empty.json";
 }
 
+static const char *cgi_config_load(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    // TODO: Check if all required parameters have been given
+    slot = atoi(params["slot"].c_str());
+
+    boardConfig.loadConfig(slot);
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    uint8_t slot = 0;
+
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    // TODO: Check if all required parameters have been given
+    slot = atoi(params["slot"].c_str());
+
+    boardConfig.saveConfig(slot);
+
+    return "/empty.json";
+}
+
 static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
 {
     uint8_t slot = 0;
@@ -145,21 +179,6 @@ static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[
     slot = atoi(params["slot"].c_str());
 
     boardConfig.disableConfig(slot);
-
-    return "/empty.json";
-}
-
-static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-    uint8_t slot = 0;
-
-    std::map<std::string, std::string> params;
-    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
-
-    // TODO: Check if all required parameters have been given
-    slot = atoi(params["slot"].c_str());
-
-    boardConfig.saveConfig(slot);
 
     return "/empty.json";
 }

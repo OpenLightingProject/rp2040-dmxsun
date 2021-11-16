@@ -173,6 +173,28 @@ int BoardConfig::configureBoard(uint8_t slot, struct ConfigData* config) {
     return written;
 }
 
+int BoardConfig::loadConfig(uint8_t slot) {
+    LOG("loading from slot %u. Responding: %u", slot, this->responding[slot]);
+
+    if ((slot == 0) || (slot == 1) || (slot == 2) || (slot == 3)) {
+        // Load from an IO board, so check if it's connected
+        if (this->responding[slot]) {
+            activeConfig = (ConfigData*)this->rawData[slot];
+            return 0;
+        } else {
+            // IO board is not connected
+            return 1;
+        }
+    } else if (slot == 4) {
+        // Load from the base board
+        activeConfig = (ConfigData*)this->rawData[slot];
+        return 0;
+    }
+
+    // Slot unknown
+    return 4;
+}
+
 int BoardConfig::saveConfig(uint8_t slot) {
     ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
     uint8_t bytesToWrite;

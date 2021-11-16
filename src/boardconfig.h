@@ -226,6 +226,7 @@ class BoardConfig {
     void readIOBoards();
     void prepareConfig();
     ConfigData defaultConfig();
+    int loadConfig(uint8_t slot);
     int saveConfig(uint8_t slot);
     int enableConfig(uint8_t slot);
     int disableConfig(uint8_t slot);

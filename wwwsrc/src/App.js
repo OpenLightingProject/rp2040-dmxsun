@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import Home from "./Home.js";
+import Config from "./Config.js";
 import Console from "./Console.js";
 import Log from "./Log.js";
 import Wireless from "./Wireless.js";
@@ -71,8 +72,4 @@ export default function App() {
       </div>
     </Router>
   );
-}
-
-function Config() {
-  return <h2>Config</h2>;
 }

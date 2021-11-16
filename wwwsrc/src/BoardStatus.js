@@ -32,6 +32,30 @@ class BoardStatus extends React.Component{
         fetch(url).finally(() => { this.props.updateOverview() })
     }
 
+    loadConfig(slot, e) {
+        console.log('Loading configuration from slot ' +  slot, e.target);
+
+        const url = window.urlPrefix + '/config/load.json?slot=' + slot;
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => {
+                    e.target.className = "btn btn-danger";
+                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Overview fetched: ', result);
+                        e.target.className = "btn btn-success";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                }
+            )
+            .finally(() => { this.props.updateOverview() })
+    }
+
     saveConfig(slot, e) {
         console.log('Saving configuration to slot ' +  slot, e.target);
 
@@ -156,6 +180,13 @@ class BoardStatus extends React.Component{
                                     <td colSpan="6" class="text-center">
                                         <button type="button" class="btn btn-outline-secondary"
                                           data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                          title="Load configuration from base board"
+                                          onClick={this.loadConfig.bind(this, 4)}>
+                                            <Icon.JournalArrowUp width={32} height={32} pointerEvents="none"/>
+                                        </button>
+                                        &nbsp;
+                                        <button type="button" class="btn btn-outline-secondary"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom"
                                           title="Save configuration to base board"
                                           onClick={this.saveConfig.bind(this, 4)}>
                                             <Icon.JournalArrowDown width={32} height={32} pointerEvents="none"/>
@@ -189,6 +220,13 @@ class BoardStatus extends React.Component{
                                 Type: { this.props.ioBoards.boards[slot].exist ? this.props.ioBoards.boards[slot].type : '???' }<br />
                                 {this.props.withEdit &&
                                 <div>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                      data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                      title="Load configuration from this io board"
+                                      onClick={this.saveConfig.bind(this, slot)}>
+                                        <Icon.JournalArrowUp width={32} height={32} pointerEvents="none"/>
+                                    </button>
+                                    &nbsp;
                                     <button type="button" class="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Save configuration to this io board"

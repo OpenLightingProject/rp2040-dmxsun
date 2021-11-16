@@ -47,9 +47,11 @@ static const char *cgi_system_reset_boot(int iIndex, int iNumParams, char *pcPar
 static const char *cgi_config_statusLeds_brightness_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_dmxBuffer_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_ioBoards_config(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_load(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static const char *cgi_config_save(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);
 
