@@ -10,6 +10,14 @@ class BoardStatus extends React.Component{
         this.setBrightnessTimeout = undefined;
     }
 
+    componentDidMount() {
+        // Initialize all tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new window.bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    }
+
     setStatusLedBrightness(newValue) {
         // We do the writing behind a "timeout" so we only write
         // once every 100ms in order not to overload the device

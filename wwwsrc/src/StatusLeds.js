@@ -3,7 +3,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip';
 
-class BoardStatus extends React.Component{
+class StatusLeds extends React.Component {
 
     getToolTipStatusLeds() {
         return (
@@ -172,4 +172,4 @@ class BoardStatus extends React.Component{
   }
 }
 
-export default BoardStatus;
+export default StatusLeds;

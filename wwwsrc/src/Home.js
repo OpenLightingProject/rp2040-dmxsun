@@ -30,9 +30,6 @@ class Home extends React.Component {
             ],
             updateStatusLedsInterval: undefined,
         };
-        this.tooltips = {
-            statusLeds: "",
-        };
     }
 
 
@@ -41,12 +38,6 @@ class Home extends React.Component {
         let interval = window.setInterval(this.updateStatuLeds.bind(this), 2000);
         this.setState({
             updateStatusLedsInterval: interval
-        });
-
-        // Initialize all tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new window.bootstrap.Tooltip(tooltipTriggerEl)
         });
     }
 
