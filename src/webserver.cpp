@@ -192,11 +192,24 @@ static const char *cgi_config_set(int iIndex, int iNumParams, char *pcParam[], c
     std::map<std::string, std::string> params;
     WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
 
+    std::string decoded;
+
     if (params.contains(std::string("BoardName"))) {
-        std::string value = params["BoardName"];
-        std::string decoded = WebServer::urlDecode(value);
-        LOG("INPUT: %s, DECODED: %s", value.c_str(), decoded.c_str());
+        decoded = WebServer::urlDecode(params["BoardName"]);
+        LOG("INPUT: %s, DECODED: %s", params["BoardName"].c_str(), decoded.c_str());
         snprintf(boardConfig.activeConfig->boardName, 32, "%s", decoded.c_str());
+    }
+
+    if (params.contains(std::string("OwnIp"))) {
+        ip4_addr_t ip;
+        int ok = 0;
+
+        ok = ip4addr_aton(params["OwnIp"].c_str(), &ip);
+        if (!ok) {
+            return "/empty.json";
+        }
+        boardConfig.activeConfig->ownIp = ip.addr;
+        boardConfig.activeConfig->hostIp = ip.addr + (1 << 24);
     }
 
     return "/empty.json";

@@ -10,6 +10,7 @@ class BoardStatus extends React.Component{
         this.setBrightnessTimeout = undefined;
 
         this.modalBoardName = this.modalBoardName.bind(this);
+        this.modalOwnIp = this.modalOwnIp.bind(this);
     }
 
     componentDidMount() {
@@ -24,6 +25,12 @@ class BoardStatus extends React.Component{
 
         myModal = document.getElementById('modalBoardName')
         myInput = document.getElementById('modalBoardNameInput')
+        myModal.addEventListener('shown.bs.modal', function () {
+            myInput.focus()
+        });
+
+        myModal = document.getElementById('modalOwnIp')
+        myInput = document.getElementById('modalOwnIpInput')
         myModal.addEventListener('shown.bs.modal', function () {
             myInput.focus()
         });
@@ -185,6 +192,28 @@ class BoardStatus extends React.Component{
         )
     }
 
+    modalOwnIp() {
+        return(
+            <div class="modal fade" id="modalOwnIp" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardOwnIp" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalOwnIpLabel">Edit board's IP address</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" class="form-control" id="modalOwnIpInput" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
   render() {
     return(
         <table class="table" style={{ padding: '0px' }}>
@@ -210,7 +239,18 @@ class BoardStatus extends React.Component{
                                     </td>
 
                                     <td style={{ fontWeight: 'bold' }}>Dongle IP address:</td>
-                                    <td>{this.props.config.ownIp}</td>
+                                    <td>
+                                        { this.props.withEdit &&
+                                        <span data-bs-toggle="modal" data-bs-target="#modalOwnIp">
+                                            <this.modalOwnIp />
+                                            <button type="button" class="btn btn-outline-secondary p-1 m-1"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                            title="Edit">
+                                                <Icon.Pencil width={24} height={24} pointerEvents="none"/>
+                                            </button>
+                                        </span> }
+                                        {this.props.config.ownIp}
+                                    </td>
 
                                     <td style={{ fontWeight: 'bold' }}>Serial number:</td>
                                     <td>{this.props.config.serial}</td>
