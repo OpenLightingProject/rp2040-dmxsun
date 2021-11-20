@@ -82,7 +82,8 @@ extern "C" {
 #define CFG_TUD_MIDI            0
 #define CFG_TUD_MSC             0
 #define CFG_TUD_VENDOR          1
-#define CFG_TUD_NET             1
+//#define CFG_TUD_NET             1 // No longer needed with pico-sdk 1.3.0
+                                    // since it has been replaced by CFG_TUD_NCM
 #define CFG_TUD_NCM             1
 
 // HID buffer size Should be sufficient to hold ID (if any) + Data

@@ -22,7 +22,6 @@ include(../lib/jsconcpp/interfaceLibForPicoSDK.cmake)
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
 set(TINYUSB_LIBNETWORKING_SOURCES
     ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
-    ${PICO_TINYUSB_PATH}/lib/networking/rndis_reports.c
 )
 
 ## Build the "www" folder from the content of "wwwsrc"
