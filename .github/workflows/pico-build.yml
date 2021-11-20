@@ -25,15 +25,8 @@ jobs:
     - name: Clone pico-sdk
       uses: actions/checkout@v2
       with:
-        ## Official one:
-        #repository: raspberrypi/pico-sdk
-        #ref: 1.2.0
-        ## Uses "NCM" branch of TinyUSB:
-        repository: kripton/pico-sdk
-        ref: ncm
-        path: pico-sdk
-        clean: false
-        submodules: 'true'
+        repository: raspberrypi/pico-sdk
+        ref: 1.3.0
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
