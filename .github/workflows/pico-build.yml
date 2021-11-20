@@ -27,6 +27,9 @@ jobs:
       with:
         repository: raspberrypi/pico-sdk
         ref: 1.3.0
+        path: pico-sdk
+        clean: false
+        submodules: 'true'
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
