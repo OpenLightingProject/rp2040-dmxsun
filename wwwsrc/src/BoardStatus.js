@@ -11,6 +11,7 @@ class BoardStatus extends React.Component{
 
         this.modalBoardName = this.modalBoardName.bind(this);
         this.modalOwnIp = this.modalOwnIp.bind(this);
+        this.modalWireless = this.modalWireless.bind(this);
     }
 
     componentDidMount() {
@@ -36,6 +37,14 @@ class BoardStatus extends React.Component{
             myModal.addEventListener('shown.bs.modal', () => {
                 document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
                 document.getElementById('modalOwnIpInput').focus();
+            });
+        }
+
+        myModal = document.getElementById('modalWireless')
+        if (myModal) {
+            myModal.addEventListener('shown.bs.modal', () => {
+                //document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
+                //document.getElementById('modelWirelessInputRole').focus();
             });
         }
 
@@ -224,6 +233,87 @@ class BoardStatus extends React.Component{
         )
     }
 
+    modalWireless() {
+        // The modals used to have the className "fade" as well. However, this
+        // broke the "static" backdrop and the modals closed when clicked, even
+        // if they shouldn't. Maybe a bootstrap-bug?
+        return(
+            <div className="modal" id="modalWireless" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="modalWirelessLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="modalWirelessLabel">Edit board's wireless config</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+
+                            <div class="form-floating">
+                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputRole">
+                                   {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
+                                   <option value="0" selected>Sniffer (listen only)</option>
+                                   <option value="1">Broadcast (All-To-All)</option>
+                                   <option value="2">Mesh</option>
+                                </select>
+                                <label for="modelWirelessInputRole" class="form-label">Radio role:</label>
+                            </div>
+                            <br />
+
+                            <div class="form-floating">
+                                <input type="number" min="0" max="127" className="form-control" id="modalWirelessInputChannel" placeholder="0" value="0" />
+                                <label for="modelWirelessInputChannel" class="form-label">Radio channel:</label>
+                            </div>
+                            <br />
+
+                            <div class="form-floating">
+                                <input type="number" min="0" max="255" className="form-control" id="modalWirelessInputAddress" placeholder="0" value="0" />
+                                <label for="modalWirelessInputAddress" class="form-label">Radio address:</label>
+                            </div>
+                            <br />
+
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="modalWirelessInputCompressio" />
+                                <label class="form-check-label" for="modalWirelessInputCompressio">Compress data</label>
+                            </div>
+                            <br />
+
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="modalWirelessInputSparse" />
+                                <label class="form-check-label" for="modalWirelessInputSparse">Allow sparse sends</label>
+                            </div>
+                            <br />
+
+                            <div class="form-floating">
+                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputRate">
+                                   {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
+                                   <option value="0" selected>250 kbps</option>
+                                   <option value="1">1 Mbps</option>
+                                   <option value="2">2 Mbps</option>
+                                </select>
+                                <label for="modelWirelessInputRate" class="form-label">Radio data rate:</label>
+                            </div>
+                            <br />
+
+                            <div class="form-floating">
+                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputPower">
+                                   {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
+                                   <option value="0" selected>low</option>
+                                   <option value="1">high</option>
+                                   <option value="2">max</option>
+                                </select>
+                                <label for="modelWirelessInputPower" class="form-label">Radio TX power:</label>
+                            </div>
+
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
   render() {
     return(
         <table className="table" style={{ padding: '0px' }}>
@@ -273,7 +363,19 @@ class BoardStatus extends React.Component{
                                     <td>{this.props.config.hostIp}</td>
 
                                     <td style={{ fontWeight: 'bold' }}>Wireless module available:</td>
-                                    <td>{ this.props.config.wirelessModule ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }</td>
+                                    <td>
+                                        { this.props.config.wirelessModule ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }
+                                        { this.props.withEdit &&
+                                        <span data-bs-toggle="modal" data-bs-target="#modalWireless">
+                                            &nbsp;
+                                            <this.modalWireless />
+                                            <button type="button" className="btn btn-outline-secondary p-1 m-1"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                            title="Edit">
+                                                <Icon.Pencil width={24} height={24} pointerEvents="none"/>
+                                            </button>
+                                        </span> }
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style={{ fontWeight: 'bold' }}>Firmware version:</td>
