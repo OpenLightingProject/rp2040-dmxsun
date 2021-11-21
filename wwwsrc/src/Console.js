@@ -174,9 +174,9 @@ class Console extends React.Component {
 
     render() {
         return (
-            <div className="console" class="container-fluid">
-                <div class="row"><div class="col">&nbsp;</div></div>
-                <div class="row"><div class="col">
+            <div className="container-fluid">
+                <div className="row"><div className="col">&nbsp;</div></div>
+                <div className="row"><div className="col">
                     Select buffer: &nbsp;&nbsp;
                     <Slider
                         axis="x"
@@ -197,10 +197,10 @@ class Console extends React.Component {
                     &nbsp;&nbsp;
                     <Icon.ChevronBarRight onClick={this.selectedBufferLast} />
                     &nbsp;&nbsp;
-                    { this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }
+                    { this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }
                 </div></div>
-                <div class="row"><div class="col">&nbsp;</div></div>
-                <div class="row"><div class="col">
+                <div className="row"><div className="col">&nbsp;</div></div>
+                <div className="row"><div className="col">
                     Starting channel:
                     &nbsp;&nbsp;
                     <Icon.ChevronBarLeft onClick={this.channelOffsetFirst} />
@@ -218,13 +218,13 @@ class Console extends React.Component {
                     &nbsp;&nbsp;
                     <Icon.Lightbulb onClick={this.setAllOn} />
                 </div></div>
-                <div class="row"><div class="col">
-                    <table class="table" style={{ padding: '0px' }}>
+                <div className="row"><div className="col">
+                    <table className="table" style={{ padding: '0px' }}>
                         <thead>
                             <tr style={{ padding: '0px' }}>
                                 {[...Array(32)].map((value, index) => {
                                     return (
-                                        <th class="text-center" key={index} style={{ minWidth: '2rem', padding: '0px' }}>{index + this.state.channelOffset + 1}</th>
+                                        <th className="text-center" key={index} style={{ minWidth: '2rem', padding: '0px' }}>{index + this.state.channelOffset + 1}</th>
                                     )
                                 })}
                             </tr>
@@ -233,14 +233,14 @@ class Console extends React.Component {
                             <tr>
                                 {[...Array(32)].map((value, index) => {
                                     return (
-                                        <td class="text-center" key={index} style={{ padding: '0px' }}>{this.state.values[index + this.state.channelOffset]}</td>
+                                        <td className="text-center" key={index} style={{ padding: '0px' }}>{this.state.values[index + this.state.channelOffset]}</td>
                                     )
                                 })}
                             </tr>
                             <tr>
                                 {[...Array(32)].map((value, index) => {
                                     return (
-                                        <td class="text-center" key={index}>
+                                        <td className="text-center" key={index}>
                                             <Slider
                                                 axis="y"
                                                 ystep={1}

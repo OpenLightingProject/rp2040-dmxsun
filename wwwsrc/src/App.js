@@ -29,23 +29,23 @@ export default function App() {
   return (
     <Router>
       <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <span class="navbar-brand"><img src="media/icon-dmxsun.svg" alt="icon-dmxsun" width={56} height={56} style={{ marginLeft: "20px" }} ></img></span>
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <Link to="/" class="nav-link">Home</Link>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+          <span className="navbar-brand"><img src="media/icon-dmxsun.svg" alt="icon-dmxsun" width={56} height={56} style={{ marginLeft: "20px" }} ></img></span>
+          <ul className="navbar-nav mr-auto">
+            <li className="nav-item active">
+              <Link to="/" className="nav-link">Home</Link>
             </li>
-            <li class="nav-item active">
-              <Link to="/console" class="nav-link">Console</Link>
+            <li className="nav-item">
+              <Link to="/console" className="nav-link">Console</Link>
             </li>
-            <li class="nav-item">
-              <Link to="/config" class="nav-link">Config</Link>
+            <li className="nav-item">
+              <Link to="/config" className="nav-link">Config</Link>
             </li>
-            <li class="nav-item">
-              <Link to="/wireless" class="nav-link">Wireless</Link>
+            <li className="nav-item">
+              <Link to="/wireless" className="nav-link">Wireless</Link>
             </li>
-            <li class="nav-item">
-              <Link to="/log" class="nav-link">Log</Link>
+            <li className="nav-item">
+              <Link to="/log" className="nav-link">Log</Link>
             </li>
           </ul>
         </nav>

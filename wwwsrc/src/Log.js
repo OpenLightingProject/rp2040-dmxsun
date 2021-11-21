@@ -60,9 +60,9 @@ class Log extends React.Component {
                 <h4>
                     Reverse order, latest log entry is shown on top
                     &nbsp;&nbsp;
-                    { this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }
+                    { this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }
                 </h4>
-                <table class="table">
+                <table className="table">
                     <thead><tr><th>Location</th><th>Text</th></tr></thead>
                     <tbody>
                         {Object.entries(this.state.logEntries).reverse().map((entry, index) => {

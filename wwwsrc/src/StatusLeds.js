@@ -7,7 +7,7 @@ class StatusLeds extends React.Component {
 
     getToolTipStatusLeds() {
         return (
-            <Tooltip><table class="table" style={{color: "#FFFFFF"}}><tbody>
+            <Tooltip><table className="table" style={{color: "#FFFFFF"}}><tbody>
             <tr>
                 <td><div style={{ border: '1px solid black', padding: '5px', background: '#FF0000', color: '#000000' }}>RED</div></td>
                 <td>No module detected in slot</td>
@@ -30,7 +30,7 @@ class StatusLeds extends React.Component {
 
     getToolTipSystemLed() {
         return (
-            <Tooltip><table class="table" style={{color: "#FFFFFF"}}><tbody>
+            <Tooltip><table className="table" style={{color: "#FFFFFF"}}><tbody>
             <tr>
                 <td><div style={{ border: '1px solid black', padding: '5px', background: '#00FF00', color: '#000000' }}>GREEN</div></td>
                 <td>Configuration has been loaded from an IO board</td>
@@ -49,7 +49,7 @@ class StatusLeds extends React.Component {
 
     getToolTipUSBLed() {
         return (
-            <Tooltip><table class="table" style={{color: "#FFFFFF"}}><tbody>
+            <Tooltip><table className="table" style={{color: "#FFFFFF"}}><tbody>
             <tr>
                 <td><div style={{ border: '1px solid black', padding: '5px', background: '#00FF00', color: '#000000' }}>GREEN</div></td>
                 <td>USB host detected</td>
@@ -64,7 +64,7 @@ class StatusLeds extends React.Component {
 
     getToolTipWirelessLed() {
         return (
-            <Tooltip><table class="table" style={{color: "#FFFFFF"}}><tbody>
+            <Tooltip><table className="table" style={{color: "#FFFFFF"}}><tbody>
             <tr>
                 <td><div style={{ border: '1px solid black', padding: '5px', background: '#000000', color: '#FFFFFF' }}>OFF</div></td>
                 <td>No wireless module detected</td>
@@ -91,7 +91,7 @@ class StatusLeds extends React.Component {
 
     getToolTipUniversesLed() {
         return (
-            <Tooltip><table class="table" style={{color: "#FFFFFF"}}><tbody>
+            <Tooltip><table className="table" style={{color: "#FFFFFF"}}><tbody>
             <tr>
                 <td><div style={{ border: '1px solid black', padding: '5px', background: '#000000', color: '#FFFFFF' }}>OFF</div></td>
                 <td>All universes are ALL ZERO</td>
@@ -114,7 +114,7 @@ class StatusLeds extends React.Component {
 
   render() {
     return(
-        <table class="table text-center" style={{ padding: '0px' }}>
+        <table className="table text-center" style={{ padding: '0px' }}>
             <tbody>
                 <tr style={{ padding: '0px' }}>
                     <OverlayTrigger placement="bottom" overlay={ this.getToolTipStatusLeds() }>

@@ -78,15 +78,15 @@ class Config extends React.Component {
 
     render() {
         return (
-            <div className="console" class="container-fluid">
-                <div class="row">
-                    <div class="col">
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col">
                         &nbsp;
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col">
+                <div className="row">
+                    <div className="col">
                         Running configuration and connected Io boards:
                         <BoardStatus withEdit={true} config={this.state.config} ioBoards={this.state.ioBoards} updateOverview={this.updateOverview.bind(this)} />
                     </div>

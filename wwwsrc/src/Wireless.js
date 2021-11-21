@@ -73,8 +73,53 @@ class Wireless extends React.Component {
     }
     render() {
         return (
-            <div className="wireless">
-                <Bar ref={(reference) => this.chartReference = reference } data={this.state.spectrumData} options={options} />
+            <div className="accordion" id="accordionWireless">
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingSniffer">
+                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSniffer" aria-expanded="true" aria-controls="collapseSniffer">
+                      Mode "Sniffer": Wireless spectrum
+                    </button>
+                  </h2>
+                  <div id="collapseSniffer" className="accordion-collapse collapse show" aria-labelledby="headingSniffer" data-bs-parent="#accordionWireless">
+                    <div className="accordion-body container">
+                      <div className="row">
+                        <div className="col">
+                          &nbsp;
+                        </div>
+                        <div className="col col-9">
+                            <Bar ref={(reference) => this.chartReference = reference } data={this.state.spectrumData} options={options} />
+                        </div>
+                        <div className="col">
+                          &nbsp;
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingBroadcast">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBroadcast" aria-expanded="false" aria-controls="collapseBroadcast">
+                      Mode "Broadcast"
+                    </button>
+                  </h2>
+                  <div id="collapseBroadcast" className="accordion-collapse collapse" aria-labelledby="headingBroadcast" data-bs-parent="#accordionWireless">
+                    <div className="accordion-body">
+                      <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                  </div>
+                </div>
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingMesh">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMesh" aria-expanded="false" aria-controls="collapseMesh">
+                      Mode "Mesh"
+                    </button>
+                  </h2>
+                  <div id="collapseMesh" className="accordion-collapse collapse" aria-labelledby="headingMesh" data-bs-parent="#accordionWireless">
+                    <div className="accordion-body">
+                      <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                  </div>
+                </div>
             </div>
         );
     }

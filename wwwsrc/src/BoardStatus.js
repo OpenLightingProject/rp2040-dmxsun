@@ -176,19 +176,19 @@ class BoardStatus extends React.Component{
 
     modalBoardName() {
         return(
-            <div class="modal fade" id="modalBoardName" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardNameLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalBoardNameLabel">Edit board name</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div className="modal fade" id="modalBoardName" tabIndex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardNameLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="modalBoardNameLabel">Edit board name</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <input type="text" class="form-control" id="modalBoardNameInput" />
+                        <div className="modal-body">
+                            <input type="text" className="form-control" id="modalBoardNameInput" />
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -198,19 +198,19 @@ class BoardStatus extends React.Component{
 
     modalOwnIp() {
         return(
-            <div class="modal fade" id="modalOwnIp" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardOwnIp" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalOwnIpLabel">Edit board's IP address</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div className="modal fade" id="modalOwnIp" tabIndex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardOwnIp" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="modalOwnIpLabel">Edit board's IP address</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <input type="text" class="form-control" id="modalOwnIpInput" />
+                        <div className="modal-body">
+                            <input type="text" className="form-control" id="modalOwnIpInput" />
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={this.handleModalInput.bind(this)}>Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -220,12 +220,12 @@ class BoardStatus extends React.Component{
 
   render() {
     return(
-        <table class="table" style={{ padding: '0px' }}>
+        <table className="table" style={{ padding: '0px' }}>
             <tbody>
                 <tr style={{ padding: '0px' }}>
-                    <td colspan="16" style={{ textAlign: 'left', border: '2px solid black' }} >
+                    <td colSpan="16" style={{ textAlign: 'left', border: '2px solid black' }} >
 
-                       <table class="table">
+                       <table className="table">
                             <tbody>
                                 <tr>
                                     <td style={{ fontWeight: 'bold' }}>Board Name:</td>
@@ -233,7 +233,7 @@ class BoardStatus extends React.Component{
                                         { this.props.withEdit &&
                                         <span data-bs-toggle="modal" data-bs-target="#modalBoardName">
                                             <this.modalBoardName />
-                                            <button type="button" class="btn btn-outline-secondary p-1 m-1"
+                                            <button type="button" className="btn btn-outline-secondary p-1 m-1"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
                                             title="Edit">
                                                 <Icon.Pencil width={24} height={24} pointerEvents="none"/>
@@ -247,7 +247,7 @@ class BoardStatus extends React.Component{
                                         { this.props.withEdit &&
                                         <span data-bs-toggle="modal" data-bs-target="#modalOwnIp">
                                             <this.modalOwnIp />
-                                            <button type="button" class="btn btn-outline-secondary p-1 m-1"
+                                            <button type="button" className="btn btn-outline-secondary p-1 m-1"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
                                             title="Edit">
                                                 <Icon.Pencil width={24} height={24} pointerEvents="none"/>
@@ -292,29 +292,30 @@ class BoardStatus extends React.Component{
                                 </tr>
                                 {this.props.withEdit && 
                                 <tr>
-                                    <td colSpan="6" class="text-center">
-                                        <button type="button" class="btn btn-outline-secondary"
+                                    <td colSpan="6" className="text-center">
+                                        Manage config on base board:&nbsp;&nbsp;&nbsp;
+                                        <button type="button" className="btn btn-outline-secondary"
                                           data-bs-toggle="tooltip" data-bs-placement="bottom"
                                           title="Load configuration from base board"
                                           onClick={this.loadConfig.bind(this, 4)}>
                                             <Icon.JournalArrowUp width={32} height={32} pointerEvents="none"/>
                                         </button>
                                         &nbsp;
-                                        <button type="button" class="btn btn-outline-secondary"
+                                        <button type="button" className="btn btn-outline-secondary"
                                           data-bs-toggle="tooltip" data-bs-placement="bottom"
                                           title="Save configuration to base board"
                                           onClick={this.saveConfig.bind(this, 4)}>
                                             <Icon.JournalArrowDown width={32} height={32} pointerEvents="none"/>
                                         </button>
                                         &nbsp;
-                                        <button type="button" class="btn btn-outline-secondary"
+                                        <button type="button" className="btn btn-outline-secondary"
                                           data-bs-toggle="tooltip" data-bs-placement="bottom"
                                           title="Enable the configuration saved on the base board"
                                           onClick={this.enableConfig.bind(this, 4)}>
                                               <Icon.JournalCheck width={32} height={32} pointerEvents="none"/>
                                         </button>
                                         &nbsp;
-                                        <button type="button" class="btn btn-outline-secondary"
+                                        <button type="button" className="btn btn-outline-secondary"
                                           data-bs-toggle="tooltip" data-bs-placement="bottom"
                                           title="Disable the configuration saved on the base board"
                                           onClick={this.disableConfig.bind(this, 4)}>
@@ -330,33 +331,33 @@ class BoardStatus extends React.Component{
                 <tr>
                     {[...Array(4)].map((value, slot) => {
                         return (
-                            <td colspan="4" style={{ textAlign: 'center', border: '2px solid black' }}>
+                            <td key={slot} colSpan="4" style={{ textAlign: 'center', border: '2px solid black' }}>
                                 Slot&nbsp;{slot} { this.props.ioBoards.boards[slot].exist ? <Icon.CheckSquare width={32} height={32} /> : <Icon.XSquareFill width={32} height={32} /> }<br />
                                 Type: { this.props.ioBoards.boards[slot].exist ? this.props.ioBoards.boards[slot].type : '???' }<br />
                                 {this.props.withEdit &&
                                 <div>
-                                    <button type="button" class="btn btn-outline-secondary"
+                                    <button type="button" className="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Load configuration from this io board"
                                       onClick={this.saveConfig.bind(this, slot)}>
                                         <Icon.JournalArrowUp width={32} height={32} pointerEvents="none"/>
                                     </button>
                                     &nbsp;
-                                    <button type="button" class="btn btn-outline-secondary"
+                                    <button type="button" className="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Save configuration to this io board"
                                       onClick={this.saveConfig.bind(this, slot)}>
                                         <Icon.JournalArrowDown width={32} height={32} pointerEvents="none"/>
                                     </button>
                                     &nbsp;
-                                    <button type="button" class="btn btn-outline-secondary"
+                                    <button type="button" className="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Enable the configuration saved on this io board"
                                       onClick={this.enableConfig.bind(this, slot)}>
                                           <Icon.JournalCheck width={32} height={32} pointerEvents="none"/>
                                     </button>
                                     &nbsp;
-                                    <button type="button" class="btn btn-outline-secondary"
+                                    <button type="button" className="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Disable the configuration saved on this io board"
                                       onClick={this.disableConfig.bind(this, slot)}>
@@ -374,7 +375,7 @@ class BoardStatus extends React.Component{
                         let slot = Math.floor(index / 4);
                         let port = index % 4;
                         return (
-                            <td style={{ textAlign: 'center', border: '2px solid black' }}>
+                            <td key={index} style={{ textAlign: 'center', border: '2px solid black' }}>
                                 { (
                                     this.props.ioBoards.boards[slot].exist &&
                                     this.props.ioBoards.boards[slot].ports[port].direction !== "unknown" &&

@@ -122,34 +122,34 @@ class Home extends React.Component {
 
     render() {
         return (
-            <div className="console" class="container-fluid">
-                <div class="row">
-                    <div class="col">
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col">
                         &nbsp;
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col">
+                <div className="row">
+                    <div className="col">
                         Status Leds (lower half shows blinking aspect):
                         <StatusLeds leds={this.state.leds} />
                     </div>
 
-                    <div class="col">{ this.state.inFlight && <div class="spinner-border spinner-border-sm" role="status"></div> }</div>
+                    <div className="col">{ this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }</div>
 
-                    <div class="col">
+                    <div className="col">
                         &nbsp;
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col">
+                <div className="row">
+                    <div className="col">
                         &nbsp;
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col">
+                <div className="row">
+                    <div className="col">
                         Running configuration and connected Io boards:
                         <BoardStatus withEdit={false} config={this.state.config} ioBoards={this.state.ioBoards} updateOverview={this.updateOverview.bind(this)} />
                     </div>
