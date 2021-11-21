@@ -21,21 +21,21 @@ class BoardStatus extends React.Component{
         });
 
         // Focus the modals' input fields when they open
-        var myModal, myInput;
+        var myModal;
 
         myModal = document.getElementById('modalBoardName')
-        myInput = document.getElementById('modalBoardNameInput')
-        if (myModal && myInput) {
-            myModal.addEventListener('shown.bs.modal', function () {
-                myInput.focus()
+        if (myModal) {
+            myModal.addEventListener('shown.bs.modal', () => {
+                document.getElementById('modalBoardNameInput').value = this.props.config.boardName;
+                document.getElementById('modalBoardNameInput').focus();
             });
         }
 
         myModal = document.getElementById('modalOwnIp')
-        myInput = document.getElementById('modalOwnIpInput')
-        if (myModal && myInput) {
-            myModal.addEventListener('shown.bs.modal', function () {
-                myInput.focus()
+        if (myModal) {
+            myModal.addEventListener('shown.bs.modal', () => {
+                document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
+                document.getElementById('modalOwnIpInput').focus();
             });
         }
 
@@ -175,8 +175,11 @@ class BoardStatus extends React.Component{
     }
 
     modalBoardName() {
+        // The modals used to have the className "fade" as well. However, this
+        // broke the "static" backdrop and the modals closed when clicked, even
+        // if they shouldn't. Maybe a bootstrap-bug?
         return(
-            <div className="modal fade" id="modalBoardName" tabIndex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardNameLabel" aria-hidden="true">
+            <div className="modal" id="modalBoardName" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="modalBoardNameLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -197,8 +200,11 @@ class BoardStatus extends React.Component{
     }
 
     modalOwnIp() {
+        // The modals used to have the className "fade" as well. However, this
+        // broke the "static" backdrop and the modals closed when clicked, even
+        // if they shouldn't. Maybe a bootstrap-bug?
         return(
-            <div className="modal fade" id="modalOwnIp" tabIndex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalBoardOwnIp" aria-hidden="true">
+            <div className="modal" id="modalOwnIp" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="modalOwnIpLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
