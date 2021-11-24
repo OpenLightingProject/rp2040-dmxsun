@@ -60,6 +60,10 @@ static const tCGI cgi_handlers[] = {
     cgi_config_set
   },
   {
+    "/config/wireless/set.json",
+    cgi_config_wireless_set
+  },
+  {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
@@ -210,6 +214,68 @@ static const char *cgi_config_set(int iIndex, int iNumParams, char *pcParam[], c
         }
         boardConfig.activeConfig->ownIp = ip.addr;
         boardConfig.activeConfig->hostIp = ip.addr + (1 << 24);
+    }
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_wireless_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    std::string decoded;
+
+    // role, channel, address, compress, sparse, rate, power
+
+    LOG("ConfigWirelessSet CONFIG PRE:");
+    LOG("ConfigWirelessSet role is %d", boardConfig.activeConfig->radioRole);
+    LOG("ConfigWirelessSet channel is %d", boardConfig.activeConfig->radioChannel);
+    LOG("ConfigWirelessSet address is %d", boardConfig.activeConfig->radioAddress);
+    LOG("ConfigWirelessSet compress is %d", boardConfig.activeConfig->radioParams.compression);
+    LOG("ConfigWirelessSet allowSparse is %d", boardConfig.activeConfig->radioParams.allowSparse);
+    LOG("ConfigWirelessSet rate is %d", boardConfig.activeConfig->radioParams.dataRate);
+    LOG("ConfigWirelessSet txPower is %d", boardConfig.activeConfig->radioParams.txPower);
+
+    if (params.contains(std::string("role"))) {
+        boardConfig.activeConfig->radioRole = (RadioRole)atoi(params["role"].c_str());
+        LOG("ConfigWirelessSet role is now %d", boardConfig.activeConfig->radioRole);
+    }
+
+    if (params.contains(std::string("channel"))) {
+        boardConfig.activeConfig->radioChannel = atoi(params["channel"].c_str());
+        LOG("ConfigWirelessSet channel is now %d", boardConfig.activeConfig->radioChannel);
+    }
+
+    if (params.contains(std::string("address"))) {
+        boardConfig.activeConfig->radioAddress = atoi(params["address"].c_str());
+        LOG("ConfigWirelessSet address is now %d", boardConfig.activeConfig->radioAddress);
+    }
+
+    if (params.contains(std::string("compress"))) {
+        boardConfig.activeConfig->radioParams.compression = false;
+        if (params["compress"] == "true") {
+            boardConfig.activeConfig->radioParams.compression = true;
+        }
+        LOG("ConfigWirelessSet compress is now %d", boardConfig.activeConfig->radioParams.compression);
+    }
+
+    if (params.contains(std::string("sparse"))) {
+        boardConfig.activeConfig->radioParams.allowSparse = false;
+        if (params["sparse"] == "true") {
+            boardConfig.activeConfig->radioParams.allowSparse = true;
+        }
+        LOG("ConfigWirelessSet allowSparse is now %d", boardConfig.activeConfig->radioParams.allowSparse);
+    }
+
+    if (params.contains(std::string("rate"))) {
+        boardConfig.activeConfig->radioParams.dataRate = (rf24_datarate_e)atoi(params["rate"].c_str());
+        LOG("ConfigWirelessSet rate is now %d", boardConfig.activeConfig->radioParams.dataRate);
+    }
+
+    if (params.contains(std::string("power"))) {
+        boardConfig.activeConfig->radioParams.txPower = (rf24_pa_dbm_e)atoi(params["power"].c_str());
+        LOG("ConfigWirelessSet txPower is now %d", boardConfig.activeConfig->radioParams.txPower);
     }
 
     return "/empty.json";
@@ -473,6 +539,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
 void WebServer::paramsToMap(int iNumParams, char *pcParam[], char *pcValue[], std::map<std::string, std::string>* params) {
     for (int i = 0; i < iNumParams; i++) {
+        if ((pcParam[i] == nullptr) || (pcValue[i] == nullptr)) {
+            continue;
+        }
         (*params)[std::string(pcParam[i])] = std::string(pcValue[i]);
     }
 }

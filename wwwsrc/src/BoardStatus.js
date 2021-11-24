@@ -44,7 +44,7 @@ class BoardStatus extends React.Component{
         if (myModal) {
             myModal.addEventListener('shown.bs.modal', () => {
                 //document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
-                //document.getElementById('modelWirelessInputRole').focus();
+                //document.getElementById('modalWirelessInputRole').focus();
             });
         }
 
@@ -160,27 +160,58 @@ class BoardStatus extends React.Component{
     handleModalInput(e) {
         let modalName = e.currentTarget.parentNode.parentNode.parentNode.parentNode.id;
         let paramName = modalName.substring(5);
-        let newValue = document.getElementById(modalName + 'Input').value;
 
-        const url = window.urlPrefix + '/config/set.json?' + paramName + '=' + encodeURIComponent(newValue);
-        fetch(url)
-            .then(res => res.json())
-            .catch(
-                () => {
-                    e.target.className = "btn btn-danger";
-                    window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
-                }
-            )
-            .then(
-                (result) => {
-                    if (result) {
-                        console.log('Overview fetched: ', result);
-                        e.target.className = "btn btn-success";
+        if (paramName === 'Wireless') {
+            let url = window.urlPrefix + '/config/wireless/set.json?';
+
+            url += 'role=' + encodeURIComponent(document.getElementById(modalName + 'InputRole').value) + '&';
+            url += 'channel=' + encodeURIComponent(document.getElementById(modalName + 'InputChannel').value) + '&';
+            url += 'address=' + encodeURIComponent(document.getElementById(modalName + 'InputAddress').value) + '&';
+            url += 'compress=' + encodeURIComponent(document.getElementById(modalName + 'InputCompress').checked) + '&';
+            url += 'sparse=' + encodeURIComponent(document.getElementById(modalName + 'InputSparse').checked) + '&';
+            url += 'rate=' + encodeURIComponent(document.getElementById(modalName + 'InputRate').value) + '&';
+            url += 'power=' + encodeURIComponent(document.getElementById(modalName + 'InputPower').value) + '&';
+
+            fetch(url)
+                .then(res => res.json())
+                .catch(
+                    () => {
+                        e.target.className = "btn btn-danger";
                         window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
                     }
-                }
-            )
-            .finally(() => { this.props.updateOverview() })
+                )
+                .then(
+                    (result) => {
+                        if (result) {
+                            console.log('Overview fetched: ', result);
+                            e.target.className = "btn btn-success";
+                            window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                        }
+                    }
+                );
+        } else {
+            let newValue = document.getElementById(modalName + 'Input').value;
+
+            const url = window.urlPrefix + '/config/set.json?' + paramName + '=' + encodeURIComponent(newValue);
+            fetch(url)
+                .then(res => res.json())
+                .catch(
+                    () => {
+                        e.target.className = "btn btn-danger";
+                        window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                    }
+                )
+                .then(
+                    (result) => {
+                        if (result) {
+                            console.log('Overview fetched: ', result);
+                            e.target.className = "btn btn-success";
+                            window.setTimeout(() => {e.target.className = "btn btn-outline-secondary"}, 3000);
+                        }
+                    }
+                )
+                .finally(() => { this.props.updateOverview() });
+        }
     }
 
     modalBoardName() {
@@ -247,60 +278,60 @@ class BoardStatus extends React.Component{
                         </div>
                         <div className="modal-body">
 
-                            <div class="form-floating">
-                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputRole">
+                            <div className="form-floating">
+                                <select className="form-select" aria-label="Radio role" id="modalWirelessInputRole" defaultValue="0">
                                    {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
-                                   <option value="0" selected>Sniffer (listen only)</option>
+                                   <option value="0">Sniffer (listen only)</option>
                                    <option value="1">Broadcast (All-To-All)</option>
                                    <option value="2">Mesh</option>
                                 </select>
-                                <label for="modelWirelessInputRole" class="form-label">Radio role:</label>
+                                <label htmlFor="modalWirelessInputRole" className="form-label">Radio role:</label>
                             </div>
                             <br />
 
-                            <div class="form-floating">
-                                <input type="number" min="0" max="127" className="form-control" id="modalWirelessInputChannel" placeholder="0" value="0" />
-                                <label for="modelWirelessInputChannel" class="form-label">Radio channel:</label>
+                            <div className="form-floating">
+                                <input type="number" min="0" max="127" className="form-control" id="modalWirelessInputChannel" placeholder="0" defaultValue="0" />
+                                <label htmlFor="modalWirelessInputChannel" className="form-label">Radio channel:</label>
                             </div>
                             <br />
 
-                            <div class="form-floating">
-                                <input type="number" min="0" max="255" className="form-control" id="modalWirelessInputAddress" placeholder="0" value="0" />
-                                <label for="modalWirelessInputAddress" class="form-label">Radio address:</label>
+                            <div className="form-floating">
+                                <input type="number" min="0" max="255" className="form-control" id="modalWirelessInputAddress" placeholder="0" defaultValue="0" />
+                                <label htmlFor="modalWirelessInputAddress" className="form-label">Radio address:</label>
                             </div>
                             <br />
 
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="modalWirelessInputCompressio" />
-                                <label class="form-check-label" for="modalWirelessInputCompressio">Compress data</label>
+                            <div className="form-check form-switch">
+                                <input className="form-check-input" type="checkbox" id="modalWirelessInputCompress" />
+                                <label className="form-check-label" htmlFor="modalWirelessInputCompress">Compress data</label>
                             </div>
                             <br />
 
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="modalWirelessInputSparse" />
-                                <label class="form-check-label" for="modalWirelessInputSparse">Allow sparse sends</label>
+                            <div className="form-check form-switch">
+                                <input className="form-check-input" type="checkbox" id="modalWirelessInputSparse" />
+                                <label className="form-check-label" htmlFor="modalWirelessInputSparse">Allow sparse sends</label>
                             </div>
                             <br />
 
-                            <div class="form-floating">
-                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputRate">
+                            <div className="form-floating">
+                                <select className="form-select" aria-label="Radio role" id="modalWirelessInputRate" defaultValue="0">
                                    {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
-                                   <option value="0" selected>250 kbps</option>
+                                   <option value="0">250 kbps</option>
                                    <option value="1">1 Mbps</option>
                                    <option value="2">2 Mbps</option>
                                 </select>
-                                <label for="modelWirelessInputRate" class="form-label">Radio data rate:</label>
+                                <label htmlFor="modalWirelessInputRate" className="form-label">Radio data rate:</label>
                             </div>
                             <br />
 
-                            <div class="form-floating">
-                                <select class="form-select" aria-label="Radio role" id="modelWirelessInputPower">
+                            <div className="form-floating">
+                                <select className="form-select" aria-label="Radio role" id="modalWirelessInputPower" defaultValue="0">
                                    {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
-                                   <option value="0" selected>low</option>
+                                   <option value="0">low</option>
                                    <option value="1">high</option>
                                    <option value="2">max</option>
                                 </select>
-                                <label for="modelWirelessInputPower" class="form-label">Radio TX power:</label>
+                                <label htmlFor="modalWirelessInputPower" className="form-label">Radio TX power:</label>
                             </div>
 
                         </div>
@@ -371,7 +402,7 @@ class BoardStatus extends React.Component{
                                             <this.modalWireless />
                                             <button type="button" className="btn btn-outline-secondary p-1 m-1"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                            title="Edit">
+                                            title="Config">
                                                 <Icon.Pencil width={24} height={24} pointerEvents="none"/>
                                             </button>
                                         </span> }
