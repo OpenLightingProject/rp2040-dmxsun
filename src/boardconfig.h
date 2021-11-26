@@ -200,7 +200,7 @@ static const RadioParams constDefaultRadioParams = {
     .compression         = 1,
     .allowSparse         = 1,
     .dataRate            = RF24_2MBPS,
-    .txPower             = RF24_PA_MAX,
+    .txPower             = RF24_PA_HIGH,
 };
 
 static const ConfigData constDefaultConfig = {
@@ -210,8 +210,8 @@ static const ConfigData constDefaultConfig = {
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
     .usbProtocol         = UsbProtocol::EDP,
-    .radioRole           = RadioRole::broadcast,
-    .radioChannel        = 99,
+    .radioRole           = RadioRole::sniffer,
+    .radioChannel        = 42,
     .radioAddress        = 0,
     .radioParams         = constDefaultRadioParams,
     .statusLedBrightness = 20,
