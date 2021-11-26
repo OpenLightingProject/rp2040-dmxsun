@@ -4,6 +4,8 @@
 #include <RF24Network.h>
 #include <RF24Mesh.h>
 
+#include "json/json.h"
+
 #include "log.h"
 
 #include "statusleds.h"
@@ -32,6 +34,9 @@ RF24Mesh rf24mesh(rf24radio, rf24network);
 void Wireless::init() {
     SPI spi;
     int i = 0;
+
+    // Stats
+    memset(&stats, 0x00, sizeof(struct WirelessStats));
 
     // RX path goes via RX0 from radio to EDP and RX1 is out buffer
     edpRX.init(tmpBuf_RX0, tmpBuf_RX1, 24, 32);
@@ -193,15 +198,21 @@ void Wireless::doSendData() {
 
                     callAgain = false;
                     edpTX.prepareDmxData(i, 512, &thisChunkSize, &callAgain);
+                    stats.sentTried++;
                     success = rf24radio.write(Wireless::tmpBuf_TX1, thisChunkSize);
                     if (!success) {
                         anyFailed = true;
+                    } else {
+                        stats.sentSuccess++;
                     }
                     while(callAgain) {
                         edpTX.prepareDmxData(i, 0, &thisChunkSize, &callAgain);
                         success = rf24radio.write(Wireless::tmpBuf_TX1, thisChunkSize);
+                        stats.sentTried++;
                         if (!success) {
                             anyFailed = true;
+                        } else {
+                            stats.sentSuccess++;
                         }
                     }
 
@@ -269,8 +280,24 @@ void Wireless::handleReceivedData() {
             return;
         }
 
+        stats.received++;
+
         statusLeds.setBlinkOnce(6, 0, 0, 1);
 
         edpRX.processIncomingChunk(bytes);
     }
+}
+
+std::string Wireless::getWirelessStats() {
+    Json::Value output;
+    Json::StreamWriterBuilder wbuilder;
+    std::string output_string;
+
+    wbuilder["indentation"] = "";
+
+    output["sentTried"] = stats.sentTried;
+    output["sentSuccess"] = stats.sentSuccess;
+    output["received"] = stats.received;
+    output_string = Json::writeString(wbuilder, output);
+    return output_string;
 }

@@ -504,6 +504,10 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
         return offset;
 
+    } else if (tagName == "ConfigWirelessStatsGet") {
+        output_string = wireless.getWirelessStats();
+        return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
+
     } else if (tagName == "LogGet") {
         // Don't use jsoncpp here for performance reasons, write directly to pcInsert
 

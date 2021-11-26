@@ -34,6 +34,9 @@ class Wireless extends React.Component {
                     },
                 ],
             },
+            wireless: {
+              role: 0,
+            }
         };
         for (let i = 2400; i < 2517; i++) {
             this.state.spectrumData.labels.push(i);
@@ -109,6 +112,12 @@ class Wireless extends React.Component {
         return (
             <div className="accordion" id="accordionWireless">
                 {/* TODO: Really an accordion here or simply show only the data relevant for current mode? */}
+                <br />
+                <strong>Current radio mode: </strong>
+                {this.state.wireless.role === 0 ? 'Sniffer (listen only)' : ''}
+                {this.state.wireless.role === 1 ? 'Broadcast (All-To-All)' : ''}
+                {this.state.wireless.role === 2 ? 'Mesh' : ''}
+                <br /><br />
                 <div className="accordion-item">
                   <h2 className="accordion-header" id="headingSniffer">
                     <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSniffer" aria-expanded="true" aria-controls="collapseSniffer">
