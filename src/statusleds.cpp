@@ -2,7 +2,10 @@
 
 #include "ws2812.pio.h"           // Header file for the PIO program
 
+#include "dmxbuffer.h"
+
 extern uint8_t usbTraffic;
+extern DmxBuffer dmxBuffer;
 
 static inline void put_pixel(uint32_t pixel_grb) {
     pio_sm_put_blocking(pio1, 3, pixel_grb << 8u);
@@ -170,6 +173,20 @@ void StatusLeds::setBrightness(uint8_t brightness) {
 }
 
 void StatusLeds::writeLeds() {
+    if (partyModeEnabled) {
+        // If buffer > DMXBUFFER_COUNT && partyModeOffset > 512
+        // we copy "random" data to the LEDs. However, this is caught in webserver
+        for (uint8_t i = 0; i < 8; i++) {
+            uint8_t* base = (uint8_t*)dmxBuffer.buffer[partyModeBuffer] + partyModeOffset + i*3;
+            uint8_t r = *base;
+            uint8_t g = *(base+1);
+            uint8_t b = *(base+2);
+            put_pixel(g << 16 | r << 8 | b);
+        }
+
+        return;
+    }
+
     for (uint8_t i = 0; i < 8; i++) {
         if (this->brightness == 255) {
             put_pixel(this->pixels[i] | this->pixelsBlink[i]);

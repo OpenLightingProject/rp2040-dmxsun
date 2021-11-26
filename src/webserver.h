@@ -54,6 +54,7 @@ static const char *cgi_config_enable(int iIndex, int iNumParams, char *pcParam[]
 static const char *cgi_config_disable(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 static const char *cgi_config_wireless_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+static const char *cgi_config_partyMode_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
 
 
 static u16_t ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInsertLen);

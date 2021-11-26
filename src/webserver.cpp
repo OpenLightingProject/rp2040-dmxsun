@@ -67,6 +67,10 @@ static const tCGI cgi_handlers[] = {
     "/dmxBuffer/set.json",
     cgi_dmxBuffer_set
   },
+  {
+    "/config/partyMode/set.json",
+    cgi_config_partyMode_set
+  },
 };
 
 // This array doesn't need elements since we are using LWIP_HTTPD_SSI_RAW
@@ -276,6 +280,36 @@ static const char *cgi_config_wireless_set(int iIndex, int iNumParams, char *pcP
     if (params.contains(std::string("power"))) {
         boardConfig.activeConfig->radioParams.txPower = (rf24_pa_dbm_e)atoi(params["power"].c_str());
         LOG("ConfigWirelessSet txPower is now %d", boardConfig.activeConfig->radioParams.txPower);
+    }
+
+    return "/empty.json";
+}
+
+static const char *cgi_config_partyMode_set(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+    std::map<std::string, std::string> params;
+    WebServer::paramsToMap(iNumParams, pcParam, pcValue, &params);
+
+    bool enabled = false;
+    uint8_t buffer = 0;
+    uint16_t offset = 0;
+
+    if (params.contains(std::string("enabled"))) {
+        statusLeds.partyModeEnabled = (bool)atoi(params["enabled"].c_str());
+    }
+
+    if (params.contains(std::string("buffer"))) {
+        statusLeds.partyModeBuffer = atoi(params["buffer"].c_str());
+        if (statusLeds.partyModeBuffer > DMXBUFFER_COUNT) {
+            statusLeds.partyModeBuffer = DMXBUFFER_COUNT;
+        }
+    }
+
+    if (params.contains(std::string("offset"))) {
+        statusLeds.partyModeOffset = atoi(params["offset"].c_str());
+        if (statusLeds.partyModeOffset > (512 -24)) {
+            statusLeds.partyModeOffset = (512 -24);
+        }
     }
 
     return "/empty.json";

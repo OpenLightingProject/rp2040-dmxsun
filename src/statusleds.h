@@ -33,6 +33,11 @@ class StatusLeds {
     void setBrightness(uint8_t brightness);
     void writeLeds(); // Usually called by cyclicTask. However, needed during startup phase
 
+    // Easter egg: Directly display data from a dmxBuffer on the status LEDs
+    bool partyModeEnabled = false;
+    uint8_t partyModeBuffer = 0;
+    uint16_t partyModeOffset = 0;
+
   private:
     uint32_t pixels[8];
     uint32_t pixelsBlink[8];
