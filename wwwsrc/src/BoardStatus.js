@@ -26,25 +26,44 @@ class BoardStatus extends React.Component{
 
         myModal = document.getElementById('modalBoardName')
         if (myModal) {
+            document.getElementById('modalBoardName').configured = false;
             myModal.addEventListener('shown.bs.modal', () => {
-                document.getElementById('modalBoardNameInput').value = this.props.config.boardName;
-                document.getElementById('modalBoardNameInput').focus();
+                if (!document.getElementById('modalBoardName').configured) {
+                    document.getElementById('modalBoardNameInput').value = this.props.config.boardName;
+                    document.getElementById('modalBoardNameInput').focus();
+                    document.getElementById('modalBoardName').configured = true;
+                }
             });
         }
 
         myModal = document.getElementById('modalOwnIp')
         if (myModal) {
+            document.getElementById('modalOwnIp').configured = false;
             myModal.addEventListener('shown.bs.modal', () => {
-                document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
-                document.getElementById('modalOwnIpInput').focus();
+                if (!document.getElementById('modalOwnIp').configured) {
+                    document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
+                    document.getElementById('modalOwnIpInput').focus();
+                    document.getElementById('modalOwnIp').configured = true;
+                }
             });
         }
 
         myModal = document.getElementById('modalWireless')
         if (myModal) {
+            document.getElementById('modalWireless').configured = false;
             myModal.addEventListener('shown.bs.modal', () => {
-                //document.getElementById('modalOwnIpInput').value = this.props.config.ownIp;
-                //document.getElementById('modalWirelessInputRole').focus();
+                let modalName = 'modalWireless';
+                console.log('shown.bs.modal: modalWireless. Configured: ' + document.getElementById('modalWireless').configured);
+                if (!document.getElementById('modalWireless').configured) {
+                    document.getElementById(modalName + 'InputRole').value = this.props.wireless.role;
+                    document.getElementById(modalName + 'InputChannel').value = this.props.wireless.channel;
+                    document.getElementById(modalName + 'InputAddress').value = this.props.wireless.address;
+                    document.getElementById(modalName + 'InputCompress').checked = this.props.wireless.compress;
+                    document.getElementById(modalName + 'InputSparse').checked = this.props.wireless.sparse;
+                    document.getElementById(modalName + 'InputRate').value = this.props.wireless.dataRate;
+                    document.getElementById(modalName + 'InputPower').value = this.props.wireless.txPower;
+                    document.getElementById(modalName).configured = true;
+                }
             });
         }
 
@@ -316,9 +335,9 @@ class BoardStatus extends React.Component{
                             <div className="form-floating">
                                 <select className="form-select" aria-label="Radio role" id="modalWirelessInputRate" defaultValue="0">
                                    {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
-                                   <option value="0">250 kbps</option>
-                                   <option value="1">1 Mbps</option>
-                                   <option value="2">2 Mbps</option>
+                                   <option value="0">1 Mbps</option>
+                                   <option value="1">2 Mbps</option>
+                                   <option value="2">250 kbps</option>
                                 </select>
                                 <label htmlFor="modalWirelessInputRate" className="form-label">Radio data rate:</label>
                             </div>
@@ -327,9 +346,10 @@ class BoardStatus extends React.Component{
                             <div className="form-floating">
                                 <select className="form-select" aria-label="Radio role" id="modalWirelessInputPower" defaultValue="0">
                                    {/* TODO: Remove fixed values here, get them from the ENUM in the firmware */}
-                                   <option value="0">low</option>
-                                   <option value="1">high</option>
-                                   <option value="2">max</option>
+                                   <option value="0">min (LNA: ~-6 dBm, no LNA: ~-18 dBm)</option>
+                                   <option value="1">low (LNA: ~0 dBm, no LNA: ~-12 dBm)</option>
+                                   <option value="2">high (LNA: ~+3 dBm, no LNA: ~-6 dBm)</option>
+                                   <option value="3">max (LNA: ~+7 dBm, no LNA: ~0 dBm)</option>
                                 </select>
                                 <label htmlFor="modalWirelessInputPower" className="form-label">Radio TX power:</label>
                             </div>

@@ -438,28 +438,13 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
     } else if (tagName == "ConfigWirelessGet") {
-        output["role"] = GetRadioRoleString(boardConfig.activeConfig->radioRole);
+        output["role"] = boardConfig.activeConfig->radioRole;
         output["channel"] = boardConfig.activeConfig->radioChannel;
         output["address"] = boardConfig.activeConfig->radioAddress;
-        output["compression"] = boardConfig.activeConfig->radioParams.compression;
-        output["dataRate"] = "";
-        if (boardConfig.activeConfig->radioParams.dataRate == RF24_250KBPS) {
-            output["dataRate"] = "250kbps";
-        } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_1MBPS) {
-            output["dataRate"] = "1Mbps";
-        } else if (boardConfig.activeConfig->radioParams.dataRate == RF24_2MBPS) {
-            output["dataRate"] = "2Mbps";
-        }
-        output["txPower"] = "";
-        if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_MIN) {
-            output["txPower"] = "min";
-        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_LOW) {
-            output["txPower"] = "low";
-        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_HIGH) {
-            output["txPower"] = "high";
-        } else if (boardConfig.activeConfig->radioParams.txPower == RF24_PA_MAX) {
-            output["txPower"] = "max";
-        }
+        output["compress"] = boardConfig.activeConfig->radioParams.compression;
+        output["sparse"] = boardConfig.activeConfig->radioParams.allowSparse;
+        output["dataRate"] = (int)boardConfig.activeConfig->radioParams.dataRate;
+        output["txPower"] = (int)boardConfig.activeConfig->radioParams.txPower;
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 

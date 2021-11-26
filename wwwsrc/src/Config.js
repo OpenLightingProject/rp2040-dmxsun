@@ -69,6 +69,32 @@ class Config extends React.Component {
                     if (result) {
                         console.log('IoBoards fetched: ', result);
                         this.setState({ inFlight: false, ioBoards: result });
+                        this.updateWireless();
+                    }
+                }
+            ).finally(
+                () => { this.setState({ inFlight: false }); }
+            );
+    }
+
+    updateWireless() {
+        // Check if there is already a request running. If so, do nothing
+        if (this.state.inFlight) {
+            return;
+        }
+
+        this.setState({ inFlight: true });
+        const url = window.urlPrefix + '/config/wireless/get.json';
+        fetch(url)
+            .then(res => res.json())
+            .catch(
+                () => { this.setState({ inFlight: false }); this.updateIoBoards(); }
+            )
+            .then(
+                (result) => {
+                    if (result) {
+                        console.log('Wireless fetched: ', result);
+                        this.setState({ inFlight: false, wireless: result });
                     }
                 }
             ).finally(
@@ -88,7 +114,7 @@ class Config extends React.Component {
                 <div className="row">
                     <div className="col">
                         Running configuration and connected Io boards:
-                        <BoardStatus withEdit={true} config={this.state.config} ioBoards={this.state.ioBoards} updateOverview={this.updateOverview.bind(this)} />
+                        <BoardStatus withEdit={true} config={this.state.config} ioBoards={this.state.ioBoards} wireless={this.state.wireless} updateOverview={this.updateOverview.bind(this)} />
                     </div>
                 </div>
             </div>
