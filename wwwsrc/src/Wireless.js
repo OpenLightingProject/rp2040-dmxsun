@@ -36,7 +36,8 @@ class Wireless extends React.Component {
             },
             wireless: {
               role: 0,
-            }
+            },
+            stats: {},
         };
         for (let i = 2400; i < 2517; i++) {
             this.state.spectrumData.labels.push(i);
@@ -74,6 +75,21 @@ class Wireless extends React.Component {
               (result) => {
                   if (result) {
                       console.log('Wireless fetched: ', result);
+
+                      // Expand the correct accordion page
+                      let myCollapse = undefined;
+                      if (result.role === 0) {
+                        myCollapse = document.getElementById('collapseSniffer');
+                      } else if (result.role === 1) {
+                        myCollapse = document.getElementById('collapseBroadcast');
+                      } else if (result.role === 2) {
+                        myCollapse = document.getElementById('collapseMesh');
+                      }
+                      if (myCollapse) {
+                        let bsCollapse = new window.bootstrap.Collapse(myCollapse);
+                        bsCollapse.show();
+                      }
+
                       this.setState({ inFlight: false, wireless: result });
                   }
               }
@@ -86,6 +102,8 @@ class Wireless extends React.Component {
       // Depending on radio role, fetch the correct data
       if (this.state.wireless.role === 0) {
         this.updateSpectrum.bind(this)();
+      } else if (this.state.wireless.role === 1) {
+        this.updateStats.bind(this)();
       }
     }
 
@@ -108,6 +126,31 @@ class Wireless extends React.Component {
             );
     }
 
+    updateStats() {
+      // Check if there is already a request running. If so, do nothing
+      if (this.state.inFlight) {
+        return;
+     }
+
+    this.setState({ inFlight: true });
+    const url = window.urlPrefix + '/config/wireless/stats/get.json';
+    fetch(url)
+        .then(res => res.json())
+        .catch(
+            () => { this.setState({ inFlight: false }); }
+        )
+        .then(
+            (result) => {
+                if (result) {
+                    console.log('Wireless stats fetched: ', result);
+                    this.setState({ inFlight: false, stats: result });
+                }
+            }
+        ).finally(
+            () => { this.setState({ inFlight: false }); }
+        );
+    }
+
     render() {
         return (
             <div className="accordion" id="accordionWireless">
@@ -120,11 +163,11 @@ class Wireless extends React.Component {
                 <br /><br />
                 <div className="accordion-item">
                   <h2 className="accordion-header" id="headingSniffer">
-                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSniffer" aria-expanded="true" aria-controls="collapseSniffer">
+                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSniffer" aria-expanded="false" aria-controls="collapseSniffer">
                       Mode "Sniffer": Wireless spectrum
                     </button>
                   </h2>
-                  <div id="collapseSniffer" className="accordion-collapse collapse show" aria-labelledby="headingSniffer" data-bs-parent="#accordionWireless">
+                  <div id="collapseSniffer" className="accordion-collapse collapse" aria-labelledby="headingSniffer" data-bs-parent="#accordionWireless">
                     <div className="accordion-body container">
                       <div className="row">
                         <div className="col">
@@ -148,7 +191,11 @@ class Wireless extends React.Component {
                   </h2>
                   <div id="collapseBroadcast" className="accordion-collapse collapse" aria-labelledby="headingBroadcast" data-bs-parent="#accordionWireless">
                     <div className="accordion-body">
-                      {/* TODO: Broadcast stats */}
+                      <table className="table"><tbody>
+                        <tr><th>Packets tried to send:</th><td>{this.state.stats.sentTried}</td></tr>
+                        <tr><th>Packets successfully sent:</th><td>{this.state.stats.sentSuccess}</td></tr>
+                        <tr><th>Packets received:</th><td>{this.state.stats.received}</td></tr>
+                      </tbody></table>
                     </div>
                   </div>
                 </div>
