@@ -23,7 +23,7 @@ class Wireless extends React.Component {
     constructor() {
         super();
         this.state = {
-            updateSpectrumInterval: undefined,
+            updateDataInterval: undefined,
             spectrumData: {
                 labels: [],
                 datasets: [
@@ -41,16 +41,49 @@ class Wireless extends React.Component {
     }
 
     componentDidMount() {
-        let interval = window.setInterval(this.updateSpectrum.bind(this), 2000);
+        let interval = window.setInterval(this.updateData.bind(this), 2000);
         this.setState({
-            updateSpectrumInterval: interval
+            updateDataInterval: interval
         });
+        this.updateWireless();
     }
 
     componentWillUnmount() {
-        if (this.state.updateSpectrumInterval) {
-            window.clearInterval(this.state.updateSpectrumInterval);
+        if (this.state.updateDataInterval) {
+            window.clearInterval(this.state.updateDataInterval);
         }
+    }
+
+    updateWireless() {
+      // Check if there is already a request running. If so, do nothing
+      if (this.state.inFlight) {
+          return;
+      }
+
+      this.setState({ inFlight: true });
+      const url = window.urlPrefix + '/config/wireless/get.json';
+      fetch(url)
+          .then(res => res.json())
+          .catch(
+              () => { this.setState({ inFlight: false }); }
+          )
+          .then(
+              (result) => {
+                  if (result) {
+                      console.log('Wireless fetched: ', result);
+                      this.setState({ inFlight: false, wireless: result });
+                  }
+              }
+          ).finally(
+              () => { this.setState({ inFlight: false }); }
+          );
+    }
+
+    updateData() {
+      // Depending on radio role, fetch the correct data
+      if (this.state.wireless.role === 0) {
+        this.updateSpectrum.bind(this)();
+      }
     }
 
     updateSpectrum() {
@@ -71,9 +104,11 @@ class Wireless extends React.Component {
                 }
             );
     }
+
     render() {
         return (
             <div className="accordion" id="accordionWireless">
+                {/* TODO: Really an accordion here or simply show only the data relevant for current mode? */}
                 <div className="accordion-item">
                   <h2 className="accordion-header" id="headingSniffer">
                     <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSniffer" aria-expanded="true" aria-controls="collapseSniffer">
@@ -104,7 +139,7 @@ class Wireless extends React.Component {
                   </h2>
                   <div id="collapseBroadcast" className="accordion-collapse collapse" aria-labelledby="headingBroadcast" data-bs-parent="#accordionWireless">
                     <div className="accordion-body">
-                      <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                      {/* TODO: Broadcast stats */}
                     </div>
                   </div>
                 </div>
@@ -116,7 +151,7 @@ class Wireless extends React.Component {
                   </h2>
                   <div id="collapseMesh" className="accordion-collapse collapse" aria-labelledby="headingMesh" data-bs-parent="#accordionWireless">
                     <div className="accordion-body">
-                      <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                      <strong>Mesh mode has not been implemented yet :(</strong>
                     </div>
                   </div>
                 </div>
