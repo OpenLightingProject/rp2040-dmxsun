@@ -16,6 +16,10 @@ class Console extends React.Component {
             values: [],
             inFlight: false,
             channelOffset: 0,
+            partyModeClicked: false,
+            partyModeEnabled: false,
+            partyModeBuffer: 0,
+            partyModeChannel: 0,
         };
         this.setValueTimeout = undefined;
 
@@ -30,6 +34,8 @@ class Console extends React.Component {
         this.channelOffsetLast = this.channelOffsetLast.bind(this);
         this.setAllOff = this.setAllOff.bind(this);
         this.setAllOn = this.setAllOn.bind(this);
+        this.handlePartyModeClicked = this.handlePartyModeClicked.bind(this);
+        this.handleBinocularsClicked = this.handleBinocularsClicked.bind(this);
     }
 
     componentDidMount() {
@@ -172,6 +178,23 @@ class Console extends React.Component {
         fetch(url);
     }
 
+    handlePartyModeClicked(e) {
+        let channel = parseInt(e.target.innerHTML) - 1;
+        this.setState({partyModeClicked: true, partyModeBuffer: this.state.selectedBuffer, partyModeChannel: channel});
+    }
+
+    handleBinocularsClicked() {
+        let url;
+        if (this.state.partyModeEnabled) {
+            url = window.urlPrefix + '/config/partyMode/set.json?enabled=0';
+            this.setState({partyModeEnabled: false});
+        } else {
+            url = window.urlPrefix + '/config/partyMode/set.json?enabled=1&buffer=' + this.state.partyModeBuffer + '&offset=' + this.state.partyModeChannel;
+            this.setState({partyModeEnabled: true});
+        }
+        fetch(url);
+    }
+
     render() {
         return (
             <div className="container-fluid">
@@ -196,6 +219,9 @@ class Console extends React.Component {
                     <Icon.ChevronRight onClick={this.selectedBufferIncrease} />
                     &nbsp;&nbsp;
                     <Icon.ChevronBarRight onClick={this.selectedBufferLast} />
+                    &nbsp;&nbsp;
+                    { (this.state.partyModeClicked && !this.state.partyModeEnabled) && <Icon.Binoculars onDoubleClick={this.handleBinocularsClicked} /> }
+                    { (this.state.partyModeClicked && this.state.partyModeEnabled) && <Icon.BinocularsFill onDoubleClick={this.handleBinocularsClicked} /> }
                     &nbsp;&nbsp;
                     { this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }
                 </div></div>
@@ -224,7 +250,7 @@ class Console extends React.Component {
                             <tr style={{ padding: '0px' }}>
                                 {[...Array(32)].map((value, index) => {
                                     return (
-                                        <th className="text-center" key={index} style={{ minWidth: '2rem', padding: '0px' }}>{index + this.state.channelOffset + 1}</th>
+                                        <th className="text-center" key={index} style={{ minWidth: '2rem', padding: '0px' }} onDoubleClick={this.handlePartyModeClicked}>{index + this.state.channelOffset + 1}</th>
                                     )
                                 })}
                             </tr>
