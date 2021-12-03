@@ -150,7 +150,7 @@ class Home extends React.Component {
 
                 <div className="row">
                     <div className="col">
-                        Running configuration and connected Io boards:
+                        Running configuration and connected IO boards:
                         <BoardStatus withEdit={false} config={this.state.config} ioBoards={this.state.ioBoards} updateOverview={this.updateOverview.bind(this)} />
                     </div>
                 </div>
