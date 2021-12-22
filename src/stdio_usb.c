@@ -6,11 +6,9 @@
 
 #include "tusb.h"
 
-#include "pico/time.h"
 #include "stdio_usb.h"
 #include "pico/stdio/driver.h"
 #include "pico/binary_info.h"
-#include "hardware/irq.h"
 
 #include "pico/bootrom.h"
 #include "hardware/watchdog.h"
@@ -30,23 +28,7 @@ void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* p_line_coding)
     }
 }
 
-static_assert(PICO_STDIO_USB_LOW_PRIORITY_IRQ > RTC_IRQ, ""); // note RTC_IRQ is currently the last one
 static mutex_t stdio_usb_mutex;
-
-static void low_priority_worker_irq() {
-    // if the mutex is already owned, then we are in user code
-    // in this file which will do a tud_task itself, so we'll just do nothing
-    // until the next tick; we won't starve
-    if (mutex_try_enter(&stdio_usb_mutex, NULL)) {
-        tud_task();
-        mutex_exit(&stdio_usb_mutex);
-    }
-}
-
-static int64_t timer_task(__unused alarm_id_t id, __unused void *user_data) {
-    irq_set_pending(PICO_STDIO_USB_LOW_PRIORITY_IRQ);
-    return PICO_STDIO_USB_TASK_INTERVAL_US;
-}
 
 static void stdio_usb_out_chars(const char *buf, int length) {
     static uint64_t last_avail_time;
@@ -110,13 +92,7 @@ bool stdio_usb_init(void) {
     bi_decl_if_func_used(bi_program_feature("USB stdin / stdout"));
 #endif
 
-    irq_set_exclusive_handler(PICO_STDIO_USB_LOW_PRIORITY_IRQ, low_priority_worker_irq);
-    irq_set_enabled(PICO_STDIO_USB_LOW_PRIORITY_IRQ, true);
-
     mutex_init(&stdio_usb_mutex);
-    bool rc = add_alarm_in_us(PICO_STDIO_USB_TASK_INTERVAL_US, timer_task, NULL, true);
-    if (rc) {
-        stdio_set_driver_enabled(&stdio_usb, true);
-    }
-    return rc;
+    stdio_set_driver_enabled(&stdio_usb, true);
+    return true;
 }

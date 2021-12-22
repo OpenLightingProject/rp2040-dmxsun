@@ -1,0 +1,21 @@
+[submodule "lib/lwip"]
+	path = lib/lwip
+	url = https://github.com/kripton/lwip.git
+[submodule "lib/RF24"]
+	path = lib/RF24
+	url = https://github.com/kripton/RF24.git
+[submodule "lib/RF24Network"]
+	path = lib/RF24Network
+	url = https://github.com/kripton/RF24Network.git
+[submodule "lib/RF24Mesh"]
+	path = lib/RF24Mesh
+	url = https://github.com/kripton/RF24Mesh.git
+[submodule "lib/libb64"]
+	path = lib/libb64
+	url = https://github.com/kripton/libb64.git
+[submodule "lib/snappy"]
+	path = lib/snappy
+	url = https://github.com/kripton/snappy.git
+[submodule "lib/jsconcpp"]
+	path = lib/jsconcpp
+	url = https://github.com/kripton/jsoncpp.git

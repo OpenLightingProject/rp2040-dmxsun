@@ -81,13 +81,21 @@ extern "C" {
 #define CFG_TUD_HID             1
 #define CFG_TUD_MIDI            0
 #define CFG_TUD_MSC             0
-#define CFG_TUD_VENDOR          0
+#define CFG_TUD_VENDOR          1
+//#define CFG_TUD_NET             1 // No longer needed with pico-sdk 1.3.0
+                                    // since it has been replaced by CFG_TUD_NCM
+#define CFG_TUD_NCM             1
 
 // HID buffer size Should be sufficient to hold ID (if any) + Data
 #define CFG_TUD_HID_BUFSIZE     64
 
 #define CFG_TUD_CDC_RX_BUFSIZE 256
 #define CFG_TUD_CDC_TX_BUFSIZE 256
+
+// Vendor FIFO size of TX and RX
+// If not configured vendor endpoints will not be buffered
+#define CFG_TUD_VENDOR_RX_BUFSIZE 64
+#define CFG_TUD_VENDOR_TX_BUFSIZE 64
 
 #ifdef __cplusplus
 }
