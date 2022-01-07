@@ -31,7 +31,8 @@
 #include "version.h"
 #include "boardconfig.h"
 
-// TODO: Get a USB ID for the "native"/EDP protocol
+// Yeah, we got an official USB id:
+// https://github.com/pidcodes/pidcodes.github.com/blob/master/1209/ACEB/index.md
 #define DEFAULT_VID 0x1209
 #define DEFAULT_PID 0xACEB
 
