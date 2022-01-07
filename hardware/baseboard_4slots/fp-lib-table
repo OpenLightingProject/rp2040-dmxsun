@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name MCU_RPi)(type KiCad)(uri /home/kripton/git/rp2040-dongle/hardware/footprints/MCU_RaspberryPi_and_Boards.pretty)(options "")(descr ""))
+)
