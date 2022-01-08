@@ -80,6 +80,8 @@ If you just want to get started quickly find the most recent action run from the
 
 Since this is a project that adheres to the guidelines set by RaspberryPi for its pico-sdk (hopefully), you best make sure to follow the detailed documentation at https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf.
 
+The build process will also build the React App for the integrated Web UI. For this to work, you will need to have NodeJS 14+ and NPM installed. React and all other JavaScript dependencies will be downloaded during the build, so make sure you are connected to the internet.
+
 Basically with all dependencies installed, the following steps should suffice:
 ```
 git clone https://github.com/OpenLightingProject/rp2040-dongle.git
