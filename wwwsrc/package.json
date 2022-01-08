@@ -13,7 +13,7 @@
     "react-dom": "^17.0.2",
     "react-input-slider": "^6.0.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^5.0.0",
     "snappyjs": "^0.6.1"
   },
   "scripts": {
