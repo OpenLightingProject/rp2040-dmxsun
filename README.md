@@ -27,7 +27,15 @@ Maybe it's also because outdoor light technicians absolutely love the sun since 
 
 The hardware consists of a base board into which the RaspberryPi Pico-board plugs in to. To get a quick overview of the board's status, 8 RGB status LEDs are attached to the base board.
 
-Attached to this base board can be 0 to 4 IO boards that carry the actual RS-485 drivers and XLR connectors. If all 4 IO boards are attached to the base board, you can have 16 output ports fitting into 1U of an 19" rack.
+![3D rendering of the base board without the Pico board plugged in](https://user-images.githubusercontent.com/823537/112216810-3885c680-8c22-11eb-8c1d-16773b1e30ae.png)
+
+Attached to this base board can be 0 to 4 IO boards that carry the actual RS-485 drivers and XLR connectors:
+
+![3D rendering of an IO board without the XLR connectors](https://user-images.githubusercontent.com/823537/112217754-2eb09300-8c23-11eb-859d-61cfc67ca90c.png)
+
+If all 4 IO boards are attached to the base board, you can have 16 output ports fitting into 1U of an 19" rack:
+
+![3D rendering of base board + 4 IO boards](https://user-images.githubusercontent.com/823537/112302789-c18d1400-8c9b-11eb-99d2-b17a0b3cfb81.png)
 
 
 ## How is configuration data handled?
