@@ -46,7 +46,7 @@ If all 4 IO boards are attached to the base board, you can have 16 output ports 
 
 The complete configuration of the device, including IP addresses, patchings, wireless configuration can be stored on each of the IO boards or on the base board.
 
-When the device powers up, it scans the 4 IO boards slots in order for connected boards and the configuration stored on them. As soon as a valid and non-disabled configuration is found, it is loaded and used. If no IO board has a valid configuration, it tries to load the config from the flash memory of the Pico board. If this also doesn't seem valid, a fallback configuration is applied.
+When the device powers up, it scans the 4 IO board slots in order for connected boards and the configuration stored on them. As soon as a valid and non-disabled configuration is found, it is loaded and used. If no IO board has a valid configuration, it tries to load the config from the flash memory of the Pico board. If this also doesn't seem valid, a fallback configuration is applied.
 
 The status LEDs on the base board indicate which IO board has a valid configuration and which configuration is currently active.
 
@@ -57,16 +57,16 @@ All configurations can be managed via the integrated web server.
 
 Short answer: You can't. There is not (yet) a ready-made piece of hardware that can be bought and is ready to use. However, you are invited to build your own. Read on ;)
 
-Longer answer: JLCPCB or a similar PCB factory. The schematics and PCB layout files are in the `hardware` folder (KiCad format) and you can send them to any PCB fab to have it produced for you. Then it's a bit of soldering on your side and you're good to go.
+Longer answer: JLCPCB or a similar PCB factory. The schematics and PCB layout files are in the `hardware` folder (KiCad format) and you can send them to any PCB fab to have it produced for you. Then it's a bit of soldering on your side, plugging in a RaspberryPi Pico board and you're good to go.
 
-If you just want to have a brief look at the schematics without cloning the repo and opening the files in KiCad, take a look at the kicad-export action: https://github.com/kripton/rp2040-dongle/actions/workflows/kicad-exports.yml. It will generate a zip-archive containing all sort of PDFs.
+If you just want to have a brief look at the schematics without cloning the repo and opening the files in KiCad, take a look at the kicad-export action: https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/kicad-exports.yml. It will generate a zip-archive containing all sort of PDFs.
 
 
 ## How can I try it out without spending much?
 
-Very good question! All you need is a RaspberryPi Pico board, the microUSB cable and a PC/Laptop/RaspberryPi. You won't be able to actually control lighting fixtures, but you can get an idea of how this project works.
+Very good question! All you need is a RaspberryPi Pico board, a microUSB cable and a PC, Laptop or RaspberryPi. You won't be able to actually control lighting fixtures, but you can get an idea of how this project works.
 
-* Download the latest `UF2`-file and flash it to your Pico board (see above)
+* Download the latest `UF2`-file (for example from here: https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml) and flash it to your Pico board (see above)
 * Wait until the board has rebooted and your PC has finished setting up the emulated network connection
 * Find out the dmxsun's IP address as described in the `What is it?`-section
 * Open your web browser, browse to the IP address. You should see a web page with status information
@@ -94,7 +94,7 @@ This should result in an `.uf2`-file being generated that you can flash to your 
 
 ## How does the data flow internally?
 
-Dmxsun uses a pretty flexible architecture, consisting of mainly 24 DMX buffers. This is the main data storage. Data can come in via USB (either via the emulated Ethernet or some other, emulated protocol), wirelessly via the nRF24 module, from one input port and is then, depending on "patching" stored in one or multiple DMX buffers.
+Dmxsun uses a pretty flexible architecture, consisting of mainly 24 DMX buffers acting as the main data storage. Data can come in via USB (either via the emulated Ethernet or some other, emulated protocol), wirelessly via the nRF24 module or from one input port and is then, depending on "patching" stored in one or multiple DMX buffers.
 
 From there, again depending on "patching", the data is given to one or more of the local DMX ports, to the nRF24 wireless module or to the host PC via ArtNet or E1.31/sACN.
 
