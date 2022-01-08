@@ -1,5 +1,9 @@
 # rp2040-dmxsun: A USB-DMX-device based on RaspberryPi's RP2040 microcontroller with modular hardware
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/OpenLightingProject/rp2040-dongle/main/gfx/icon-dmxsun.svg" alt="drawing" width="128"/>
+</p>
+
 ## What is it?
 
 The rp2040-dmxsun is a multi-purpose DMX-512-A toolbox to control stage lighting systems. It's most common use-case is to transmit the DMX data generated on a PC, RaspberryPi or similar in a format that the lighting fixtures on stage can understand. In the most simple case, it's an USB-DMX-Interface.
