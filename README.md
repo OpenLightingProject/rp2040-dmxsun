@@ -136,6 +136,13 @@ This project proudly uses the following libraries and thanks the respective deve
 * RF24, RF24Network and RF24Mesh (https://github.com/nRF24/RF24, GPL-2.0)
 * snappy (https://github.com/google/snappy, The 3-Clause BSD License)
 
+And for the integrated Web UI:
+* React (https://reactjs.org/, MIT license)
+* Bootstrap (https://getbootstrap.com/, MIT license)
+* Chart.js (https://www.chartjs.org/, MIT license)
+* couch64 (https://www.npmjs.com/package/couch64, CC-BY-SA)
+* snappyjs (https://github.com/zhipeng-jia/snappyjs, MIT license)
+* react-input-slider (https://github.com/swiftcarrot/react-input-slider, MIT license)
 
 ## What else do I need to know?
 
