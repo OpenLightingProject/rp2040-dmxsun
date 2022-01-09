@@ -1,7 +1,7 @@
 import React from "react";
 import {
   HashRouter as Router,
-  Switch,
+  Routes,
   Route,
   Link
 } from "react-router-dom";
@@ -50,25 +50,15 @@ export default function App() {
           </ul>
         </nav>
 
-        {/* A <Switch> looks through its children <Route>s and
+        {/* A <Routes> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
-        <Switch>
-          <Route path="/console">
-            <Console />
-          </Route>
-          <Route path="/config">
-            <Config />
-          </Route>
-          <Route path="/wireless">
-            <Wireless />
-          </Route>
-          <Route path="/log">
-            <Log />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path="/console/*" element={<Console/>} />
+          <Route path="/config/*" element={<Config/>} />
+          <Route path="/wireless/*" element={<Wireless/>} />
+          <Route path="/log/*" element={<Log/>} />
+          <Route path="/" element={<Home/>} />
+        </Routes>
       </div>
     </Router>
   );
