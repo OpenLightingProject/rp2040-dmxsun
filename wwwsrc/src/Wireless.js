@@ -4,16 +4,17 @@ import couch64 from 'couch64';
 import snappyjs from 'snappyjs';
 
 import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, LinearScale, CategoryScale } from 'chart.js';
+
+ChartJS.register(BarElement, LinearScale, CategoryScale);
 
 const options = {
-    scales: {
-        yAxes: [
-            {
-                ticks: {
-                    beginAtZero: true,
-                },
-            },
-        ],
+  scales: {
+      y: {
+        ticks: {
+          beginAtZero: true,
+        },
+      },
     },
 };
 
