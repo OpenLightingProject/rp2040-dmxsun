@@ -68,7 +68,7 @@ Very good question! All you need is a RaspberryPi Pico board, a microUSB cable a
 
 * Download the latest `UF2`-file (for example from here: https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml) and flash it to your Pico board (see above)
 * Wait until the board has rebooted and your PC has finished setting up the emulated network connection
-* Find out the dmxsun's IP address as described in the `What is it?`-section
+* Find out the dmxsun's IP address as described in the [What is it?](#what-is-it)-section
 * Open your web browser, browse to the IP address. You should see a web page with status information
 * Using the navigation bar at the top, browse to `Console` and start changing values. Or fire up your favourite lighting control software (such as OLA or QLC+), configure it to send ArtNet or E1.31/sACN to the dmxsun's IP address and watch the values change in your web browser. It might seem laggy but that's only because the web interface only updates every second.
 * If you're curious and have such devices, connect a logic analyzer or RS-485 driver to GPIOs 6 to 21. Those are the pins where the DMX data comes out. If you attach an RS-485-driver to one of those, you can also attach and control real fixtures.
@@ -82,14 +82,14 @@ Since this is a project that adheres to the guidelines set by Raspberry Pi for i
 
 The build process will also build the React App for the integrated Web UI. For this to work, you will need to have NodeJS 14+ and NPM installed. React and all other JavaScript dependencies will be downloaded during the build, so make sure you are connected to the Internet.
 
-With all dependencies installed, the following steps should suffice:
+With all dependencies installed, the following steps should suffice (example is for Linux, might differ for other OS):
 ```
 git clone https://github.com/OpenLightingProject/rp2040-dongle.git
 cd rp2040-dongle
 mkdir build
 cd build
 cmake ../src
-make -j4
+make -j$(($(nproc)+1))
 ```
 This should result in an `.uf2`-file being generated that you can flash to your Pico-board as described in Raspberry Pi's documentation.
 
@@ -131,20 +131,20 @@ Parts taken and modified from TinyUSB (`tusb_config.h`, `usb_descriptors.c`) is:
      * Copyright (c) 2019 Ha Thach (tinyusb.org)
 
 This project proudly uses the following libraries and thanks the respective developers for their amazing work:
-* jsoncpp (https://github.com/open-source-parsers/jsoncpp, MIT license)
-* libb64 (https://github.com/open-source-parsers/jsoncpp, Public domain)
-* lwIP (https://savannah.nongnu.org/projects/lwip/, Modified BSD License)
-* Pico-DMX (https://github.com/jostlowe/Pico-DMX, BSD 3-Clause "New" or "Revised" License)
-* RF24, RF24Network and RF24Mesh (https://github.com/nRF24/RF24, GPL-2.0)
-* snappy (https://github.com/google/snappy, The 3-Clause BSD License)
+* [jsoncpp](https://github.com/open-source-parsers/jsoncpp), MIT license
+* [libb64](https://github.com/libb64/libb64), Public domain
+* [lwIP](https://savannah.nongnu.org/projects/lwip/), Modified BSD License
+* [Pico-DMX](https://github.com/jostlowe/Pico-DMX), BSD 3-Clause "New" or "Revised" License
+* [RF24, RF24Network and RF24Mesh](https://github.com/nRF24/RF24), GPL-2.0
+* [snappy](https://github.com/google/snappy), The 3-Clause BSD License
 
 And for the integrated Web UI:
-* React (https://reactjs.org/, MIT license)
-* Bootstrap (https://getbootstrap.com/, MIT license)
-* Chart.js (https://www.chartjs.org/, MIT license)
-* couch64 (https://www.npmjs.com/package/couch64, CC-BY-SA)
-* snappyjs (https://github.com/zhipeng-jia/snappyjs, MIT license)
-* react-input-slider (https://github.com/swiftcarrot/react-input-slider, MIT license)
+* [React](https://reactjs.org/), MIT license
+* [Bootstrap](https://getbootstrap.com/), MIT license
+* [Chart.js](https://www.chartjs.org/), MIT license
+* [couch64](https://www.npmjs.com/package/couch64), CC-BY-SA
+* [snappyjs](https://github.com/zhipeng-jia/snappyjs), MIT license
+* [react-input-slider](https://github.com/swiftcarrot/react-input-slider), MIT license
 
 ## What else do I need to know?
 
