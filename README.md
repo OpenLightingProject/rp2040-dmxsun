@@ -1,4 +1,4 @@
-# rp2040-dmxsun: A USB-DMX-device based on RaspberryPi's RP2040 microcontroller with modular hardware
+# rp2040-dmxsun: A USB-DMX device based on RaspberryPi's RP2040 micro-controller with modular hardware
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/OpenLightingProject/rp2040-dongle/main/gfx/icon-dmxsun.svg" alt="drawing" width="128"/>
@@ -6,7 +6,7 @@
 
 ## What is it?
 
-The rp2040-dmxsun is a multi-purpose DMX-512-A toolbox to control stage lighting systems. It's most common use-case is to transmit the DMX data generated on a PC, RaspberryPi or similar in a format that the lighting fixtures on stage can understand. In the most simple case, it's an USB-DMX-Interface.
+The rp2040-dmxsun is a multi-purpose DMX-512-A toolbox to control stage lighting systems. It's most common use-case is to transmit the DMX data generated on a PC, Raspberry Pi or similar in a format that the lighting fixtures on stage can understand. In the most simple case, it's an USB-DMX interface.
 
 DMX-512-A works in networks called universes and each universe can contain up to 512 slots of data. dmxsun can transmit up to 16 universes, meaning you can control 8192 slots of DMX data at the same time.
 
@@ -24,12 +24,12 @@ Furthermore, you can attach an nRF24 radio module to the base board to send or r
 
 The idea came when thinking about a suitable icon for the pages on the integrated web server. You can think about the dmxsun as being a central device and 16 rays of light coming out of it.
 
-Maybe it's also because outdoor light technicians absolutely love the sun since they can perfectly set up their light show while the sun is shining bright ;)
+Maybe it's also because outdoor lighting technicians absolutely love the sun since they can perfectly set up their light show while the sun is shining bright ;)
 
 
 ## How does it look like?
 
-The hardware consists of a base board into which the RaspberryPi Pico-board plugs in to. To get a quick overview of the board's status, 8 RGB status LEDs are attached to the base board.
+The hardware consists of a base board into which the Raspberry Pi Pico-board plugs in to. To get a quick overview of the board's status, 8 RGB status LEDs are attached to the base board.
 
 ![3D rendering of the base board without the Pico board plugged in](https://user-images.githubusercontent.com/823537/112216810-3885c680-8c22-11eb-8c1d-16773b1e30ae.png)
 
@@ -44,13 +44,13 @@ If all 4 IO boards are attached to the base board, you can have 16 output ports 
 
 ## How is configuration data handled?
 
-The complete configuration of the device, including IP addresses, patchings, wireless configuration can be stored on each of the IO boards or on the base board.
+The complete configuration of the device, including IP address, patching and wireless configuration can be stored on any of the IO boards or on the base board.
 
 When the device powers up, it scans the 4 IO board slots in order for connected boards and the configuration stored on them. As soon as a valid and non-disabled configuration is found, it is loaded and used. If no IO board has a valid configuration, it tries to load the config from the flash memory of the Pico board. If this also doesn't seem valid, a fallback configuration is applied.
 
-The status LEDs on the base board indicate which IO board has a valid configuration and which configuration is currently active.
+The status LEDs on the base board indicate which IO boards have a valid configuration and which configuration is currently active.
 
-All configurations can be managed via the integrated web server.
+All the configurations can be managed via the integrated web server.
 
 
 ## Where can I buy it?
@@ -71,18 +71,18 @@ Very good question! All you need is a RaspberryPi Pico board, a microUSB cable a
 * Find out the dmxsun's IP address as described in the `What is it?`-section
 * Open your web browser, browse to the IP address. You should see a web page with status information
 * Using the navigation bar at the top, browse to `Console` and start changing values. Or fire up your favourite lighting control software (such as OLA or QLC+), configure it to send ArtNet or E1.31/sACN to the dmxsun's IP address and watch the values change in your web browser. It might seem laggy but that's only because the web interface only updates every second.
-* If you're curious and have such devices, connect a logic analyzer or RS-485-drivers to the GPIOs 6 to 21. Those are the pins where the DMX data comes out. If you attach an RS-485-driver to one of those, you can also attach and control real fixtures.
+* If you're curious and have such devices, connect a logic analyzer or RS-485 driver to GPIOs 6 to 21. Those are the pins where the DMX data comes out. If you attach an RS-485-driver to one of those, you can also attach and control real fixtures.
 
 
 ## How do I compile the firmware?
 
 If you just want to get started quickly find the most recent action run from the branch you're interested in, extract the attached artifact zip file (from https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml ) and copy the rp2040-dongle.uf2 file to the Pico board when it's in bootloader mode.
 
-Since this is a project that adheres to the guidelines set by RaspberryPi for its pico-sdk (hopefully), you best make sure to follow the detailed documentation at https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf.
+Since this is a project that adheres to the guidelines set by Raspberry Pi for its pico-sdk (hopefully), you are best off following the detailed documentation at https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf.
 
-The build process will also build the React App for the integrated Web UI. For this to work, you will need to have NodeJS 14+ and NPM installed. React and all other JavaScript dependencies will be downloaded during the build, so make sure you are connected to the internet.
+The build process will also build the React App for the integrated Web UI. For this to work, you will need to have NodeJS 14+ and NPM installed. React and all other JavaScript dependencies will be downloaded during the build, so make sure you are connected to the Internet.
 
-Basically with all dependencies installed, the following steps should suffice:
+With all dependencies installed, the following steps should suffice:
 ```
 git clone https://github.com/OpenLightingProject/rp2040-dongle.git
 cd rp2040-dongle
@@ -91,14 +91,14 @@ cd build
 cmake ../src
 make -j4
 ```
-This should result in an `.uf2`-file being generated that you can flash to your Pico-board as described in RaspberryPi's documentation.
+This should result in an `.uf2`-file being generated that you can flash to your Pico-board as described in Raspberry Pi's documentation.
 
 
 ## How does the data flow internally?
 
-Dmxsun uses a pretty flexible architecture, consisting of mainly 24 DMX buffers acting as the main data storage. Data can come in via USB (either via the emulated Ethernet or some other, emulated protocol), wirelessly via the nRF24 module or from one input port and is then, depending on "patching" stored in one or multiple DMX buffers.
+Dmxsun uses a pretty flexible architecture, consisting of mainly 24 DMX buffers acting as the main data storage. Data can come in via USB (either via the emulated Ethernet or some other, emulated protocol), wirelessly via the nRF24 module or from one input port and is then, depending on "patching" stored in one or more DMX buffers.
 
-From there, again depending on "patching", the data is given to one or more of the local DMX ports, to the nRF24 wireless module or to the host PC via ArtNet or E1.31/sACN.
+From there, again depending on "patching", the data is sent to one or more of the local DMX ports, to the nRF24 wireless module or to the host PC via Art-Net or E1.31/sACN.
 
 The patching is currently fixed but will be made fully configurable in the future. The current patching works like this: Universes 1-16 from USB or emulated Ethernet go to internal DMX buffers 1-16 which go to the 16 local DMX ports. Additionally, the first 4 universes are also broadcast via the nRF24 module, should one be connected. Data coming in via the wireless module is sent to DMX buffers 5-8 and will as such appear on the local DMX ports 5-8.
 
@@ -107,11 +107,11 @@ The patching is currently fixed but will be made fully configurable in the futur
 
 The best overview of planned features is to have a look at the GitHub issues: https://github.com/OpenLightingProject/rp2040-dongle/issues.
 
-Since the hardware is modular, we do have the option to also support DMX input (currently Work-in-progress) or universes with RDM support. There would also be the possibility to drive up to 6 WS2812b-based LED-strings instead of conventional DMX-512-A right off the board.
+Since the hardware is modular, we do have the option to also support DMX input (currently work-in-progress) or universes with RDM support. There would also be the possibility to drive up to 6 WS2812b-based LED-strings instead of conventional DMX-512-A right off the board.
 
-For the wireless part, mesh support is planned so you can add additional nodes forwarding the data when the wireless range should not be sufficient. It would also be great if we could talk to other, existing wireless DMX systems.
+For the wireless part, mesh support is planned so you can add additional nodes forwarding the data when the wireless range is insufficient. It would also be great if we could talk to other, existing wireless DMX systems.
 
-What might also help to make it easier to use is if dmxsun could emulate other, existing USB DMX dongles. Then, it could also be used with other software that is not able to send ArtNet or E1.31/sACN but supports other dongles. The disadvantage here is that only few dongles support more than 4 universes, while dmxsun supports 16.
+What might also help to make it easier to use is if dmxsun could emulate other, existing, USB DMX dongles. Then, it could also be used with other software that is not able to send Art-Net or E1.31/sACN but supports other dongles. The disadvantage here is that only a few dongles support more than 4 universes, while dmxsun supports 16.
 
 As said above, the internal patching is hardcoded and cannot be changed by the user. This will change in the future, so that the current patching can be seen and changed in the integrated web interface.
 
@@ -148,4 +148,4 @@ And for the integrated Web UI:
 
 ## What else do I need to know?
 
-If you attach an nRF24-board, you yourself are responsible to make sure you don't violate any local laws or regulations. Not all channels and transmit powers that the nRF24 module can send on might be allowed to be used in your area. The OpenLightingProject cannot be held responsible should you break a law by using this project's hard- and/or software.
+If you attach an nRF24-board, you yourself are responsible to make sure you don't violate any local laws or regulations. Not all channels and transmit powers that the nRF24 module can use may be allowed to be used in your area. The Open Lighting Project cannot be held responsible should you break the law by using this project's hardware and/or software.
