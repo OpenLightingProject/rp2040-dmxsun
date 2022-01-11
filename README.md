@@ -8,7 +8,7 @@
 
 The rp2040-dmxsun is a multi-purpose DMX-512-A toolbox to control stage lighting systems. It's most common use-case is to transmit the DMX data generated on a PC, RaspberryPi or similar in a format that the lighting fixtures on stage can understand. In the most simple case, it's an USB-DMX-Interface.
 
-DMX-512-A works in groups called universes and each universe can contain up to 512 channels. dmxsun can transmit up to 16 universes, meaning you can control 8192 channels of DMX data at the same time.
+DMX-512-A works in networks called universes and each universe can contain up to 512 slots of data. dmxsun can transmit up to 16 universes, meaning you can control 8192 slots of DMX data at the same time.
 
 Dmxsun is usually connected to its host via a single USB connection that also powers the device.
 To the computer, the dmxsun device looks like a network card (it uses the CDC NCM interface) and the integrated DHCP-server assigns an IP-address to the host machine so they can talk to each other.
