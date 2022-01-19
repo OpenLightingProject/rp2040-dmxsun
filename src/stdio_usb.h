@@ -31,17 +31,6 @@
 #define PICO_STDIO_USB_STDOUT_TIMEOUT_US 500000
 #endif
 
-// todo perhaps unnecessarily high?
-// PICO_CONFIG: PICO_STDIO_USB_TASK_INTERVAL_US, Period of microseconds between calling tud_task in the background, default=1000, advanced=true, group=pico_stdio_usb
-#ifndef PICO_STDIO_USB_TASK_INTERVAL_US
-#define PICO_STDIO_USB_TASK_INTERVAL_US 1000
-#endif
-
-// PICO_CONFIG: PICO_STDIO_USB_LOW_PRIORITY_IRQ, low priority (non hardware) IRQ number to claim for tud_task() background execution, default=31, advanced=true, group=pico_stdio_usb
-#ifndef PICO_STDIO_USB_LOW_PRIORITY_IRQ
-#define PICO_STDIO_USB_LOW_PRIORITY_IRQ 31
-#endif
-
 extern stdio_driver_t stdio_usb;
 
 /*! \brief Explicitly initialize USB stdio and add it to the current set of stdin drivers
