@@ -22,7 +22,7 @@ jobs:
   baseboard_4slots:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: nerdyscout/kicad-exports@v2.2
       with:
       # Required - kibot config file
@@ -42,7 +42,7 @@ jobs:
   ioboard_2ports_rdm_isolated:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: nerdyscout/kicad-exports@v2.2
       with:
       # Required - kibot config file
@@ -62,7 +62,7 @@ jobs:
   ioboard_2ports_rdm_unisolated:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: nerdyscout/kicad-exports@v2.2
       with:
       # Required - kibot config file
@@ -82,7 +82,7 @@ jobs:
   ioboard_4ports_isolated:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: nerdyscout/kicad-exports@v2.2
       with:
       # Required - kibot config file
@@ -102,7 +102,7 @@ jobs:
   ioboard_4ports_unisolated:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: nerdyscout/kicad-exports@v2.2
       with:
       # Required - kibot config file
