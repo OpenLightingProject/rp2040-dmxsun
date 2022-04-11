@@ -34,7 +34,7 @@ jobs:
       # optional - PCB design file
         board: 'hardware/baseboard_4slots/*.kicad_pcb'
     - name: upload results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: hardware
         path: hardware
@@ -54,7 +54,7 @@ jobs:
       # optional - PCB design file
         board: 'hardware/ioboard_2ports_rdm_isolated/*.kicad_pcb'
     - name: upload results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: hardware
         path: hardware
@@ -74,7 +74,7 @@ jobs:
       # optional - PCB design file
         board: 'hardware/ioboard_2ports_rdm_unisolated/*.kicad_pcb'
     - name: upload results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: hardware
         path: hardware
@@ -94,7 +94,7 @@ jobs:
       # optional - PCB design file
         board: 'hardware/ioboard_4ports_isolated/*.kicad_pcb'
     - name: upload results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: hardware
         path: hardware
@@ -114,7 +114,7 @@ jobs:
       # optional - PCB design file
         board: 'hardware/ioboard_4ports_unisolated/*.kicad_pcb'
     - name: upload results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: hardware
         path: hardware

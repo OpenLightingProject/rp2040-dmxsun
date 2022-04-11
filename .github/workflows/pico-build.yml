@@ -55,7 +55,7 @@ jobs:
       run: PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk cmake --build . --config $BUILD_TYPE
       
     - name: Save artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: rp2040-dongle
         path: ${{github.workspace}}/build/*.uf2
