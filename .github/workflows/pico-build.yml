@@ -57,6 +57,6 @@ jobs:
     - name: Save artifact
       uses: actions/upload-artifact@v3
       with:
-        name: rp2040-dongle
+        name: rp2040-dmxsun
         path: ${{github.workspace}}/build/*.uf2
 
