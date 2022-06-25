@@ -339,7 +339,7 @@ char const *string_desc_arr[] =
 {
     [STRID_LANGID]         = (const char[]) {0x09, 0x04},            // 0: is supported language is English (0x0409)
     [STRID_MANUFACTURER]   = "OpenLightingProject",                  // 1: Manufacturer
-    [STRID_PRODUCT]        = "rp2040-dongle http://255.255.255.255/",// 2: Product
+    [STRID_PRODUCT]        = "rp2040-dmxsun http://255.255.255.255/",// 2: Product
     [STRID_SERIAL]         = "RP2040_0123456789ABCDEF",              // 3: Serial, fallback here, it's dynamically created in tud_descriptor_string_cb
     [STRID_CDC_ACM_IFNAME] = "Debugging Console",                    // 4: CDC ACM interface name
     [STRID_CDC_NCM_IFNAME] = "Network Interface",                    // 5: CDC NCM interface name
@@ -379,7 +379,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
       char product[64];
       uint32_t ip = getOwnIp();
       str = product;
-      snprintf(product, 64, "rp2040-dongle http://%d.%d.%d.%d/",
+      snprintf(product, 64, "rp2040-dmxsun http://%d.%d.%d.%d/",
         (uint8_t)(ip& 0xff),
         (uint8_t)((ip >> 8) & 0xff),
         (uint8_t)((ip >> 16) & 0xff),

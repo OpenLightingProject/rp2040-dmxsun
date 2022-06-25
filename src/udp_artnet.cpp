@@ -134,8 +134,8 @@ void Udp_ArtNet::init(void) {
   opPollReply.ubeaVersion = 0; // TODO
   opPollReply.status1 = 0;
   opPollReply.estaManufacturer = 0x0000; // TODO!
-  snprintf(opPollReply.shortName, 18, "rp2040-dongle"); // TODO: SERIAL
-  snprintf(opPollReply.longName, 64, "rp2040-dongle"); // TODO: SERIAL
+  snprintf(opPollReply.shortName, 18, "rp2040-dmxsun"); // TODO: SERIAL
+  snprintf(opPollReply.longName, 64, "rp2040-dmxsun"); // TODO: SERIAL
   snprintf(opPollReply.nodeReport, 18, "all good here"); // TODO: SERIAL
   opPollReply.numPorts = 0x0100; // TODO
   opPollReply.portTypes = 0; // TODO: ???

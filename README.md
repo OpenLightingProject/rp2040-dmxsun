@@ -1,7 +1,7 @@
 # rp2040-dmxsun: A USB-DMX device based on RaspberryPi's RP2040 micro-controller with modular hardware
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/OpenLightingProject/rp2040-dongle/main/gfx/icon-dmxsun.svg" alt="drawing" width="128"/>
+<img src="https://raw.githubusercontent.com/OpenLightingProject/rp2040-dmxsun/main/gfx/icon-dmxsun.svg" alt="drawing" width="128"/>
 </p>
 
 ## What is it?
@@ -59,14 +59,14 @@ Short answer: You can't. There is not (yet) a ready-made piece of hardware that 
 
 Longer answer: JLCPCB or a similar PCB factory. The schematics and PCB layout files are in the `hardware` folder (KiCad format) and you can send them to any PCB fab to have it produced for you. Then it's a bit of soldering on your side, plugging in a RaspberryPi Pico board and you're good to go.
 
-If you just want to have a brief look at the schematics without cloning the repo and opening the files in KiCad, take a look at the kicad-export action: https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/kicad-exports.yml. It will generate a zip-archive containing all sort of PDFs.
+If you just want to have a brief look at the schematics without cloning the repo and opening the files in KiCad, take a look at the kicad-export action: https://github.com/OpenLightingProject/rp2040-dmxsun/actions/workflows/kicad-exports.yml. It will generate a zip-archive containing all sort of PDFs.
 
 
 ## How can I try it out without spending much?
 
 Very good question! All you need is a RaspberryPi Pico board, a microUSB cable and a PC, Laptop or RaspberryPi. You won't be able to actually control lighting fixtures, but you can get an idea of how this project works.
 
-* Download the latest `UF2`-file (for example from here: https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml) and flash it to your Pico board (see above)
+* Download the latest `UF2`-file (for example from here: https://github.com/OpenLightingProject/rp2040-dmxsun/actions/workflows/pico-build.yml) and flash it to your Pico board (see above)
 * Wait until the board has rebooted and your PC has finished setting up the emulated network connection
 * Find out the dmxsun's IP address as described in the [What is it?](#what-is-it)-section
 * Open your web browser, browse to the IP address. You should see a web page with status information
@@ -76,7 +76,7 @@ Very good question! All you need is a RaspberryPi Pico board, a microUSB cable a
 
 ## How do I compile the firmware?
 
-If you just want to get started quickly find the most recent action run from the branch you're interested in, extract the attached artifact zip file (from https://github.com/OpenLightingProject/rp2040-dongle/actions/workflows/pico-build.yml ) and copy the rp2040-dongle.uf2 file to the Pico board when it's in bootloader mode.
+If you just want to get started quickly find the most recent action run from the branch you're interested in, extract the attached artifact zip file (from https://github.com/OpenLightingProject/rp2040-dmxsun/actions/workflows/pico-build.yml ) and copy the rp2040-dmxsun.uf2 file to the Pico board when it's in bootloader mode.
 
 Since this is a project that adheres to the guidelines set by Raspberry Pi for its pico-sdk (hopefully), you are best off following the detailed documentation at https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf.
 
@@ -84,8 +84,8 @@ The build process will also build the React App for the integrated Web UI. For t
 
 With all dependencies installed, the following steps should suffice (example is for Linux, might differ for other OS):
 ```
-git clone https://github.com/OpenLightingProject/rp2040-dongle.git
-cd rp2040-dongle
+git clone https://github.com/OpenLightingProject/rp2040-dmxsun.git
+cd rp2040-dmxsun
 mkdir build
 cd build
 cmake ../src
@@ -105,7 +105,7 @@ The patching is currently fixed but will be made fully configurable in the futur
 
 ## What are the upcoming features?
 
-The best overview of planned features is to have a look at the GitHub issues: https://github.com/OpenLightingProject/rp2040-dongle/issues.
+The best overview of planned features is to have a look at the GitHub issues: https://github.com/OpenLightingProject/rp2040-dmxsun/issues.
 
 Since the hardware is modular, we do have the option to also support DMX input (currently work-in-progress) or universes with RDM support. There would also be the possibility to drive up to 6 WS2812b-based LED-strings instead of conventional DMX-512-A right off the board.
 

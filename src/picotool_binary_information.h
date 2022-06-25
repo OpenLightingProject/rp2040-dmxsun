@@ -5,9 +5,9 @@
 #include "pins.h"
 #include "version.h"
 
-bi_decl(bi_program_name("rp2040-dongle"));
+bi_decl(bi_program_name("rp2040-dmxsun"));
 bi_decl(bi_program_description("Advanced and modular USB DMX512 dongle"));
-bi_decl(bi_program_url("https://github.com/OpenLightingProject/rp2040-dongle"));
+bi_decl(bi_program_url("https://github.com/OpenLightingProject/rp2040-dmxsun"));
 
 bi_decl(bi_program_version_string(VERSION));
 

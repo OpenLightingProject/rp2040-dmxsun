@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.13)
 include(pico_sdk_import.cmake)
 
 ## Give the baby a name. Will also be the name of the resulting binaries
-project(rp2040-dongle)
+project(rp2040-dmxsun)
 
 ## Init the pico-sdk. Will instruct the user what to do if deps are missing
 pico_sdk_init()
