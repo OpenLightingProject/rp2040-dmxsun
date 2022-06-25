@@ -16,6 +16,9 @@
     "react-scripts": "^5.0.1",
     "snappyjs": "^0.7.0"
   },
+  "overrides": {
+    "autoprefixer": "10.4.5"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
