@@ -402,6 +402,26 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["boardName"] = boardConfig.activeConfig->boardName;
         output["configSource"] = GetConfigSourceString(boardConfig.configSource);
         output["version"] = VERSION;
+        output["pico_sdk_version"] = PICO_SDK_VERSION_STRING;
+#if defined(__GNUC__)
+# if defined(__GNUC_PATCHLEVEL__)
+#  define __GNUC_VERSION__ (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100 \
+                            + __GNUC_PATCHLEVEL__)
+# else
+#  define __GNUC_VERSION__ (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100)
+# endif
+        output["compiler_name"] = "GNU gcc";
+        output["compiler_version"] = __GNUC_VERSION__;
+#endif
+#if defined(__clang_version__)
+        output["compiler_name"] = "LLVM clang";
+        output["compiler_version"] = __clang_version__;
+#endif
+#if defined (__cplusplus)
+        output["cplusplus_standard"] = (int64_t)__cplusplus;
+#endif
         output["ownIp"] = ownIp;
         output["ownMask"] = ownMask;
         output["hostIp"] = hostIp;
