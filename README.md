@@ -24,6 +24,8 @@ Furthermore, you can attach an nRF24 radio module to the base board to send or r
 
 The idea came when thinking about a suitable icon for the pages on the integrated web server. You can think about the dmxsun as being a central device and 16 rays of light coming out of it.
 
+**Sun** could also be seen as an acronym for **s**ixteen **un**iverses :D
+
 Maybe it's also because outdoor lighting technicians absolutely love the sun since they can perfectly set up their light show while the sun is shining bright ;)
 
 
