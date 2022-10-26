@@ -63,6 +63,7 @@ Longer answer: JLCPCB or a similar PCB factory. The schematics and PCB layout fi
 
 If you just want to have a brief look at the schematics without cloning the repo and opening the files in KiCad, take a look at the kicad-export action: https://github.com/OpenLightingProject/rp2040-dmxsun/actions/workflows/kicad-exports.yml. It will generate a zip-archive containing all sort of PDFs.
 
+**!!! Upcoming, incompatible hardware change: In the current schematics, we are using 256 byte large I2C-EEPROMs to store personality and configuration data. With the release of the Pico W and the need to store WiFi SSIDs and passwords, this will no longer be enough and the EEPROMs should provide 4096 byte in the future !!!**
 
 ## How can I try it out without spending much?
 
