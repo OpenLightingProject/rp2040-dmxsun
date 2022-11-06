@@ -17,7 +17,7 @@ class Home extends React.Component {
                     {ports: [{connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}, {connector: "", direction: ""}]},
                 ],
             },
-            inFlight: false,
+            loading: false,
             leds: [
                 {"blink":"#000000","static":"#000000"},
                 {"blink":"#000000","static":"#000000"},
@@ -49,62 +49,62 @@ class Home extends React.Component {
 
     updateOverview() {
         // Check if there is already a request running. If so, do nothing
-        if (this.state.inFlight) {
+        if (this.state.loading) {
             return;
         }
 
-        this.setState({ inFlight: true });
+        this.setState({ loading: true });
         const url = window.urlPrefix + '/overview/get.json';
         fetch(url)
             .then(res => res.json())
             .catch(
-                () => { this.setState({ inFlight: false }); this.updateOverview(); }
+                () => { this.setState({ loading: false }); this.updateOverview(); }
             )
             .then(
                 (result) => {
                     if (result) {
                         console.log('Overview fetched: ', result);
-                        this.setState({ inFlight: false, config: result });
+                        this.setState({ loading: false, config: result });
                         this.updateIoBoards();
                     }
                 }
             ).finally(
-                () => {this.setState({ inFlight: false });}
+                () => {this.setState({ loading: false });}
             );
     }
 
     updateIoBoards() {
         // Check if there is already a request running. If so, do nothing
-        if (this.state.inFlight) {
+        if (this.state.loading) {
             return;
         }
 
-        this.setState({ inFlight: true });
+        this.setState({ loading: true });
         const url = window.urlPrefix + '/overview/ioBoards/get.json';
         fetch(url)
             .then(res => res.json())
             .catch(
-                () => { this.setState({ inFlight: false }); this.updateIoBoards(); }
+                () => { this.setState({ loading: false }); this.updateIoBoards(); }
             )
             .then(
                 (result) => {
                     if (result) {
                         console.log('IoBoards fetched: ', result);
-                        this.setState({ inFlight: false, ioBoards: result });
+                        this.setState({ loading: false, ioBoards: result });
                     }
                 }
             ).finally(
-                () => { this.setState({ inFlight: false }); }
+                () => { this.setState({ loading: false }); }
             );
     }
 
     updateStatuLeds() {
         // Check if there is already a request running. If so, do nothing
-        if (this.state.inFlight) {
+        if (this.state.loading) {
             return;
         }
 
-        this.setState({ inFlight: true });
+        this.setState({ loading: true });
         const url = window.urlPrefix + '/overview/statusleds/get.json';
         fetch(url)
             .then(res => res.json())
@@ -112,11 +112,11 @@ class Home extends React.Component {
                 (result) => {
                     if (result) {
                         console.log('StatusLeds fetched: ', result);
-                        this.setState({ inFlight: false, leds: result });
+                        this.setState({ loading: false, leds: result });
                     }
                 }
             ).finally(
-                () => { this.setState({ inFlight: false }); }
+                () => { this.setState({ loading: false }); }
             );
     }
 
@@ -135,7 +135,7 @@ class Home extends React.Component {
                         <StatusLeds leds={this.state.leds} />
                     </div>
 
-                    <div className="col">{ this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }</div>
+                    <div className="col">{ this.state.loading && <div className="spinner-border spinner-border-sm" role="status"></div> }</div>
 
                     <div className="col">
                         &nbsp;

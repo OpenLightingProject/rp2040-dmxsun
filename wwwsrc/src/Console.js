@@ -14,7 +14,7 @@ class Console extends React.Component {
             selectedBuffer: 0,
             updateValuesInterval: undefined,
             values: [],
-            inFlight: false,
+            loading: false,
             channelOffset: 0,
             partyModeClicked: false,
             partyModeEnabled: false,
@@ -53,11 +53,11 @@ class Console extends React.Component {
 
     updateValues() {
         // Check if there is already a request running. If so, do nothing
-        if (this.state.inFlight) {
+        if (this.state.loading) {
             return;
         }
 
-        this.setState({ inFlight: true });
+        this.setState({ loading: true });
         let buffer = this.state.selectedBuffer;
         if (buffer <= 9) {
             buffer = '0' + buffer;
@@ -76,11 +76,11 @@ class Console extends React.Component {
                         let values = this.state.values;
                         values.length = 0;
                         Array.prototype.push.apply(values, new Uint8Array(uncompressed.buffer));
-                        this.setState({ inFlight: false, values: values });
+                        this.setState({ loading: false, values: values });
                     }
                 }
             ).finally(
-                () => { this.setState({ inFlight: false }); }
+                () => { this.setState({ loading: false }); }
             );
     }
 
@@ -223,7 +223,7 @@ class Console extends React.Component {
                     { (this.state.partyModeClicked && !this.state.partyModeEnabled) && <Icon.Binoculars onDoubleClick={this.handleBinocularsClicked} /> }
                     { (this.state.partyModeClicked && this.state.partyModeEnabled) && <Icon.BinocularsFill onDoubleClick={this.handleBinocularsClicked} /> }
                     &nbsp;&nbsp;
-                    { this.state.inFlight && <div className="spinner-border spinner-border-sm" role="status"></div> }
+                    { this.state.loading && <div className="spinner-border spinner-border-sm" role="status"></div> }
                 </div></div>
                 <div className="row"><div className="col">&nbsp;</div></div>
                 <div className="row"><div className="col">

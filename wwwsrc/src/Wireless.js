@@ -61,16 +61,16 @@ class Wireless extends React.Component {
 
     updateWireless() {
       // Check if there is already a request running. If so, do nothing
-      if (this.state.inFlight) {
+      if (this.state.loading) {
           return;
       }
 
-      this.setState({ inFlight: true });
+      this.setState({ loading: true });
       const url = window.urlPrefix + '/config/wireless/get.json';
       fetch(url)
           .then(res => res.json())
           .catch(
-              () => { this.setState({ inFlight: false }); }
+              () => { this.setState({ loading: false }); }
           )
           .then(
               (result) => {
@@ -91,11 +91,11 @@ class Wireless extends React.Component {
                         bsCollapse.show();
                       }
 
-                      this.setState({ inFlight: false, wireless: result });
+                      this.setState({ loading: false, wireless: result });
                   }
               }
           ).finally(
-              () => { this.setState({ inFlight: false }); }
+              () => { this.setState({ loading: false }); }
           );
     }
 
@@ -129,26 +129,26 @@ class Wireless extends React.Component {
 
     updateStats() {
       // Check if there is already a request running. If so, do nothing
-      if (this.state.inFlight) {
+      if (this.state.loading) {
         return;
      }
 
-    this.setState({ inFlight: true });
+    this.setState({ loading: true });
     const url = window.urlPrefix + '/config/wireless/stats/get.json';
     fetch(url)
         .then(res => res.json())
         .catch(
-            () => { this.setState({ inFlight: false }); }
+            () => { this.setState({ loading: false }); }
         )
         .then(
             (result) => {
                 if (result) {
                     console.log('Wireless stats fetched: ', result);
-                    this.setState({ inFlight: false, stats: result });
+                    this.setState({ loading: false, stats: result });
                 }
             }
         ).finally(
-            () => { this.setState({ inFlight: false }); }
+            () => { this.setState({ loading: false }); }
         );
     }
 
