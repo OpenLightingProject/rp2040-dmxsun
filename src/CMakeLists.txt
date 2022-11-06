@@ -106,7 +106,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
 )
 
 ## LWIP works a little bit different than the other libraries since
-## it ships its onw FileList
+## it ships its own FileList
 set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/../lib/lwip)
 set (LWIP_INCLUDE_DIRS
     "${LWIP_DIR}/src/include"
