@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "NC3FD-H")(type "KiCad")(uri "${KIPRJMOD}/../footprints/NC3FD-H.pretty")(options "")(descr ""))
+)
