@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: 2022 nerdyscout <https://github.com/nerdyscout/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: KiBot
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - "hardware/**/*.kicad_sch"
+    - "hardware/**/*.kicad_pcb"
+    - "hardware/**/*.kicad_pro"
+    - "**/*kibot.yml"
+  pull_request:
+    paths:
+    - "hardware/**/*.kicad_sch"
+    - "hardware/**/*.kicad_pcb"
+    - "hardware/**/*.kicad_pro"
+    - "**/*kibot.yml"
+
+jobs:
+  baseboard_4slots:
+    runs-on: ubuntu-latest
+    container:
+      image: setsoft/kicad_auto:ki6
+    steps:
+      - uses: actions/checkout@v3
+      # Checks
+      - name: run ERC
+        run: |
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_drc -v -i
+      - name: run DRC
+        run: |
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc -v -i
+      # Documentation
+      - name: create documentation
+        run: | 
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
+            ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf
+      - uses: actions/upload-artifact@v3
+        if: ${{success()}}
+        with:
+          name: ${{github.event.repository.name}}_docs
+          if-no-files-found: error
+          path: |
+            /docs/**
+      # Render images
+      - name: render images
+        run: | 
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
+            board_black_top.svg board_black_bottom.svg
+      - uses: actions/upload-artifact@v3
+        if: ${{success()}}
+        with:
+          name: ${{github.event.repository.name}}_img
+          if-no-files-found: error
+          path: |
+            img/**
+      # fabrications
+      - name: fabrications
+        run: |
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
+            gerbers.gbr drills.gbr drills.drl pickandplace.csv bom.csv
+      - uses: actions/upload-artifact@v3
+        if: ${{success()}}
+        with:
+          name: ${{github.event.repository.name}}_gerbers
+          if-no-files-found: error
+          path: |
+            gerbers/**
+      # cad
+      - name: create cad
+        run: | 
+          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
+            model.step openboardview.brd autocad.dxf
+      - uses: actions/upload-artifact@v3
+        if: ${{success()}}
+        with:
+          name: ${{github.event.repository.name}}_cad
+          if-no-files-found: error
+          path: |
+            cad/**
