@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name MCU_RPi)(type Legacy)(uri ${KIPRJMOD}/../symbols/MCU_RaspberryPi_and_Boards.lib)(options "")(descr ""))
+  (lib (name W5500_Mini)(type "KiCad")(uri ${KIPRJMOD}/../symbols/W5500_Mini.kicad_sym)(options "")(descr ""))
 )
