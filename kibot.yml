@@ -20,16 +20,13 @@ preflight:
   check_zone_fills: true
   ignore_unconnected: false
 #  update_qr: true
-  # filters:
-  #   - filter: 'suppress courtyards overlap'
-  #     regex: 'Courtyards overlap'
-  #     error: 'courtyards_overlap'
-  #   - filter: 'suppress clearance violation'
-  #     regex: 'Clearance violation'
-  #     error: 'clearance'
-  #   - filter: 'suppress board edge clearance violation'
-  #     regex: 'Board edge clearance violation'
-  #     error: 'copper_edge_clearance'
+  filters:
+    - filter: 'suppress "Silkscreen clipped by solder mask"'
+      regex: 'Silkscreen clipped by solder mask'
+      error: 'silk_over_copper'
+    - filter: 'suppress "Silkscreen overlap"'
+      regex: 'Silkscreen overlap'
+      error: 'silk_overlap'
 
 filters:
   - name: "exclude_any"
