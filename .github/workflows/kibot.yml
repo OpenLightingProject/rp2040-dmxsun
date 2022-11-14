@@ -44,7 +44,7 @@ jobs:
           name: ${{github.event.repository.name}}_docs
           if-no-files-found: error
           path: |
-            /docs/**
+            docs/**
       # Render images
       - name: render images
         run: | 
