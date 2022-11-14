@@ -2,7 +2,7 @@ outputs:
   - name: 'ibom.html'
     comment: 'https://github.com/openscopeproject/InteractiveHtmlBom'
     type: 'ibom'
-    dir: 'docs/bom'
+    dir: 'kibot_export/bom'
     options:
       # [string=''] List of comma separated blacklisted components or prefixes with *. E.g. 'X1,MH*'.
       # IBoM option, avoid using in conjunction with KiBot variants/filters

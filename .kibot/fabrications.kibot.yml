@@ -2,7 +2,7 @@ outputs:
   - name: 'pickandplace.csv'
     comment: 'position files'
     type: 'position'
-    dir: 'gerbers'
+    dir: 'kibot_export/gerbers'
     options:
       # [string|list(string)=''] Name of the filter to mark components as not fitted.
       # A short-cut to use for simple cases where a variant is an overkill
@@ -23,16 +23,5 @@ outputs:
 # generates bom.csv in gerbers folder
   - name: bom.csv
     type: kibom
-    dir: gerbers
+    dir: kibot_export/gerbers
     extends: 'octopart.csv'
-
-# zip fabrication files
-  - name: 'fabrication.zip'
-    type: compress
-    dir: .
-    options:
-      format: ZIP
-      files:
-        - dest: .
-          source: gerbers/*
-      output: '%f-%r.%x'

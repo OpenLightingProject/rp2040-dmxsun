@@ -2,7 +2,7 @@ outputs:
   - name: 'model.step'
     comment: 'Renders - 3D model (STEP)'
     type: step
-    dir: cad
+    dir: kibot_exdport/cad
     options:
       metric_units: true
       download: true

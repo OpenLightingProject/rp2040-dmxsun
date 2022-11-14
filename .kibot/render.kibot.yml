@@ -1,53 +1,53 @@
 outputs:
   # For more information: https://github.com/INTI-CMNB/KiBoM
-  - name: 'kicad 3d view top'
+  - name: 'kicad_3d_view_top'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-top.%x'
       ray_tracing: true
       view: top
 
-  - name: 'kicad 3d view bottom'
+  - name: 'kicad_3d_view_bottom'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-bottom.%x'
       ray_tracing: true
       view: bottom
 
-  - name: 'kicad 3d view front'
+  - name: 'kicad_3d_view_front'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-front.%x'
       ray_tracing: true
       view: front
 
-  - name: 'kicad 3d view rear'
+  - name: 'kicad_3d_view_rear'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-rear.%x'
       ray_tracing: true
       view: rear
 
-  - name: 'kicad 3d view right'
+  - name: 'kicad_3d_view_right'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-right.%x'
       ray_tracing: true
       view: right
 
-  - name: 'kicad 3d view left'
+  - name: 'kicad_3d_view_left'
     type: 'render_3d'
-    dir: 'img/render'
+    dir: 'kibot_export/img/render'
     options:
       download: true
       output: '%f-left.%x'

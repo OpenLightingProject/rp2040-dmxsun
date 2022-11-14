@@ -37,47 +37,16 @@ jobs:
       - name: create documentation
         run: | 
           kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
-            ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf
+            ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf \
+            gerbers.gbr gerbers_jlcpcb.gbr drills.gbr drills.drl pickandplace.csv bom.csv \
+            hasl_green_top.svg hasl_green_bottom.svg oshpark_afterdark_top.svg oshpark_afterdark_bottom.svg oshpark_purple_top.svg oshpark_purple_bottom.svg \
+            board_black_top.svg board_black_bottom.svg autocad.dxf model.step openboardview.brd \
+            kicad_3d_view_top kicad_3d_view_bottom kicad_3d_view_front kicad_3d_view_rear kicad_3d_view_right kicad_3d_view_left
       - uses: actions/upload-artifact@v3
         if: ${{success()}}
         with:
           name: ${{github.event.repository.name}}_docs
           if-no-files-found: error
           path: |
-            docs/**
-      # Render images
-      - name: render images
-        run: | 
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
-            board_black_top.svg board_black_bottom.svg
-      - uses: actions/upload-artifact@v3
-        if: ${{success()}}
-        with:
-          name: ${{github.event.repository.name}}_img
-          if-no-files-found: error
-          path: |
-            img/**
-      # fabrications
-      - name: fabrications
-        run: |
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
-            gerbers.gbr drills.gbr drills.drl pickandplace.csv bom.csv
-      - uses: actions/upload-artifact@v3
-        if: ${{success()}}
-        with:
-          name: ${{github.event.repository.name}}_gerbers
-          if-no-files-found: error
-          path: |
-            gerbers/**
-      # cad
-      - name: create cad
-        run: | 
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
-            model.step openboardview.brd autocad.dxf
-      - uses: actions/upload-artifact@v3
-        if: ${{success()}}
-        with:
-          name: ${{github.event.repository.name}}_cad
-          if-no-files-found: error
-          path: |
-            cad/**
+            kibot_export/**
+            !**/*.ogv

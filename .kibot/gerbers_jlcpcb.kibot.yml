@@ -67,7 +67,7 @@ outputs:
   - name: gerbers_jlcpcb.gbr
     comment: Gerbers - JLCPCB
     type: gerber
-    dir: gerbers/jlcpcb
+    dir: kibot_export/gerbers/jlcpcb
     options: &gerber_options
       exclude_edge_layer: true
       exclude_pads_from_silkscreen: true

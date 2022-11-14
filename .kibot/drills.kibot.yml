@@ -5,7 +5,7 @@ outputs:
   - name: 'drills.gbr'
     comment: 'https://en.wikipedia.org/wiki/Gerber_format'
     type: gerb_drill
-    dir: gerbers
+    dir: kibot_export/gerbers
     options:
       # [dict|string] [hpgl,ps,gerber,dxf,svg,pdf] format for a graphical drill map.
       # Not generated unless a format is specified
@@ -30,7 +30,7 @@ outputs:
   - name: 'drills.drl'
     comment: 'https://en.wikipedia.org/wiki/Gerber_format'
     type: excellon
-    dir: gerbers
+    dir: kibot_export/gerbers
     options:
       # [dict|string] [hpgl,ps,gerber,dxf,svg,pdf] format for a graphical drill map.
       # Not generated unless a format is specified

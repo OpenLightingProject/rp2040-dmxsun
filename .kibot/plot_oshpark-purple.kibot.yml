@@ -1,8 +1,8 @@
 outputs:
-  - name: 'oshpark afterdark svg top'
+  - name: 'oshpark_purple_top.svg'
     comment: 'https://oshpark.com/'
     type: 'pcbdraw'
-    dir: 'img/pcb/oshpark/purple'
+    dir: 'kibot_export/img/pcb/oshpark/purple'
     options:
       bottom: false
       dpi: 300
@@ -18,10 +18,10 @@ outputs:
       vcuts: true
       warnings: 'none'
 
-  - name: 'oshpark afterdark svg bottom'
+  - name: 'oshpark_purple_bottom.svg'
     comment: 'https://oshpark.com/'
     type: 'pcbdraw'
-    dir: 'img/pcb/oshpark/purple'
+    dir: 'kibot_export/img/pcb/oshpark/purple'
     options:
       bottom: true
       dpi: 300

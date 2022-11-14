@@ -4,7 +4,7 @@ outputs:
   - name: 'autocad.dxf'
     comment: 'https://en.wikipedia.org/wiki/AutoCAD_DXF'
     type: dxf
-    dir: 'cad/dxf'
+    dir: 'kibot_export/cad/dxf'
     options:
       # [string|list(string)=''] Name of the filter to mark components as not fitted.
       # A short-cut to use for simple cases where a variant is an overkill

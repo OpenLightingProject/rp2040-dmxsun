@@ -1,8 +1,8 @@
 outputs:
-  - name: 'hasl green svg top'
+  - name: 'hasl_green_top.svg'
     comment: 'https://github.com/yaqwsx/PcbDraw'
     type: 'pcbdraw'
-    dir: 'img/pcb/jlcpcb/green_hasl'
+    dir: 'kibot_export/img/pcb/jlcpcb/green_hasl'
     options:
       # [boolean=false] render the bottom side of the board (default is top side)
       bottom: false
@@ -39,7 +39,7 @@ outputs:
       # [string='visible'] [visible,all,none] using visible only the warnings about components in the visible side are generated
       warnings: 'none'
 
-  - name: 'hasl green svg bottom'
+  - name: 'hasl_green_bottom.svg'
     comment: 'https://github.com/yaqwsx/PcbDraw'
     type: 'pcbdraw'
     dir: 'img/pcb/jlcpcb/green_hasl'

@@ -2,7 +2,7 @@ outputs:
   - name: 'octopart.csv'
     comment: 'https://octopart.com/'
     type: 'kibom'
-    dir: 'docs/bom'
+    dir: 'kibot_export/bom'
     options:
       # [string|dict] BoM configuration file, relative to PCB.
       # You can also define the configuration here, will be stored in `config.kibom.ini`

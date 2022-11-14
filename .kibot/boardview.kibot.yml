@@ -2,6 +2,6 @@ outputs:
   - name: 'openboardview.brd'
     comment: 'https://openboardview.org/'
     type: boardview
-    dir: cad
+    dir: kibot_export/cad
     options:
       output: '%f.%x'

@@ -3,7 +3,7 @@ outputs:
   - name: "gerbers.gbr"
     comment: "https://en.wikipedia.org/wiki/Gerber_format"
     type: 'gerber'
-    dir: 'gerbers'
+    dir: 'kibot_export/gerbers'
     options:
       # [boolean=true] creates a file with information about all the generated gerbers.
       # You can use it in gerbview to load all gerbers at once

@@ -2,7 +2,7 @@ outputs:
   - name: 'board_black_top.svg'
     comment: 'https://github.com/yaqwsx/PcbDraw'
     type: 'pcbdraw'
-    dir: 'img/pcb'
+    dir: 'kibot_export/img/pcb'
     options:
       # [boolean=false] render the bottom side of the board (default is top side)
       bottom: false
@@ -42,7 +42,7 @@ outputs:
   - name: 'board_black_bottom.svg'
     comment: 'https://github.com/yaqwsx/PcbDraw'
     type: 'pcbdraw'
-    dir: 'img/pcb'
+    dir: 'kibot_export/img/pcb'
     options:
       # [boolean=false] render the bottom side of the board (default is top side)
       bottom: true

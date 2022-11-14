@@ -3,21 +3,21 @@ outputs:
   - name: 'schematic.pdf'
     comment: "generate schematic (PDF)"
     type: pdf_sch_print
-    dir: docs
+    dir: kibot_export/
     options:
       output: '%f-%i.%x' #[string='%f-%i%v.%x'] filename for the output PDF (%i=schematic %x=pdf). Affected by global options.
 
   - name: 'schematic.svg'
     comment: "generate schematic (SVG)"
     type: svg_sch_print
-    dir: img
+    dir: kibot_export/
     options:
       output: '%f-%i.%x' #[string='%f-%i%v.%x'] filename for the output SVG (%i=schematic %x=svg). Affected by global options.
 
   - name: 'board_top.pdf'
     comment: "generate board top (PDF)"
     type: 'pdf_pcb_print'
-    dir: 'docs'
+    dir: kibot_export/
     options:
       # [string|list(string)=''] Name of the filter to mark components as not fitted.
       # A short-cut to use for simple cases where a variant is an overkill
@@ -40,6 +40,7 @@ outputs:
       # [string=''] Board variant to apply
       variant: ''
     layers:
+      - 'F.Cu'
       - 'F.SilkS'
       - 'F.Mask'
       - 'Cmts.User'
@@ -48,7 +49,7 @@ outputs:
   - name: 'board_bottom.pdf'
     comment: "generate board bottom (PDF)"
     type: 'pdf_pcb_print'
-    dir: 'docs'
+    dir: 'kibot_export/'
     options:
       # [string|list(string)=''] Name of the filter to mark components as not fitted.
       # A short-cut to use for simple cases where a variant is an overkill
@@ -71,6 +72,7 @@ outputs:
       # [string=''] Board variant to apply
       variant: ''
     layers:
+      - 'B.Cu'
       - 'B.SilkS'
       - 'B.Mask'
       - 'Dwgs.User'
