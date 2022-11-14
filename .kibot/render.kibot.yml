@@ -8,6 +8,7 @@ outputs:
       output: '%f-top.%x'
       ray_tracing: true
       view: top
+      zoom: 10
 
   - name: 'kicad_3d_view_bottom'
     type: 'render_3d'
@@ -17,6 +18,7 @@ outputs:
       output: '%f-bottom.%x'
       ray_tracing: true
       view: bottom
+      zoom: 10
 
   - name: 'kicad_3d_view_front'
     type: 'render_3d'
@@ -26,6 +28,7 @@ outputs:
       output: '%f-front.%x'
       ray_tracing: true
       view: front
+      zoom: 15
 
   - name: 'kicad_3d_view_rear'
     type: 'render_3d'
@@ -35,6 +38,7 @@ outputs:
       output: '%f-rear.%x'
       ray_tracing: true
       view: rear
+      zoom: 15
 
   - name: 'kicad_3d_view_right'
     type: 'render_3d'
@@ -44,6 +48,7 @@ outputs:
       output: '%f-right.%x'
       ray_tracing: true
       view: right
+      zoom: 15
 
   - name: 'kicad_3d_view_left'
     type: 'render_3d'
@@ -53,3 +58,4 @@ outputs:
       output: '%f-left.%x'
       ray_tracing: true
       view: left
+      zoom: 15
