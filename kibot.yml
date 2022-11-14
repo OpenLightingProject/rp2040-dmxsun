@@ -51,7 +51,7 @@ import:
   - file: .kibot/render.kibot.yml
   - file: .kibot/plot.kibot.yml
 #  - file: .kibot/plot_jlcpcb-green-enig.kibot.yml
-#  - file: .kibot/plot_jlcpcb-green-hasl.kibot.yml
+  - file: .kibot/plot_jlcpcb-green-hasl.kibot.yml
 #  - file: .kibot/plot_oshpark-afterdark.kibot.yml
 #  - file: .kibot/plot_oshpark-purple.kibot.yml
 # cad

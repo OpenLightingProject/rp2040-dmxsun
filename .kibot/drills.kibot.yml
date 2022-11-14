@@ -21,7 +21,7 @@ outputs:
         # [string=''] name of the drill report. Not generated unless a name is specified.
         # (%i='drill_report' %x='txt')
         filename: '%i.%x'
-      # [boolean=false] use the auxiliar axis as origin for coordinates
+      # [boolean=false] use the auxiliary axis as origin for coordinates
       use_aux_axis_as_origin: true
 
   # Excellon drill format:
@@ -54,5 +54,5 @@ outputs:
         # [string=''] name of the drill report. Not generated unless a name is specified.
         # (%i='drill_report' %x='txt')
         filename: '%i.%x'
-      # [boolean=false] use the auxiliar axis as origin for coordinates
+      # [boolean=false] use the auxiliary axis as origin for coordinates
       use_aux_axis_as_origin: true

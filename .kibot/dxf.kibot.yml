@@ -33,7 +33,7 @@ outputs:
       sketch_plot: false
       # [boolean=true] cover the vias
       tent_vias: true
-      # [boolean=false] use the auxiliar axis as origin for coordinates
+      # [boolean=false] use the auxiliary axis as origin for coordinates
       use_aux_axis_as_origin: true
       # [string=''] Board variant to apply
       variant: ''

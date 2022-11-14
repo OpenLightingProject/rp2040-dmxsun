@@ -31,11 +31,11 @@ outputs:
       plot_footprint_values: true
       # [boolean=false] currently without effect
       plot_sheet_reference: false
-      # [boolean=false] substract the solder mask from the silk screen
+      # [boolean=false] subtract the solder mask from the silk screen
       subtract_mask_from_silk: false
       # [boolean=true] cover the vias
       tent_vias: true
-      # [boolean=false] use the auxiliar axis as origin for coordinates
+      # [boolean=false] use the auxiliary axis as origin for coordinates
       use_aux_axis_as_origin: true
       # [boolean=true] include netlist metadata
       use_gerber_net_attributes: true
