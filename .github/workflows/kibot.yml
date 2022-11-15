@@ -20,7 +20,10 @@ on:
     - "**/*kibot.yml"
 
 jobs:
-  baseboard_4slots:
+  kicad_exports:
+    strategy:
+      matrix:
+        board: [baseboard_4slots]
     runs-on: ubuntu-latest
     container:
       image: setsoft/kicad_auto:ki6
@@ -29,14 +32,14 @@ jobs:
       # Checks
       - name: run ERC
         run: |
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_drc -v -i
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_drc -v -i
       - name: run DRC
         run: |
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc -v -i
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_erc -v -i
       # Documentation
       - name: create documentation
-        run: | 
-          kibot -c kibot.yml -e hardware/baseboard_4slots/*sch -b hardware/baseboard_4slots/*pcb -s run_erc,run_drc -v \
+        run: |
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_erc,run_drc -v \
             ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf board_top_with_copper.pdf board_bottom_with_copper.pdf \
             gerbers.gbr gerbers_jlcpcb.gbr drills.gbr drills.drl pickandplace.csv bom.csv \
             hasl_green_top.svg hasl_green_bottom.svg oshpark_afterdark_top.svg oshpark_afterdark_bottom.svg oshpark_purple_top.svg oshpark_purple_bottom.svg \
@@ -45,7 +48,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: ${{success()}}
         with:
-          name: baseboard_4slots
+          name: ${{ matrix.board }}
           if-no-files-found: error
           path: |
             kibot_export/**
