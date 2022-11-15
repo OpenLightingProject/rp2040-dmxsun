@@ -23,7 +23,7 @@ jobs:
   kicad_exports:
     strategy:
       matrix:
-        board: [baseboard_4slots]
+        board: [baseboard_4slots, ioboard_2ports_rdm_isolated, ioboard_2ports_rdm_unisolated, ioboard_4ports_isolated, ioboard_4ports_unisolated]
     runs-on: ubuntu-latest
     container:
       image: setsoft/kicad_auto:ki6
