@@ -6094,7 +6094,7 @@
   (dimension (type aligned) (layer "Dwgs.User") (tstamp 74b3f8a9-dad5-44c5-a74d-b744912b84be)
     (pts (xy 25 75) (xy 25 20))
     (height -3.918)
-    (gr_text "55,0000 mm" (at 19.932 47.5 90) (layer "Dwgs.User") (tstamp 74b3f8a9-dad5-44c5-a74d-b744912b84be)
+    (gr_text "55.0000 mm" (at 19.932 47.5 90) (layer "Dwgs.User") (tstamp 74b3f8a9-dad5-44c5-a74d-b744912b84be)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (format (units 2) (units_format 1) (precision 4))
@@ -33584,7 +33584,6 @@
       24a81f7f-897e-4f54-8e4e-7b6f37aa94d4
       24dedb95-33e7-4599-b85a-44da31a4f6a0
       2535a8d7-c23d-4fb2-a712-37c5bbb03fb9
-      2550ef10-ebe0-44b5-9bcb-f54e815f02dd
       256cb5ac-a507-45e0-8bc8-dd23391b71a5
       2580eadd-7074-444f-a7fb-d897917003d4
       2643fd54-190c-4d5d-9730-77ce5f772912
@@ -33622,7 +33621,6 @@
       45b83613-0de6-45ab-b9eb-b42419c70559
       45c60781-06ae-40c4-866e-17503a380666
       45f392f4-480a-4f50-b82b-415a2b35c4c7
-      46e677c4-1d04-4e33-8c22-88356ce4ad48
       478fffee-61d0-4e7b-8c5b-71beaab6936c
       485380c3-84c2-4bcb-b4e7-674977b3f58b
       489ff7c0-cc6b-4a10-b95b-a2aa93bac440
@@ -33691,7 +33689,6 @@
       787dc348-db39-44bf-8111-b3a0a9e3e437
       788df929-8949-4068-b267-1b9c80491a87
       78c99222-433b-4af6-9d64-6fe2903da10d
-      7bdbea25-8d44-4d20-ad08-ae0f43a32c52
       7bdd2f6b-99c7-44ea-ab95-edd747df4979
       7d0c5991-0d30-4d9f-82fc-a0070400ac2c
       7d1d53c1-4703-4e23-8090-bb73fd497236
@@ -33721,7 +33718,6 @@
       956514ed-5f85-47d6-8c77-7bacaf8f7958
       95f8561a-6298-4d9d-8ba2-c898a915465a
       970b551b-3442-4a81-b40f-ce850aa8c781
-      972b59c7-66dd-47e2-83e3-3f694c98b891
       977ce94c-312c-4c7d-a75e-52adb61a2ddb
       97c90759-5384-4dd2-b36d-d21c85727719
       98458894-e4f6-43e5-bb5c-828e696b1747
@@ -33729,7 +33725,6 @@
       99eb53a7-1b7f-4576-a910-364164494885
       9a7b22cd-7d4b-44de-b220-a4bc28c3c4c8
       9c0356b4-159a-4c26-b4bc-d2306db858b9
-      9c42f6a9-f651-40d1-b55c-9eb186d8d47a
       9c5fec05-7bf3-4b12-ac64-f2b1ca21297a
       9cc6ad07-e04f-47a5-a6ef-db0456f39967
       9e27cfac-fed0-4733-9662-940056a8f82b
@@ -33759,7 +33754,6 @@
       b30db397-8749-4777-a728-3d07d140c8d0
       b393aa9a-2168-4d22-934b-8795cbfb1697
       b39b735f-6017-4751-bf0f-803b0eee8b8b
-      b4416aa1-18aa-430a-b7f8-bed320009e25
       b616ff40-0e00-4220-a12a-441ac215a352
       b65cef25-939a-44e8-9977-7fbdb5c0180b
       b6f9fb9a-de98-46b9-a8eb-98ffcceca31c
@@ -33815,7 +33809,6 @@
       e07a8070-8f7d-496c-8589-984838519e07
       e12e7bb6-f19f-45d9-aee5-30b7c9a2b7b1
       e15daed8-2afd-443c-a99c-0ff39b9a4db6
-      e1afc792-8283-4e25-9c55-0f7e60e4d7cd
       e342a24d-0cc8-417a-84f7-7f39267544cb
       e3f5b1a2-b25f-4962-9650-2f930a6fcb6e
       e4113073-062c-494d-9185-20e3a19e795d
