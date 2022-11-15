@@ -27,6 +27,15 @@ preflight:
     - filter: 'suppress "Silkscreen overlap"'
       regex: 'Silkscreen overlap'
       error: 'silk_overlap'
+# Sad but true: ignoring individual errors via KiCad's "ignore" doesn't help
+#               so we need to ignore those "globally" here.
+#               Those errors occur on "overlapping variants" (DC regulators, XLR connectors)
+    - filter: 'suppress "hole_clearance"'
+      regex: 'Hole clearance violation'
+      error: 'hole_clearance'
+    - filter: 'suppress "courtyards_overlap"'
+      regex: 'Courtyards overlap'
+      error: 'courtyards_overlap'
 
 filters:
   - name: "exclude_any"
