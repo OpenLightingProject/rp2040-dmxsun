@@ -87,7 +87,7 @@ The build process will also build the React App for the integrated Web UI. For t
 
 With all dependencies installed, the following steps should suffice (example is for Linux, might differ for other OS):
 ```
-git clone https://github.com/OpenLightingProject/rp2040-dmxsun.git
+git clone --recursive https://github.com/OpenLightingProject/rp2040-dmxsun.git
 cd rp2040-dmxsun
 mkdir build
 cd build
