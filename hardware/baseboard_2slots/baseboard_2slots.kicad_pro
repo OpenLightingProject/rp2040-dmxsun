@@ -146,14 +146,7 @@
   "erc": {
     "erc_exclusions": [
       "pin_to_pin|1435100|1651000|018a8fd3-ddf5-4f10-a592-daf20f08af3d|9d2a1758-cf73-4729-96b6-29820146c4f3",
-      "pin_to_pin|254000|1035050|9d2a1758-cf73-4729-96b6-29820146c4f3|018a8fd3-ddf5-4f10-a592-daf20f08af3d",
-      "power_pin_not_driven|1041400|1270000|4d469d96-2f44-4efe-85a4-68ce6004db3f|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|1524000|933450|47686d1d-09d3-4351-8a7c-80485571bf78|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|1562100|1549400|5114d26e-293f-4ffe-a111-57b33c6e76aa|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|1651000|266700|ae85a62f-819d-464f-b90e-f42d5183432a|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|355600|990600|926c3254-6343-463f-a7fa-ebef74248d78|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|381000|933450|926c3254-6343-463f-a7fa-ebef74248d78|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|469900|1587500|797101e8-6859-422a-bb48-c029d1f6f49c|00000000-0000-0000-0000-000000000000"
+      "pin_to_pin|254000|1035050|9d2a1758-cf73-4729-96b6-29820146c4f3|018a8fd3-ddf5-4f10-a592-daf20f08af3d"
     ],
     "meta": {
       "version": 0
@@ -350,7 +343,7 @@
       "pin_not_connected": "error",
       "pin_not_driven": "error",
       "pin_to_pin": "warning",
-      "power_pin_not_driven": "error",
+      "power_pin_not_driven": "ignore",
       "similar_labels": "warning",
       "unannotated": "error",
       "unit_value_mismatch": "error",
