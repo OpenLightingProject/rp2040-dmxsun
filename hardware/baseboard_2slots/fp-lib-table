@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "MCU_RaspberryPi_and_Boards")(type "KiCad")(uri "${KIPRJMOD}/../footprints/MCU_RaspberryPi_and_Boards.pretty")(options "")(descr ""))
+  (lib (name "W5500_Mini")(type "KiCad")(uri "${KIPRJMOD}/../footprints/W5500_Mini.pretty")(options "")(descr ""))
+)
