@@ -349,7 +349,7 @@
       "pin_not_connected": "error",
       "pin_not_driven": "error",
       "pin_to_pin": "warning",
-      "power_pin_not_driven": "error",
+      "power_pin_not_driven": "warning",
       "similar_labels": "warning",
       "unannotated": "error",
       "unit_value_mismatch": "error",

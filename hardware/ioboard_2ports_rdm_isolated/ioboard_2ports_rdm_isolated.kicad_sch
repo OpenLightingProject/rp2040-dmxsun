@@ -1436,6 +1436,11 @@
     (uuid fac21e60-b561-4662-ac85-90bcd064c561)
   )
 
+  (no_connect (at 201.93 83.82) (uuid 5ca448b4-d848-410f-a73d-ac1077f78778))
+  (no_connect (at 201.93 78.74) (uuid a1cfcac0-ef6e-46eb-9910-739d3ddb19a0))
+  (no_connect (at 201.93 81.28) (uuid dea01af4-0ab6-44d6-80b4-904fa059d443))
+  (no_connect (at 201.93 71.12) (uuid f3365f47-d338-431d-b5b9-13156e878c2b))
+
   (polyline (pts (xy 12.7 53.34) (xy 284.48 53.34))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 026aac21-2d16-4e61-b4a0-5a49de562c6e)
@@ -3040,7 +3045,7 @@
     (property "Value" "8P8C" (id 1) (at 220.472 76.6322 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "Connector_RJ:RJ45_Amphenol_RJHSE5380" (id 2) (at 212.09 74.295 90)
+    (property "Footprint" "RJ45_Sparkfun:RJ45_Sparkfun" (id 2) (at 212.09 74.295 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 212.09 74.295 90)
@@ -3065,7 +3070,7 @@
     (property "Value" "8P8C" (id 1) (at 220.472 108.3822 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "Connector_RJ:RJ45_Amphenol_RJHSE5380" (id 2) (at 212.09 106.045 90)
+    (property "Footprint" "RJ45_Sparkfun:RJ45_Sparkfun" (id 2) (at 212.09 106.045 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 212.09 106.045 90)
@@ -3186,10 +3191,10 @@
       (reference "J3") (unit 1) (value "XLR3") (footprint "NC3FD-H:Jack_XLR_Neutrik_NC3FD-H_Horizontal")
     )
     (path "/00cad9ac-2b14-4956-a62a-c9828ff3e0c0"
-      (reference "J4") (unit 1) (value "8P8C") (footprint "Connector_RJ:RJ45_Amphenol_RJHSE5380")
+      (reference "J4") (unit 1) (value "8P8C") (footprint "RJ45_Sparkfun:RJ45_Sparkfun")
     )
     (path "/51a341f4-726a-4ff1-9c8e-5fb0ba36a59e"
-      (reference "J5") (unit 1) (value "8P8C") (footprint "Connector_RJ:RJ45_Amphenol_RJHSE5380")
+      (reference "J5") (unit 1) (value "8P8C") (footprint "RJ45_Sparkfun:RJ45_Sparkfun")
     )
     (path "/00000000-0000-0000-0000-00006059f495"
       (reference "J6") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")

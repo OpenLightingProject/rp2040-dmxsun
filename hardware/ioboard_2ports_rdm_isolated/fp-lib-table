@@ -1,3 +1,4 @@
 (fp_lib_table
   (lib (name "NC3FD-H")(type "KiCad")(uri "${KIPRJMOD}/../footprints/NC3FD-H.pretty")(options "")(descr ""))
+  (lib (name "RJ45_Sparkfun")(type "KiCad")(uri "${KIPRJMOD}/../footprints/RJ45_Sparkfun.pretty")(options "")(descr ""))
 )
