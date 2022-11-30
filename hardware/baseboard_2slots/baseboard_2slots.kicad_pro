@@ -144,10 +144,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      "pin_to_pin|1435100|1651000|018a8fd3-ddf5-4f10-a592-daf20f08af3d|9d2a1758-cf73-4729-96b6-29820146c4f3",
-      "pin_to_pin|254000|1035050|9d2a1758-cf73-4729-96b6-29820146c4f3|018a8fd3-ddf5-4f10-a592-daf20f08af3d"
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },
@@ -342,7 +339,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "ignore",
       "power_pin_not_driven": "ignore",
       "similar_labels": "warning",
       "unannotated": "error",

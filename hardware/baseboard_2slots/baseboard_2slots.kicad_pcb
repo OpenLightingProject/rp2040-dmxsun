@@ -6628,7 +6628,7 @@
   (gr_text "Qwiic / Stemma QT\nI2C 3.3V" (at 102 62.5) (layer "F.SilkS") (tstamp a9e0b838-e3e2-480a-a8bb-83d9d5bee24a)
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (gr_text "rp2040-dmxsun USB DMX\nbaseboard 2 slots; Rev 0.5\nhttps://github.com/OpenLightingProject/rp2040-dmxsun" (at 163.2 53.5) (layer "F.SilkS") (tstamp ac760681-7e73-4c6c-ade0-39c99285e606)
+  (gr_text "rp2040-dmxsun USB DMX\nbaseboard 2 slots; Rev 0.6\nhttps://github.com/OpenLightingProject/rp2040-dmxsun" (at 163.2 53.5) (layer "F.SilkS") (tstamp ac760681-7e73-4c6c-ade0-39c99285e606)
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_text "+5V" (at 245.98 46.59 270) (layer "F.SilkS") (tstamp bc035fdd-5be2-467c-b788-52ac3f74d30a)

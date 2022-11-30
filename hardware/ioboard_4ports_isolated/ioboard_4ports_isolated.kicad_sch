@@ -6,8 +6,8 @@
 
   (title_block
     (title "rp2040_dongle_ioboard_4ports_isolated")
-    (date "2022-11-09")
-    (rev "0.5")
+    (date "2022-11-30")
+    (rev "0.6")
     (company "https://www.openlighting.org")
   )
 

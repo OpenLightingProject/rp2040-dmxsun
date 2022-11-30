@@ -6139,7 +6139,7 @@
   (gr_text "Mount only one:\nPort1:  RX   TX" (at 35.179 25.908) (layer "F.SilkS") (tstamp 0d1336c6-3897-486b-9946-63a8009ddfb8)
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (gr_text "ioboard_4ports_isolated XLR3; Rev 0.5; https://github.com/OpenLightingProject/rp2040-dmxsun" (at 71.4 21.717) (layer "F.SilkS") (tstamp b8ca6e57-a521-4fbd-a257-7c1ad91a1c48)
+  (gr_text "ioboard_4ports_isolated XLR3; Rev 0.6; https://github.com/OpenLightingProject/rp2040-dmxsun" (at 71.4 21.717) (layer "F.SilkS") (tstamp b8ca6e57-a521-4fbd-a257-7c1ad91a1c48)
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_text "No high components\nabove this line \n(base board overlaps)" (at 143 35) (layer "Cmts.User") (tstamp fd051165-4cbb-4272-90db-52994c5ed863)
