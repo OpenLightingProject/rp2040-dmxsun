@@ -136,10 +136,7 @@
   },
   "erc": {
     "erc_exclusions": [
-      "pin_not_connected|2057400|368300|a4d7e2f2-1cf5-4e2a-aaba-0de964e994e4|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|1244600|254000|9a02e3e6-6ac1-4a27-a805-8715eadc41c9|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|1638300|292100|76a58100-6187-422d-ba33-ff8d761c9d6b|00000000-0000-0000-0000-000000000000",
-      "power_pin_not_driven|495300|1511300|f3cd3db8-702d-432e-a09b-411e7efece3d|00000000-0000-0000-0000-000000000000"
+      "pin_not_connected|2057400|368300|a4d7e2f2-1cf5-4e2a-aaba-0de964e994e4|00000000-0000-0000-0000-000000000000"
     ],
     "meta": {
       "version": 0
@@ -336,7 +333,7 @@
       "pin_not_connected": "error",
       "pin_not_driven": "error",
       "pin_to_pin": "warning",
-      "power_pin_not_driven": "error",
+      "power_pin_not_driven": "ignore",
       "similar_labels": "warning",
       "unannotated": "error",
       "unit_value_mismatch": "error",
