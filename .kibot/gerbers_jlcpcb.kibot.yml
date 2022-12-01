@@ -102,6 +102,16 @@ outputs:
       npth_id: "NPTH"
       metric_units: false
 
+  - name: JLCPCB_gerber.zip
+    comment: JLCPCB Gerbers and Drills archived
+    type: compress
+    dir: kibot_export/jlcpcb
+    options:
+      files:
+        - source: "kibot_export/jlcpcb/gerbers"
+      move_files: true
+    priority: 5
+
   - name: JLCPCB_cpl
     comment: "Pick and place - JLCPCB"
     type: position
@@ -130,9 +140,9 @@ outputs:
   - name: JLCPCB_bom
     comment: "BOM - JLCPCB"
     type: bom
-    dir: kibot_export/jlcpcb/gerbers
+    dir: kibot_export/jlcpcb
     options:
-      output: "%f-%i-%r.%x"
+      output: "%f-%i.%x"
       exclude_filter: only_jlc_parts
       ref_separator: ","
       columns:
