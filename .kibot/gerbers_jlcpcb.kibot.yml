@@ -108,7 +108,7 @@ outputs:
     dir: kibot_export/jlcpcb
     options:
       variant: rotated
-      output: "%f_cpl.%x"
+      output: "%f_%i_cpl.%x"
       format: CSV
       units: millimeters
       separate_files_for_front_and_back: true
