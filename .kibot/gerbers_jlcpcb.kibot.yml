@@ -102,13 +102,17 @@ outputs:
       npth_id: "NPTH"
       metric_units: false
 
-  - name: JLCPCB_gerber.zip
+  - name: JLCPCB_gerber_archive
     comment: JLCPCB Gerbers and Drills archived
     type: compress
     dir: kibot_export/jlcpcb
     options:
       files:
-        - source: "kibot_export/jlcpcb/gerbers"
+        - from_output: gerbers_jlcpcb.gbr
+          dest: /
+        - from_output: JLCPCB_drill
+          dest: /
+
       move_files: true
     priority: 5
 
