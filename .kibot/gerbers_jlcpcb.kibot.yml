@@ -67,7 +67,7 @@ outputs:
   - name: gerbers_jlcpcb.gbr
     comment: Gerbers - JLCPCB
     type: gerber
-    dir: kibot_export/gerbers/jlcpcb
+    dir: kibot_export/jlcpcb/gerbers
     options: &gerber_options
       exclude_edge_layer: true
       exclude_pads_from_silkscreen: true
@@ -95,17 +95,17 @@ outputs:
   - name: JLCPCB_drill
     comment: Drill - JLCPCB
     type: excellon
-    dir: gerbers/jlcpcb
+    dir: kibot_export/jlcpcb/gerbers
     options:
       pth_and_npth_single_file: false
       pth_id: "PTH"
       npth_id: "NPTH"
       metric_units: false
 
-  - name: 'https://jlcpcb.com/'
+  - name: JLCPCB_cpl
     comment: "Pick and place - JLCPCB"
     type: position
-    dir: gerbers/jlcpcb
+    dir: kibot_export/jlcpcb
     options:
       variant: rotated
       output: "%f_cpl.%x"
@@ -130,7 +130,7 @@ outputs:
   - name: JLCPCB_bom
     comment: "BOM - JLCPCB"
     type: bom
-    dir: gerbers/jlcpcb
+    dir: kibot_export/jlcpcb/gerbers
     options:
       output: "%f-%i-%r.%x"
       exclude_filter: only_jlc_parts
