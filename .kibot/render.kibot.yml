@@ -1,0 +1,61 @@
+outputs:
+  # For more information: https://github.com/INTI-CMNB/KiBoM
+  - name: 'kicad_3d_view_top'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-top.%x'
+      ray_tracing: true
+      view: top
+      zoom: 10
+
+  - name: 'kicad_3d_view_bottom'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-bottom.%x'
+      ray_tracing: true
+      view: bottom
+      zoom: 10
+
+  - name: 'kicad_3d_view_front'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-front.%x'
+      ray_tracing: true
+      view: front
+      zoom: 15
+
+  - name: 'kicad_3d_view_rear'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-rear.%x'
+      ray_tracing: true
+      view: rear
+      zoom: 15
+
+  - name: 'kicad_3d_view_right'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-right.%x'
+      ray_tracing: true
+      view: right
+      zoom: 15
+
+  - name: 'kicad_3d_view_left'
+    type: 'render_3d'
+    dir: 'kibot_export/img/render'
+    options:
+      download: true
+      output: '%f-left.%x'
+      ray_tracing: true
+      view: left
+      zoom: 15

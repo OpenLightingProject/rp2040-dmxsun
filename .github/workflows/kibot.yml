@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2022 nerdyscout <https://github.com/nerdyscout/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: KiBot
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - "hardware/**/*.kicad_sch"
+    - "hardware/**/*.kicad_pcb"
+    - "hardware/**/*.kicad_pro"
+    - "**/*kibot.yml"
+  pull_request:
+    paths:
+    - "hardware/**/*.kicad_sch"
+    - "hardware/**/*.kicad_pcb"
+    - "hardware/**/*.kicad_pro"
+    - "**/*kibot.yml"
+
+jobs:
+  kicad_exports:
+    strategy:
+      matrix:
+        board: [baseboard_4slots, baseboard_2slots, ioboard_2ports_rdm_isolated, ioboard_2ports_rdm_unisolated, ioboard_4ports_isolated, ioboard_4ports_unisolated]
+    runs-on: ubuntu-latest
+    container:
+      image: setsoft/kicad_auto:ki6
+    steps:
+      - uses: actions/checkout@v3
+      # Checks
+      - name: run ERC
+        run: |
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_drc -v -i
+      - name: run DRC
+        run: |
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_erc -v -i
+      # Documentation
+      - name: create documentation
+        run: |
+          kibot -c kibot.yml -e hardware/${{ matrix.board }}/*sch -b hardware/${{ matrix.board }}/*pcb -s run_erc,run_drc -v \
+            ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf board_top_with_copper.pdf board_bottom_with_copper.pdf \
+            gerbers.gbr gerbers_jlcpcb.gbr JLCPCB_drill JLCPCB_bom JLCPCB_cpl JLCPCB_gerber_archive drills.gbr drills.drl pickandplace.csv bom.csv \
+            hasl_green_top.svg hasl_green_bottom.svg oshpark_afterdark_top.svg oshpark_afterdark_bottom.svg oshpark_purple_top.svg oshpark_purple_bottom.svg \
+            board_black_top.svg board_black_bottom.svg autocad.dxf model.step openboardview.brd \
+            kicad_3d_view_top kicad_3d_view_bottom kicad_3d_view_front kicad_3d_view_rear kicad_3d_view_right kicad_3d_view_left
+      - uses: actions/upload-artifact@v3
+        if: ${{success()}}
+        with:
+          name: ${{ matrix.board }}
+          if-no-files-found: error
+          path: |
+            kibot_export/**
+            !**/*.ogv

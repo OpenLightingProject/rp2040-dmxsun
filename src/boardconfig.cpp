@@ -31,11 +31,13 @@ void BoardConfig::init() {
     i2c_init(i2c0, 100 * 1000);
     gpio_set_function(PIN_I2C_SCL, GPIO_FUNC_I2C);
     gpio_set_function(PIN_I2C_SDA, GPIO_FUNC_I2C);
-    // Pull-ups are populated on Rev 0.1 base boards
-    // so the internal ones are not required. However, they don't hurt
-    // and the plan is to remove the external ones
+    // Pull-ups are populated on the base board
+    // However, we enable the internal ones as well, doesn't hurt
+    // Please note that the external ones are required according to the
+    // RP2040 datasheet and my measurements confirm that
     gpio_pull_up(PIN_I2C_SCL);
     gpio_pull_up(PIN_I2C_SDA);
+
     memset(this->rawData, 0xff, 5*256);
 }
 
