@@ -29,7 +29,7 @@ The idea came when thinking about a suitable icon for the pages on the integrate
 Maybe it's also because outdoor lighting technicians absolutely love the sun since they can perfectly set up their light show while the sun is shining bright ;)
 
 
-## How does it look like?
+## What does it look like?
 
 The hardware consists of a base board into which the Raspberry Pi Pico-board plugs in to. To get a quick overview of the board's status, 8 RGB status LEDs are attached to the base board.
 
