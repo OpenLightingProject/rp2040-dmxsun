@@ -14,25 +14,39 @@ pico_sdk_init()
 include(${CMAKE_CURRENT_LIST_DIR}/wwwsrc/CMakeLists.txt)
 
 ## Command and target to build makefsdata
+if(DEFINED ENV{CI})
+    message(STATUS "CI environment detected, using ZOPFLI compression")
+    set(BUILD_MAKEFSDATA_PARAMS -DMAKEFS_SUPPORT_DEFLATE_ZOPFLI=1 -lzopfli -I/usr/include/zopfli)
+else()
+    message(STATUS "No CI environment detected, using faster zlib compression")
+    set(BUILD_MAKEFSDATA_PARAMS -DMAKEFS_SUPPORT_DEFLATE_ZLIB=1)
+endif()
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
-  DEPENDS ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c
-  COMMAND gcc -o makefsdata -DMAKEFS_SUPPORT_DEFLATE=1 -DMAKEFS_SUPPORT_DEFLATE_ZLIB=1 -I${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/include -I/usr/include/zopfli -I${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c -lz
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c
+    COMMAND gcc -o makefsdata -DMAKEFS_SUPPORT_DEFLATE=1 ${BUILD_MAKEFSDATA_PARAMS} -I${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/include -I${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c -lz
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 add_custom_target(makefsdata
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
 )
 
 ## Command and target to build fsdata.c from the webapp using makefsdata
+if(DEFINED ENV{CI})
+    message(STATUS "CI environment detected, using ZOPFLI compression")
+    set(MAKEFSDATA_PARAMS -defl:400 -11)
+else()
+    message(STATUS "No CI environment detected, using faster zlib compression")
+    set(MAKEFSDATA_PARAMS -defl:6 -11)
+endif()
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
-  DEPENDS ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build.md5
-  COMMAND ./makefsdata ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build -defl:6 -11 -f:${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build.md5
+    COMMAND ./makefsdata ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build ${MAKEFSDATA_PARAMS} -f:${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 add_custom_target(fsdata
-  DEPENDS webui_build makefsdata ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+    DEPENDS webui_build makefsdata ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
 )
 
 ## Include the CMakeLists-files of (non-pico-sdk)-libraries we will be using
