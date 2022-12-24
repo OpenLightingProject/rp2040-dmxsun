@@ -16,6 +16,6 @@
 [submodule "lib/snappy"]
 	path = lib/snappy
 	url = https://github.com/kripton/snappy.git
-[submodule "lib/jsconcpp"]
-	path = lib/jsconcpp
+[submodule "lib/jsoncpp"]
+	path = lib/jsoncpp
 	url = https://github.com/kripton/jsoncpp.git
