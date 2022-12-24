@@ -16,15 +16,17 @@ include(${CMAKE_CURRENT_LIST_DIR}/wwwsrc/CMakeLists.txt)
 ## Command and target to build makefsdata
 if(DEFINED ENV{CI})
     message(STATUS "CI environment detected, using ZOPFLI compression")
-    set(BUILD_MAKEFSDATA_PARAMS -DMAKEFS_SUPPORT_DEFLATE_ZOPFLI=1 -lzopfli -I/usr/include/zopfli)
+    set(BUILD_MAKEFSDATA_PARAMS -DMAKEFS_SUPPORT_DEFLATE_ZOPFLI=1 -I/usr/include/zopfli)
+    set(BUILD_MAKEFSDATA_LDPARAMS -lzopfli)
 else()
     message(STATUS "No CI environment detected, using faster zlib compression")
     set(BUILD_MAKEFSDATA_PARAMS -DMAKEFS_SUPPORT_DEFLATE_ZLIB=1)
+    set(BUILD_MAKEFSDATA_LDPARAMS "")
 endif()
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c
-    COMMAND gcc -o makefsdata -DMAKEFS_SUPPORT_DEFLATE=1 ${BUILD_MAKEFSDATA_PARAMS} -I${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/include -I${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c -lz
+    COMMAND gcc -o makefsdata -DMAKEFS_SUPPORT_DEFLATE=1 ${BUILD_MAKEFSDATA_PARAMS} -I${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/include -I${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c -lz ${BUILD_MAKEFSDATA_LDPARAMS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 add_custom_target(makefsdata
