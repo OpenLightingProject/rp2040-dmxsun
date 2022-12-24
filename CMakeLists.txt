@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 ## pico_sdk_import.cmake is copied from
 ## https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake
-include(pico_sdk_import.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/pico_sdk_import.cmake)
 
 ## Give the baby a name. Will also be the name of the resulting binaries
 project(rp2040-dmxsun)
@@ -10,30 +10,43 @@ project(rp2040-dmxsun)
 ## Init the pico-sdk. Will instruct the user what to do if deps are missing
 pico_sdk_init()
 
+## Get the targets for "npm install" and "npm run build"
+include(${CMAKE_CURRENT_LIST_DIR}/wwwsrc/CMakeLists.txt)
+
+## Command and target to build makefsdata
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
+  DEPENDS ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c
+  COMMAND gcc -o makefsdata -DMAKEFS_SUPPORT_DEFLATE=1 -DMAKEFS_SUPPORT_DEFLATE_ZLIB=1 -I${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/include -I/usr/include/zopfli -I${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/lib/lwip/src/apps/http/makefsdata/makefsdata.c -lz
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+add_custom_target(makefsdata
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/makefsdata
+)
+
+## Command and target to build fsdata.c from the webapp using makefsdata
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+  DEPENDS ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build.md5
+  COMMAND ./makefsdata ${CMAKE_CURRENT_LIST_DIR}/wwwsrc/build -defl:6 -11 -f:${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+add_custom_target(fsdata
+  DEPENDS webui_build makefsdata ${CMAKE_CURRENT_LIST_DIR}/src/fsdata.c
+)
+
 ## Include the CMakeLists-files of (non-pico-sdk)-libraries we will be using
-include(../lib/RF24/CMakeLists.txt)
-include(../lib/RF24Network/CMakeLists.txt)
-include(../lib/RF24Mesh/CMakeLists.txt)
-include(../lib/snappy/interfaceLibForPicoSDK.cmake)
-include(../lib/libb64/CMakeLists.txt)
-include(../lib/jsconcpp/interfaceLibForPicoSDK.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/RF24/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/RF24Network/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/RF24Mesh/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/snappy/interfaceLibForPicoSDK.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/libb64/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/jsconcpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
 set(TINYUSB_LIBNETWORKING_SOURCES
     ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
-)
-
-## Build the "www" folder from the content of "wwwsrc"
-execute_process(
-    COMMAND ./build-webui.sh
-    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
-)
-
-## Build "src/fsdata.c" from the content of the "www" folder
-execute_process(
-    COMMAND ./regen-fsdata.sh
-    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
 ## I'd like to use LTO but it doesn't yet work
@@ -49,33 +62,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
-    boardconfig.cpp
-    crc_X25.c
-    dmxbuffer.cpp
-    edp.cpp
-    localdmx.cpp
-    log.cpp
-    main.cpp
-    statusleds.cpp
-    stdio_usb.c
-    tusb_lwip_glue.c
-    udp_artnet.cpp
-    udp_e1_31.cpp
-    udp_edp.cpp
-    usb_descriptors.c
-    usb_generic.cpp
-    usb_EDP.cpp
-    usb_NodleU1.cpp
-    webserver.cpp
-    wireless.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/boardconfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/edp.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/statusleds.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/stdio_usb.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/tusb_lwip_glue.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/udp_artnet.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/udp_e1_31.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/udp_edp.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/usb_descriptors.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/usb_generic.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/usb_EDP.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/usb_NodleU1.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/webserver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/wireless.cpp
 )
 
 ## Add our rp2040-PIO programs here
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}
-    ${CMAKE_CURRENT_LIST_DIR}/tx16.pio
+    ${CMAKE_CURRENT_LIST_DIR}/src/tx16.pio
 )
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}
-    ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio
+    ${CMAKE_CURRENT_LIST_DIR}/src/ws2812.pio
 )
 
 ## Define the SPI pins we use for the RF24 library
@@ -106,11 +119,11 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
 )
 
 ## LWIP works a little bit different than the other libraries since
-## it ships its own FileList
-set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/../lib/lwip)
+## it ships its onw FileList
+set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/lwip)
 set (LWIP_INCLUDE_DIRS
     "${LWIP_DIR}/src/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_LIST_DIR}/src/"
 )
 include(${LWIP_DIR}/src/Filelists.cmake)
 
@@ -147,3 +160,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
 ## Create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
+
+## Make sure fsdata is ready when lwip wants it
+add_dependencies(lwipcore fsdata)
+add_dependencies(lwipallapps fsdata)
