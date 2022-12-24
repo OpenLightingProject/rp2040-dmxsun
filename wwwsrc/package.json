@@ -21,8 +21,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "build": "react-scripts build; tar c build | md5sum > build.md5",
+    "eject": "react-scripts eject",
+    "postinstall": "tar c node_modules | md5sum > node_modules.md5"
   },
   "eslintConfig": {
     "extends": [
