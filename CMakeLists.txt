@@ -57,7 +57,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/lib/RF24Network/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/RF24Mesh/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/snappy/interfaceLibForPicoSDK.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/libb64/CMakeLists.txt)
-include(${CMAKE_CURRENT_LIST_DIR}/lib/jsconcpp/interfaceLibForPicoSDK.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/lib/jsoncpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
 set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
