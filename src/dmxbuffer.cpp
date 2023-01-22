@@ -96,8 +96,9 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
     if ((allZero) || (!memcmp(DmxBuffer::buffer[bufferId], allZeroes, 512))) {
         // universe is all zeroes
         DmxBuffer::allZeroBuffers[bufferId] = true;
+    } else {
+        DmxBuffer::allZeroBuffers[bufferId] = false;
     }
-    DmxBuffer::allZeroBuffers[bufferId] = false;
 
     LOG("DmxBuffer::triggerPatchings. bufferId: %d, allZeroes: %d", bufferId, DmxBuffer::allZeroBuffers[bufferId]);
 

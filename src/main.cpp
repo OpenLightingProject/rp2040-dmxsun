@@ -129,6 +129,7 @@ int main() {
     logger.init();
 
     // Phase 6: Fire up the integrated web server
+    // This also initialises the TinyUSB<->lwIP glue. lwIP and the DHCP server
     webServer.init();
 
     // Phase 7: Detect if there is a radio module and init it if so

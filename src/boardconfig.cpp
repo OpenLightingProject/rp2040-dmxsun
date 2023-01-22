@@ -116,7 +116,7 @@ ConfigData BoardConfig::defaultConfig() {
 
     memcpy(&cfg, &constDefaultConfig, sizeof(ConfigData));
 
-    snprintf(cfg.boardName, 32, "! Fallback config !");
+    snprintf(cfg.boardName, 32, "! Fallback config v%d!", cfg.configVersion);
 
     // Compute the third byte of the IP with a value from
     // the unique board id: 169.254.X.1 (board), 169.254.X.2 (host)

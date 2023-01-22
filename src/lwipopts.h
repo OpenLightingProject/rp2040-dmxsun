@@ -35,17 +35,22 @@
 /* Prevent having to link sys_arch.c (we don't test the API layers in unit tests) */
 #define NO_SYS                          1
 #define MEM_ALIGNMENT                   4
-#define MEM_SIZE                        16384
+#define MEM_SIZE                        16384  // default: 1600
+#define PBUF_POOL_SIZE                  24     // default: 16
 #define MEMP_NUM_UDP_PCB                64
 #define MEMP_NUM_TCP_PCB                16
 #define MEMP_NUM_TCPIP_MSG_API          16
 #define LWIP_RAW                        0
 #define LWIP_NETCONN                    0
 #define LWIP_SOCKET                     0
-#define LWIP_DHCP                       0
+#define LWIP_DHCP                       1
+#define LWIP_NETIF_HOSTNAME             0
 #define LWIP_ICMP                       1
 #define LWIP_UDP                        1
 #define LWIP_TCP                        1
+#define LWIP_SNMP                       0
+#define LWIP_PPP                        0
+#define LWIP_IPV6                       0
 #define ETH_PAD_SIZE                    0
 #define LWIP_IP_ACCEPT_UDP_PORT(p)      ((p) == PP_NTOHS(67))
 
@@ -65,13 +70,13 @@
 #define LWIP_HTTPD_SSI_RAW              1
 #define LWIP_HTTPD_MAX_TAG_NAME_LEN     64
 #define LWIP_HTTPD_SSI_INCLUDE_TAG      0
-#define LWIP_HTTPD_MAX_TAG_INSERT_LEN   1200
+#define LWIP_HTTPD_MAX_TAG_INSERT_LEN   2048
 
 #define LWIP_HTTPD_SUPPORT_11_KEEPALIVE 1
 
 #define HTTPD_USE_CUSTOM_FSDATA         1
 #define HTTPD_FSDATA_FILE               "../../../../../src/fsdata.c"
 
-#define LWIP_SINGLE_NETIF               1
+#define LWIP_SINGLE_NETIF               0
 
 #endif /* __LWIPOPTS_H__ */
