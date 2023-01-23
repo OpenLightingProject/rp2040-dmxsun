@@ -175,7 +175,9 @@ class Wireless extends React.Component {
                           &nbsp;
                         </div>
                         <div className="col col-9">
+                          <div  style={{ width: "800px" }}>
                             <Bar ref={(reference) => this.chartReference = reference } data={this.state.spectrumData} options={options} />
+                          </div>
                         </div>
                         <div className="col">
                           &nbsp;
