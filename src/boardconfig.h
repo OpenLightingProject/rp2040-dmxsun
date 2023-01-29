@@ -10,16 +10,17 @@
 #endif
 
 // The config area in the flash is the last sector since the smallest
-// area we can erase is one sector. One sector is 4kByte large and
+// area we can erase is one sector. One sector is usually 4kByte large and
 // the Pico's flash is 2048kByte large. Thus, the config area starts
 // at offset 2044k.
-// However, we are only using the first 256 byte of that sector.
-#define CONFIG_FLASH_OFFSET (2044 * 1024)
+// However, we are only using the first 2048 byte of that sector since
+// that is how large the I2C EEPROMs on the IO boards are (since rev 0.7)
+#define CONFIG_FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 
 #define MAX_PATCHINGS 32
 
 // Config data types and layout
-#define CONFIG_VERSION 1
+#define CONFIG_VERSION 2
 
 #ifdef __cplusplus
 
@@ -107,32 +108,42 @@ struct __attribute__((__packed__)) RadioParams {
 DECLARE_ENUM(RadioRole,uint8_t,RADIOROLE)
 
 
-// Bit 0: 0 = inactive, 1 = active
-// Bit 1: 0 = "output" = buffer to s.th. else; 1 = "input" = somewhere to buffer
-// Bit 2-6: Buffer: One of the 24 internal DMX buffers
-// Bit 7: 0 = "normal" mapping, 1 = "buffer-to-buffer"
-//        If 1, the "buffer" is the source, the "port" is the destination
+#define ETHDHCPMODE(XX) \
+    XX(staticIp,=0)         /* static IP, no DHCP is tried */ \
+    XX(dhcpWithFallback,=1) /* DHCP is tried, fallback to static IP */ \
+    XX(dhcpOrFail,=2)       /* DHCP is tried, module is disabled on failure */ \
 
-// Bit 8-9: Merge mode
-// Bit 10: Reserved
-// Bit 11-15: Port:
-//   Ports 0-15 are the 16 physical ports of the IO boards
-//              Their direction is in the PortParams of the IO board config
-//   Ports 16-23 are the (at most) 8 IN ports of the USB host interface (board to host)
-//              Their direction is in the usbProtocolDirections member of the active system config
-//   Ports 24-27 are 4 wireless-DMX ports IN to this board
-//   Ports 28-31 are 4 wireless-DMX ports OUT of this board
-// TODO: Create an enum for the "ports"
+DECLARE_ENUM(EthDhcpMode,uint8_t,ETHDHCPMODE)
+
+
+#define PATCHTYPE(XX) \
+    XX(buffer,=0)           /* Our internal DMX buffers */ \
+    XX(local,=1)            /* Local DMX generation (GPIO via PIO) */ \
+    XX(usbProto,=2)         /* From/to the host via Serial or emulated protocol */ \
+    XX(eth,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
+                            /* (all treated the same) (ArtNet or sACN) */ \
+    XX(nrf24,=5)            /* nRF24 wireless module connected via SPI  */ \
+
+DECLARE_ENUM(PatchType,uint8_t,PATCHTYPE)
+
+
 struct __attribute__((__packed__)) Patching {
     // First byte:
-    uint8_t active            : 1;
-    uint8_t direction         : 1;
-    uint8_t buffer            : 5;
-    uint8_t buffer_to_buffer  : 1;
-    // Second byte:
-    uint8_t mergeMode         : 2;
-    uint8_t RESERVED2         : 1;
-    uint8_t port              : 5;
+    bool active;
+    PatchType srcType;
+    uint16_t srcInstance; // Buffer: 0 to DMXBUFFER_COUNT-1
+                          // Local: 0 to 16
+                          // UsbProto: Depends on protocol, usually <= 16
+                          // UsbEth: ArtNet (0-based) or sACN (1-based) universe
+                          // Eth: ArtNet (0-based) or sACN (1-based) universe
+                          //      RX is fine, TX needs additional parameters
+                          //      such as dst IP and port, ...
+                          // nrf24: universe 0-3
+                          // WiFi: See eth
+    PatchType dstType;
+    uint16_t dstInstance;
+    uint8_t ethDestParams; // Id of the "Ethernet Destination Parameters" structures
+                           // used for patchings with UsbEth, Eth and WiFi as dstType
 };
 
 #define CONFIGSOURCE(XX) \
@@ -146,23 +157,10 @@ struct __attribute__((__packed__)) Patching {
 DECLARE_ENUM(ConfigSource,uint8_t,CONFIGSOURCE)
 
 
-#define BUFFERTONETWORKTYPE(XX) \
-    XX(BTN_E1_31,=0) \
-    XX(BTN_ArtNet,=1) \
-    XX(BTN_EDP,=2) \
-
-DECLARE_ENUM(BufferToNetworkType,uint8_t,BUFFERTONETWORKTYPE)
-
-
-// An optional network output that can be assigned to a DMX buffer
-// Sends either E1:31, ArtNet or EDP
-struct __attribute__((__packed__)) BufferToNetwork {
-    uint8_t             active : 1;
-    uint8_t             buffer : 5;
-    uint8_t             allowSparse: 1; // 1 = sparse, 0 = full
-    uint8_t             allowCompression : 1;
-    BufferToNetworkType type : 3;
-    uint8_t             RESERVED1: 5;
+// Additional parameters for patchings with UsbEth, Eth and WiFi destinations
+struct __attribute__((__packed__)) EthDestParams {
+    bool                allowSparse; // 1 = sparse, 0 = full
+    bool                allowCompression : 1;
     uint8_t             dstIp[4];
     uint16_t            universeId;
     uint8_t             params;      // E1:31 => priority
@@ -188,7 +186,7 @@ struct __attribute__((__packed__)) ConfigData {
     uint16_t               radioAddress; // RF24Mesh: "nodeId"
     struct RadioParams     radioParams;  // Bit field: 0,1: Compression, 2: Sparse or Full transfers, 3,4: Data rate, 5,6: TX power
     struct Patching        patching[MAX_PATCHINGS];
-    struct BufferToNetwork bufferToNetwork[12];
+    struct EthDestParams   ethDestParams[16];
     uint8_t                statusLedBrightness;
     // TODO: CRC for the configuration?
 };

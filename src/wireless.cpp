@@ -39,10 +39,10 @@ void Wireless::init() {
     memset(&stats, 0x00, sizeof(struct WirelessStats));
 
     // RX path goes via RX0 from radio to EDP and RX1 is out buffer
-    edpRX.init(tmpBuf_RX0, tmpBuf_RX1, 24, 32);
+    edpRX.init(tmpBuf_RX0, tmpBuf_RX1, 32);
 
     // TX path goes from sendQueueCopy to EDP and TX1 it out buffer
-    edpTX.init(tmpBufQueueCopy, tmpBuf_TX1, 24, 32);
+    edpTX.init(tmpBufQueueCopy, tmpBuf_TX1, 32);
 
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 
@@ -238,25 +238,6 @@ void Wireless::doSendData() {
             statusLeds.setStaticOff(6, 1, 0, 0);
         }
     }
-}
-
-Patching Wireless::findPatching(uint8_t universeId) {
-    Patching retPatch;
-
-    retPatch.active = false;
-
-    for (int i = 0; i < MAX_PATCHINGS; i++) {
-        Patching patching = boardConfig.activeConfig->patching[i];
-        if ((!patching.active) ||
-            ((patching.port - 24) != universeId) ||
-            (!patching.direction))
-        {
-            continue;
-        }
-        return patching;
-    }
-
-    return retPatch;
 }
 
 void Wireless::handleReceivedData() {

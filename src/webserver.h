@@ -2,6 +2,7 @@
 #define WEBSERVER_H
 
 #include "pico/bootrom.h"
+#include "hardware/flash.h"
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
 

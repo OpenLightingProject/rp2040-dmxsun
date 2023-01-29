@@ -24,7 +24,7 @@ void Udp_EDP::init(void) {
   memset(tmpBuf, 0x00, 600);
   memset(tmpBuf2, 0x00, 600);
 
-  edp.init(tmpBuf, tmpBuf2, 255, 600);
+  edp.init(tmpBuf, tmpBuf2, 600);
 
   if (pcb == NULL) {
     pcb = udp_new_ip_type(IPADDR_TYPE_V4);

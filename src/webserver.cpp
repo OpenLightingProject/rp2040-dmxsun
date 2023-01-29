@@ -399,6 +399,11 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
         WebServer::ipToString(boardConfig.activeConfig->hostIp, hostIp);
+
+        output["flashSize"] = PICO_FLASH_SIZE_BYTES;
+        output["flashSectorSize"] = FLASH_SECTOR_SIZE;
+        output["flashBlockSize"] = FLASH_BLOCK_SIZE;
+
         output["boardName"] = boardConfig.activeConfig->boardName;
         output["configSource"] = GetConfigSourceString(boardConfig.configSource);
         output["version"] = VERSION;

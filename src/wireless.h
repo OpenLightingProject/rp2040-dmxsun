@@ -57,8 +57,6 @@ class Wireless {
     void handleReceivedData();
     void doSendData();
 
-    Patching findPatching(uint8_t universeId);
-
     // Stats:
     struct WirelessStats stats;
 

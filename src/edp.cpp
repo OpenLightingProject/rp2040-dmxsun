@@ -10,7 +10,7 @@ extern DmxBuffer dmxBuffer;
 
 extern critical_section_t bufferLock;
 
-void Edp::init(uint8_t* inData, uint8_t* outData, uint8_t patchingOffset, uint16_t maxSendChunkSize) {
+void Edp::init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize) {
     this->initOkay = false;
 
     if (!inData || !outData || (maxSendChunkSize < 20)) {
@@ -19,7 +19,6 @@ void Edp::init(uint8_t* inData, uint8_t* outData, uint8_t patchingOffset, uint16
 
     this->inData = inData;
     this->outData = outData;
-    this->patchingOffset = patchingOffset;
     this->maxSendChunkSize = maxSendChunkSize;
 
     this->initOkay = true;
@@ -178,13 +177,13 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
 
     if (inData[0] == Edp_Commands::DmxDataAllZero) {
         // No chunk header, no packetheader, just the universeId
-        patching = findPatching(inData[1] + patchingOffset);
+        patching = findPatching(inData[1]);
 
-        LOG("allZero packet. universe: %u patching active: %u buffer: %u", inData[1], patching.active, patching.buffer);
+        LOG("allZero packet. universe: %u patching active: %u buffer: %u", inData[1], patching.active, patching.dstInstance);
 
         if (patching.active) {
             // Easy: Just clear the DmxBuffer
-            dmxBuffer.zero(patching.buffer);
+            dmxBuffer.zero(patching.dstInstance);
             return true;
         }
         return false;
@@ -243,7 +242,7 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             // will re-use inData for that. So zero it here
             memset(inData, 0x00, 600);
 
-            patching = findPatching(packetHeader->universeId + patchingOffset);
+            patching = findPatching(packetHeader->universeId);
 
             LOG("DmxData packet complete! universe: %u, packetLen: %u, compressed: %u, sparse: %u, sparseOffset: %u, patching active: %u buffer: %u",
                 packetHeader->universeId,
@@ -252,18 +251,12 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                 packetHeader->sparse,
                 packetHeader->sparseOffset,
                 patching.active,
-                patching.buffer
+                patching.dstInstance
             );
 
             // If this universe is not patched, no need to do anything
-            if ((!patching.active) && (patchingOffset != 255)) {
+            if (!patching.active) {
                 return true; // TODO: or better false?
-            }
-
-            if (patchingOffset == 255) {
-                universeId = packetHeader->universeId;
-            } else {
-                universeId = patching.buffer;
             }
 
             if (packetHeader->compressed) {
@@ -276,7 +269,7 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
                     }
 
                     if (snappy::RawUncompress((const char*)(outData + sizeof(struct Edp_DmxData_PacketHeader)), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader), (char*)inData + packetHeader->sparseOffset) == true) {
-                        dmxBuffer.setBuffer(universeId, inData, uncompressedLength + packetHeader->sparseOffset);
+                        dmxBuffer.setBuffer(patching.dstInstance, inData, uncompressedLength + packetHeader->sparseOffset);
                         return true;
                     } else {
                         LOG("snappy::RawUncompress failed :(");
@@ -289,11 +282,11 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             } else {
                 // Sanity check: if full frame, packetLen MUST be 512 + sizeof PacketHeader
                 if (prepareDmxData_chunkOffset == (512 + sizeof(Edp_DmxData_PacketHeader))) {
-                    dmxBuffer.setBuffer(universeId, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
+                    dmxBuffer.setBuffer(patching.dstInstance, outData + sizeof(struct Edp_DmxData_PacketHeader), (prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader)));
                     return true;
                 } else if (packetHeader->sparse) {
                     memcpy(inData + packetHeader->sparseOffset, outData + sizeof(struct Edp_DmxData_PacketHeader), prepareDmxData_chunkOffset - sizeof(struct Edp_DmxData_PacketHeader));
-                    dmxBuffer.setBuffer(universeId, inData, prepareDmxData_chunkOffset + packetHeader->sparseOffset);
+                    dmxBuffer.setBuffer(patching.dstInstance, inData, prepareDmxData_chunkOffset + packetHeader->sparseOffset);
                     return true;
                 }
                 return false;
@@ -305,16 +298,18 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
     return false;
 }
 
+// Find a patching patching from ETH -> buffer. All other patching destination
+// are NOT supported for now
 Patching Edp::findPatching(uint8_t universeId) {
+    // Fallback in case we don't find a match
     Patching retPatch;
-
     retPatch.active = false;
 
     for (int i = 0; i < MAX_PATCHINGS; i++) {
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
-            ((patching.port) != universeId) ||
-            (!patching.direction))
+            ((patching.srcType) != PatchType::eth) ||
+            (!patching.srcInstance != universeId))
         {
             continue;
         }

@@ -105,27 +105,22 @@ void DmxBuffer::triggerPatchings(uint8_t bufferId, bool allZero) {
     for (uint8_t i = 0; i < MAX_PATCHINGS; i++) {
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
-            (patching.buffer != bufferId) ||
-            (patching.direction))
+            (patching.srcType != PatchType::buffer) ||
+            (patching.srcInstance != bufferId))
         {
             continue;
         }
 
         // patching is active, matches requested bufferId and goes FROM BUFFER
 
-        if (patching.port <= 15) {
-            // local DMX port
-            localDmx.setPort(patching.port, DmxBuffer::buffer[bufferId], 512);
-            LOG("DmxBuffer::triggerPatchings. Setting localDmx port %d", patching.port);
-        } else if (patching.port <= 23) {
-            // local USB interface to host
-            // TODO
-        } else if (patching.port <= 27) {
-            // Wireless INs, Nothing to do since direction doesn't match
-        } else if (patching.port <= 31) {
-            // Wireless OUTs
-            // TODO: Correctly calculate the universe ID
-            wireless.sendData(bufferId, DmxBuffer::buffer[bufferId], 512);
+        switch (patching.dstType) {
+            case PatchType::local:
+                localDmx.setPort(patching.dstInstance, DmxBuffer::buffer[bufferId], 512);
+                LOG("DmxBuffer::triggerPatchings. Setting localDmx port %d", patching.dstInstance);
+                break;
+            case PatchType::nrf24:
+                wireless.sendData(patching.dstInstance, DmxBuffer::buffer[bufferId], 512);
+                break;
         }
     }
 }

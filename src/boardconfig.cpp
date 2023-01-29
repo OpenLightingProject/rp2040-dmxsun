@@ -24,7 +24,7 @@ DEFINE_ENUM(PortParamsConnector,PORTPARAMSCONNECTOR)
 DEFINE_ENUM(UsbProtocol,USBPROTOCOL)
 DEFINE_ENUM(RadioRole,RADIOROLE)
 DEFINE_ENUM(ConfigSource,CONFIGSOURCE)
-DEFINE_ENUM(BufferToNetworkType,BUFFERTONETWORKTYPE)
+DEFINE_ENUM(PatchType,PATCHTYPE)
 
 
 void BoardConfig::init() {
@@ -129,24 +129,29 @@ ConfigData BoardConfig::defaultConfig() {
     // TODO: Needs to depend on boards connected!
     for (int i = 0; i < 16; i++) {
         cfg.patching[i].active = 1;
-        cfg.patching[i].buffer = i;
-        cfg.patching[i].port = i;
+        cfg.patching[i].srcType = PatchType::buffer;
+        cfg.patching[i].srcInstance = i;
+        cfg.patching[i].dstType = PatchType::local;
+        cfg.patching[i].dstInstance = i;
     }
 
     // Patch internal buffers 0 to 3 to the wireless OUTs as well
     // TODO: This needs to depend on the wireless module being present
     for (int i = 0; i < 4; i++) {
         cfg.patching[i+16].active = 1;
-        cfg.patching[i+16].buffer = i;
-        cfg.patching[i+16].port = i + 28;
+        cfg.patching[i+16].srcType = PatchType::buffer;
+        cfg.patching[i+16].srcInstance = i;
+        cfg.patching[i].dstType = PatchType::nrf24;
+        cfg.patching[i].dstInstance = i;
     }
 
     // Patch the 4 wireless INs to buffers 4 to 7 (= 4 physical ports on second IO board)
     for (int i = 0; i < 4; i++) {
         cfg.patching[i+20].active = 1;
-        cfg.patching[i+20].direction = 1;
-        cfg.patching[i+20].buffer = i + 4;
-        cfg.patching[i+20].port = i + 24;
+        cfg.patching[i+20].srcType = PatchType::nrf24;
+        cfg.patching[i+20].srcInstance = i;
+        cfg.patching[i+20].dstType = PatchType::buffer;
+        cfg.patching[i+20].dstInstance = i + 4;
     }
 
     return cfg;
@@ -199,7 +204,7 @@ int BoardConfig::loadConfig(uint8_t slot) {
 
 int BoardConfig::saveConfig(uint8_t slot) {
     ConfigData* targetConfig = (ConfigData*)this->rawData[slot];
-    uint8_t bytesToWrite;
+    uint16_t bytesToWrite;
     uint8_t bytesWritten;
     uint8_t writeSize;
     int actuallyWritten;
@@ -218,7 +223,7 @@ int BoardConfig::saveConfig(uint8_t slot) {
             // Save only the non-board-specific part
             uint8_t* dest = (uint8_t*)targetConfig + ConfigData_ConfigOffset;
             uint8_t* src = (uint8_t*)BoardConfig::activeConfig + ConfigData_ConfigOffset;
-            uint8_t copySize = sizeof(ConfigData) - ConfigData_ConfigOffset;
+            uint16_t copySize = sizeof(ConfigData) - ConfigData_ConfigOffset;
             memcpy(dest, src, copySize);
             bytesToWrite = sizeof(struct ConfigData);
             bytesWritten = 0;
