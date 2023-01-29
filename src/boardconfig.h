@@ -232,10 +232,12 @@ class BoardConfig {
 
     ConfigData* configData[5]; // 0-3 = IOBoards, 4 = BaseBoard
 
+    bool createdDefaultConfig;
+
     bool responding[4];       // True if the board resonded to the bus scan
 
   private:
-    uint8_t rawData[5][256];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 256 byte each)
+    uint8_t rawData[5][2048];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 2048 byte each)
 };
 
 #endif // __cplusplus

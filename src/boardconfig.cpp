@@ -97,12 +97,14 @@ void BoardConfig::prepareConfig() {
             break;
         }
     }
+    createdDefaultConfig = false;
     if (!foundConfig) {
         // We don't have any valid configuration at all :-O
         // Create a default one and use it for now
         // Since we don't know the nature of the IO boards, we save that
         // default config in the slot of the base board!
         *configData[4] = this->defaultConfig();
+        createdDefaultConfig = true;
         BoardConfig::activeConfig = configData[4];
         BoardConfig::configSource = ConfigSource::Fallback;
         statusLeds.setStatic(4, 1, 0, 1);

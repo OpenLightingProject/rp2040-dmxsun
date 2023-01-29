@@ -433,6 +433,10 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["serial"] = unique_id_string;
         output["wirelessModule"] = wireless.moduleAvailable;
         output["statusLedBrightness"] = boardConfig.activeConfig->statusLedBrightness;
+        output["sizeOfConfigData"] = sizeof(ConfigData);
+
+        output["createdDefaultConfig"] = boardConfig.createdDefaultConfig;
+
         output_string = Json::writeString(wbuilder, output);
         return snprintf(pcInsert, iInsertLen, "%s", output_string.c_str());
 
