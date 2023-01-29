@@ -2163,7 +2163,7 @@
     (property "Datasheet" "http://www.st.com/content/ccc/resource/technical/document/datasheet/b0/d8/50/40/5a/85/49/6f/DM00071904.pdf/files/DM00071904.pdf/jcr:content/translations/en.DM00071904.pdf" (id 3) (at 125.73 45.72 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC" "C7562" (id 4) (at 124.46 33.02 0)
+    (property "LCSC" "C79988" (id 4) (at 124.46 33.02 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 5ac5d077-cd93-49b6-8e61-800a90feb53b))
