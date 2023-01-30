@@ -79,7 +79,7 @@ void BoardConfig::prepareConfig() {
     configData[4] = (ConfigData*)this->rawData[4];
 
     // Also copy the data from the internal flash to RAM so it can be modified
-    memcpy(this->rawData[4], config_flash_contents, 256);
+    memcpy(this->rawData[4], config_flash_contents, 2048);
 
     // Check if any board is connected and has a valid config
     // All IO boards in order, followed by baseboard
