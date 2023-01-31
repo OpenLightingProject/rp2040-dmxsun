@@ -24,7 +24,9 @@ bi_decl(bi_4pins_with_names(PIN_IO01_0, "IO board 01, pin 0", PIN_IO01_1, "IO bo
 bi_decl(bi_4pins_with_names(PIN_IO10_0, "IO board 10, pin 0", PIN_IO10_1, "IO board 10, pin 1", PIN_IO10_2, "IO board 10, pin 2", PIN_IO10_3, "IO board 10, pin 3"));
 bi_decl(bi_4pins_with_names(PIN_IO11_0, "IO board 11, pin 0", PIN_IO11_1, "IO board 11, pin 1", PIN_IO11_2, "IO board 11, pin 2", PIN_IO11_3, "IO board 11, pin 3"));
 
+#ifdef PIN_LED
 bi_decl(bi_1pin_with_name(PIN_LED, "On-board status LED"));
+#endif
 
 bi_decl(bi_1pin_with_name(PIN_LEDS, "Off-board status LEDs (WS2812-based)"));
 

@@ -403,7 +403,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["debug"]["flash"]["totalSize"] = PICO_FLASH_SIZE_BYTES;
         output["debug"]["flash"]["sectorSize"] = FLASH_SECTOR_SIZE;
         output["debug"]["flash"]["blockSize"] = FLASH_BLOCK_SIZE;
+
         output["debug"]["toolchain"]["pico_sdk_version"] = PICO_SDK_VERSION_STRING;
+        output["debug"]["toolchain"]["PICO_BOARD"] = PICO_BOARD;
 #if defined(__GNUC__)
 # if defined(__GNUC_PATCHLEVEL__)
 #  define __GNUC_VERSION__ (__GNUC__ * 10000 \

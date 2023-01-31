@@ -57,7 +57,9 @@ enum {
     BLINK_READY_SINGLE_UNI     = 42188,
     BLINK_READY_MULTI_UNI      = 21094,
 };
+#ifdef PIN_LED
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
+#endif
 
 // Super-globals (for all modules)
 Log logger;
@@ -92,7 +94,9 @@ void core1_tasks(void);
 int main() {
     // Make the onboard-led blink like crazy during the INIT phase
     // without having to do this in software because we're busy with other stuff
+#ifdef BLINK_LED
     BLINK_LED(BLINK_INIT);
+#endif
 
     // /!\ Do NOT use LOG() until TinyUSB-stack has been initialized /!\
 
@@ -225,6 +229,7 @@ void led_blinking_task(void) {
         }
     }
 
+#ifdef BLINK_LED
     if (universes_none_zero == 0) {
         BLINK_LED(BLINK_READY_NO_DATA);
         statusLeds.setStatic(7, 0, 0, 0);
@@ -238,4 +243,5 @@ void led_blinking_task(void) {
         BLINK_LED(BLINK_READY_MULTI_UNI);
         statusLeds.setStatic(7, 0, 0, 1);
     }
+#endif
 }
