@@ -26,6 +26,7 @@ extern "C" {
 #include "webserver.h"
 #include "wireless.h"
 #include "localdmx.h"
+#include "eth_cyw43.h"
 
 #include "usb_EDP.h"
 #include "usb_NodleU1.h"
@@ -69,6 +70,7 @@ StatusLeds statusLeds;
 BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
+Eth_cyw43 eth_cyw43;
 
 critical_section_t bufferLock;
 
@@ -141,6 +143,11 @@ int main() {
 
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
+
+
+    static bool done_lwip_init;
+done_lwip_init = true;
+    eth_cyw43.init();
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here

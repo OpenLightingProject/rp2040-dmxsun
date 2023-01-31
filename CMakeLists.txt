@@ -82,6 +82,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
     ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/edp.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
@@ -150,6 +151,15 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
+#target_compile_definitions(pico_cyw43_arch INTERFACE
+#    CYW43_LWIP=1
+#    PICO_CYW43_ARCH_POLL=1
+#)
+#target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
+#    CYW43_LWIP=1
+#    PICO_CYW43_ARCH_POLL=1
+#)
+
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -163,6 +173,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     libb64
     lwipallapps
     lwipcore
+    pico_cyw43_arch_none
     pico_multicore
     pico_stdlib
     pico_unique_id
@@ -173,6 +184,15 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     tinyusb_board
     tinyusb_device
 )
+
+#target_compile_definitions(pico_cyw43_arch INTERFACE
+#    CYW43_LWIP=1
+#    PICO_CYW43_ARCH_POLL=1
+#)
+#target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
+#    CYW43_LWIP=1
+#    PICO_CYW43_ARCH_POLL=1
+#)
 
 ## Create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
