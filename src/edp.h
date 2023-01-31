@@ -58,7 +58,7 @@ struct Edp_DmxData_PacketHeader {
 
 class Edp {
   public:
-    void init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize);
+    void init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize, PatchType patchSource);
 
     // TODO: Chunk generation with buffer, universe id and max chunk size given
     bool prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* thisChunkSize, bool* callAgain);
@@ -67,6 +67,7 @@ class Edp {
 
   private:
     bool initOkay;
+    PatchType patchSource;
     uint8_t* inData;
     uint8_t* outData;
     uint16_t maxSendChunkSize;
@@ -75,7 +76,6 @@ class Edp {
     uint16_t prepareDmxData_chunkOffset;
 
     Patching findPatching(uint8_t universeId);
-
 };
 
 #endif // __cplusplus

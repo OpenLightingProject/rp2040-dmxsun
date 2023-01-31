@@ -20,7 +20,7 @@
 #define MAX_PATCHINGS 32
 
 // Config data types and layout
-#define CONFIG_VERSION 2
+#define CONFIG_VERSION 6
 
 #ifdef __cplusplus
 
@@ -229,6 +229,7 @@ class BoardConfig {
     int enableConfig(uint8_t slot);
     int disableConfig(uint8_t slot);
     int configureBoard(uint8_t slot, struct ConfigData* config);
+    void logPatching(const char* prefix, Patching patching);
 
     ConfigData* configData[5]; // 0-3 = IOBoards, 4 = BaseBoard
 

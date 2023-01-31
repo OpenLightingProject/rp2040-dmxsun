@@ -39,10 +39,10 @@ void Wireless::init() {
     memset(&stats, 0x00, sizeof(struct WirelessStats));
 
     // RX path goes via RX0 from radio to EDP and RX1 is out buffer
-    edpRX.init(tmpBuf_RX0, tmpBuf_RX1, 32);
+    edpRX.init(tmpBuf_RX0, tmpBuf_RX1, 32, PatchType::nrf24);
 
     // TX path goes from sendQueueCopy to EDP and TX1 it out buffer
-    edpTX.init(tmpBufQueueCopy, tmpBuf_TX1, 32);
+    edpTX.init(tmpBufQueueCopy, tmpBuf_TX1, 32, PatchType::nrf24);
 
     memset(signalStrength, 0x00, MAXCHANNEL * sizeof(uint16_t));
 

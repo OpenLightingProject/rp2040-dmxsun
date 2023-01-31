@@ -10,7 +10,7 @@ extern DmxBuffer dmxBuffer;
 
 extern critical_section_t bufferLock;
 
-void Edp::init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize) {
+void Edp::init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize, PatchType patchSource) {
     this->initOkay = false;
 
     if (!inData || !outData || (maxSendChunkSize < 20)) {
@@ -20,6 +20,7 @@ void Edp::init(uint8_t* inData, uint8_t* outData, uint16_t maxSendChunkSize) {
     this->inData = inData;
     this->outData = outData;
     this->maxSendChunkSize = maxSendChunkSize;
+    this->patchSource = patchSource;
 
     this->initOkay = true;
 }
@@ -160,6 +161,8 @@ bool Edp::prepareDmxData(uint8_t universeId, uint16_t inDataSize, uint16_t* this
     }
 }
 
+// Since every data source calling this has its own instance of EDP, this
+// should be safe
 bool Edp::processIncomingChunk(uint16_t chunkSize) {
     Patching patching;
     uint8_t universeId;
@@ -308,8 +311,8 @@ Patching Edp::findPatching(uint8_t universeId) {
     for (int i = 0; i < MAX_PATCHINGS; i++) {
         Patching patching = boardConfig.activeConfig->patching[i];
         if ((!patching.active) ||
-            ((patching.srcType) != PatchType::eth) ||
-            (!patching.srcInstance != universeId))
+            (patching.srcType != patchSource) ||
+            (patching.srcInstance != universeId))
         {
             continue;
         }

@@ -38,7 +38,7 @@ void BoardConfig::init() {
     gpio_pull_up(PIN_I2C_SCL);
     gpio_pull_up(PIN_I2C_SDA);
 
-    memset(this->rawData, 0xff, 5*256);
+    memset(this->rawData, 0xff, 5*2048);
 }
 
 void BoardConfig::readIOBoards() {
@@ -53,7 +53,7 @@ void BoardConfig::readIOBoards() {
         // Set EEPROM address to read from
         i2c_write_blocking(i2c0, addr, &src, 1, false);
         // Try to read the EEPROM data
-        ret = i2c_read_blocking(i2c0, addr, this->rawData[addr - 80], 256, false);
+        ret = i2c_read_blocking(i2c0, addr, this->rawData[addr - 80], 2048, false);
         if (ret > 0) {
             this->responding[addr - 80] = true;
             if (this->rawData[addr - 80][0] == 0xff) {
@@ -135,6 +135,7 @@ ConfigData BoardConfig::defaultConfig() {
         cfg.patching[i].srcInstance = i;
         cfg.patching[i].dstType = PatchType::local;
         cfg.patching[i].dstInstance = i;
+        //logPatching("Created initial ", cfg.patching[i]);
     }
 
     // Patch internal buffers 0 to 3 to the wireless OUTs as well
@@ -143,8 +144,9 @@ ConfigData BoardConfig::defaultConfig() {
         cfg.patching[i+16].active = 1;
         cfg.patching[i+16].srcType = PatchType::buffer;
         cfg.patching[i+16].srcInstance = i;
-        cfg.patching[i].dstType = PatchType::nrf24;
-        cfg.patching[i].dstInstance = i;
+        cfg.patching[i+16].dstType = PatchType::nrf24;
+        cfg.patching[i+16].dstInstance = i;
+        //logPatching("Created initial ", cfg.patching[i+16]);
     }
 
     // Patch the 4 wireless INs to buffers 4 to 7 (= 4 physical ports on second IO board)
@@ -154,6 +156,7 @@ ConfigData BoardConfig::defaultConfig() {
         cfg.patching[i+20].srcInstance = i;
         cfg.patching[i+20].dstType = PatchType::buffer;
         cfg.patching[i+20].dstInstance = i + 4;
+        //logPatching("Created initial ", cfg.patching[i+20]);
     }
 
     return cfg;
@@ -421,6 +424,18 @@ int BoardConfig::disableConfig(uint8_t slot) {
 
     // Slot unknown
     return 4;
+}
+
+void BoardConfig::logPatching(const char* prefix, Patching patching) {
+    LOG("%s | Patching %d::%d -> %d::%d. Active: %d, EthParamsId: %d",
+        prefix,
+        patching.srcType,
+        patching.srcInstance,
+        patching.dstType,
+        patching.dstInstance,
+        patching.active,
+        patching.ethDestParams
+    );
 }
 
 uint8_t getUsbProtocol() {
