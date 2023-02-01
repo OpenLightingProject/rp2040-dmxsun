@@ -4,6 +4,7 @@
 class Eth_cyw43 {
   public:
     void init();
+    void cyclicTask();
 
   private:
 };

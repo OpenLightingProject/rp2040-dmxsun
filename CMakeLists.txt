@@ -86,6 +86,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/pico_lwip_random.c
     ${CMAKE_CURRENT_LIST_DIR}/src/statusleds.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/stdio_usb.c
     ${CMAKE_CURRENT_LIST_DIR}/src/tusb_lwip_glue.c

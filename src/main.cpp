@@ -190,6 +190,8 @@ int main() {
 
         webServer.cyclicTask(); // Make sure this is on core0 since it
                                 // WILL halt core1 when writing to the flash!
+
+        eth_cyw43.cyclicTask();
 //        wireless.cyclicTask();
 //        statusLeds.cyclicTask();
 //        led_blinking_task();
