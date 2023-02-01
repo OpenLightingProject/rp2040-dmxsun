@@ -9,7 +9,7 @@ void Eth_cyw43::init() {
     initRet = cyw43_arch_init();
     LOG("CYW43 INIT RETURNED %d", initRet);
 
-    //cyw43_arch_enable_ap_mode("dmxsun", "dmxsun", CYW43_AUTH_WPA2_AES_PSK);
+    cyw43_arch_enable_ap_mode("dmxsun", "dmxsun", CYW43_AUTH_WPA2_AES_PSK);
 
     cyw43_arch_gpio_put(0, 1);
 }

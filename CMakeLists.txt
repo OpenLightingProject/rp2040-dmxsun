@@ -74,10 +74,20 @@ set(TINYUSB_LIBNETWORKING_SOURCES
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    set(PICO_W_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
+    )
+else()
+    set(PICO_W_SOURCES
+    )
+endif()
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
+    ${PICO_W_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/src/boardconfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
     ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
@@ -100,11 +110,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/wireless.cpp
 )
 
-if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
-    add_executable(${CMAKE_PROJECT_NAME}
-        ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
-    )
-endif()
+
 
 ## Add our rp2040-PIO programs here
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}

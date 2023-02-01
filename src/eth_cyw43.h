@@ -9,7 +9,8 @@ class Eth_cyw43 {
   private:
 };
 
-#ifndef PICO_CYW43_SUPPORTED
+// If we are NOT on pico_w, we have PIN_LED and we need to define dummies
+#ifdef PIN_LED
     // Dummies so we don't have to do the #ifdef-dance on every call to those
     void Eth_cyw43::init() {};
     void Eth_cyw43::cyclicTask() {};
