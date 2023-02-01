@@ -82,7 +82,6 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
     ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/edp.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
@@ -100,6 +99,12 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/webserver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/wireless.cpp
 )
+
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    add_executable(${CMAKE_PROJECT_NAME}
+        ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
+    )
+endif()
 
 ## Add our rp2040-PIO programs here
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}
@@ -160,24 +165,26 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 ## lwip_init() is being called twice
 include(${CMAKE_CURRENT_LIST_DIR}/lib/pico_cyw43_arch_nolwip/CMakeLists.txt)
 
-## equals pico_cyw43_arch_none:
-target_compile_definitions(pico_cyw43_arch_nolwip INTERFACE
-    ## Compiles, links and inits fine (with the unmodified library):
-    #CYW43_LWIP=0
-    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    ## equals pico_cyw43_arch_none:
+    target_compile_definitions(pico_cyw43_arch_nolwip INTERFACE
+        ## Compiles, links and inits fine (with the unmodified library):
+        #CYW43_LWIP=0
+        #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
 
-    ## Compiles fine, fails to link due to unfdefined references (with the unmodified library):
-    #CYW43_LWIP=0
-    #PICO_CYW43_ARCH_POLL=1
+        ## Compiles fine, fails to link due to unfdefined references (with the unmodified library):
+        #CYW43_LWIP=0
+        #PICO_CYW43_ARCH_POLL=1
 
-    ## Compiles fine, links fine but fails to init (with the unmodified library):
-    #CYW43_LWIP=1
-    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+        ## Compiles fine, links fine but fails to init (with the unmodified library):
+        #CYW43_LWIP=1
+        #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
 
-    ## Compiles fine, links fine but fails to init (with the unmodified library):
-    CYW43_LWIP=1
-    PICO_CYW43_ARCH_POLL=1
-)
+        ## Compiles fine, links fine but fails to init (with the unmodified library):
+        CYW43_LWIP=1
+        PICO_CYW43_ARCH_POLL=1
+    )
+endif()
 
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
@@ -192,7 +199,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     libb64
     lwipallapps
     lwipcore
-    pico_cyw43_arch_nolwip ## Our custom one in the lib folder
     pico_multicore
     pico_stdlib
     pico_unique_id
@@ -203,6 +209,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     tinyusb_board
     tinyusb_device
 )
+
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    target_link_libraries(${CMAKE_PROJECT_NAME}
+        pico_cyw43_arch_nolwip ## Our custom one in the lib folder
+    )
+endif()
 
 ## Create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})

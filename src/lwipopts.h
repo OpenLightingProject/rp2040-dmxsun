@@ -79,4 +79,8 @@
 
 #define LWIP_SINGLE_NETIF               0
 
+// Defined in https://github.com/raspberrypi/pico-examples/blob/master/pico_w/lwipopts_examples_common.h
+#define LWIP_NETIF_TX_SINGLE_PBUF   1
+#define MEM_LIBC_MALLOC             1
+
 #endif /* __LWIPOPTS_H__ */

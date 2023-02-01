@@ -144,8 +144,9 @@ int main() {
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
 
-
+#ifdef PICO_CYW43_SUPPORTED
     eth_cyw43.init();
+#endif
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
