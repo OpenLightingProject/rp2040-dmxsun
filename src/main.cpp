@@ -145,8 +145,6 @@ int main() {
     localDmx.init();
 
 
-    static bool done_lwip_init;
-done_lwip_init = true;
     eth_cyw43.init();
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports

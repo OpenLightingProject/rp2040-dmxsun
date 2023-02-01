@@ -151,14 +151,32 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
-#target_compile_definitions(pico_cyw43_arch INTERFACE
-#    CYW43_LWIP=1
-#    PICO_CYW43_ARCH_POLL=1
-#)
-#target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
-#    CYW43_LWIP=1
-#    PICO_CYW43_ARCH_POLL=1
-#)
+## Include a local copy of the pico_cyw43_arch library so we can
+## modify it. If we use the one from the pico-sdk, this is read-only and
+## hard to modify.
+## We need this since we want to use OUR modified version of lwip and the
+## board freezes when initializing the cyw43-chip since (a wild guess!)
+## lwip_init() is being called twice
+include(${CMAKE_CURRENT_LIST_DIR}/lib/pico_cyw43_arch_nolwip/CMakeLists.txt)
+
+## equals pico_cyw43_arch_none:
+target_compile_definitions(pico_cyw43_arch_nolwip INTERFACE
+    ## Compiles, links and inits fine (with the unmodified library):
+    #CYW43_LWIP=0
+    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+
+    ## Compiles fine, fails to link due to unfdefined references (with the unmodified library):
+    #CYW43_LWIP=0
+    #PICO_CYW43_ARCH_POLL=1
+
+    ## Compiles fine, links fine but fails to init (with the unmodified library):
+    #CYW43_LWIP=1
+    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+
+    ## Compiles fine, links fine but fails to init (with the unmodified library):
+    CYW43_LWIP=1
+    PICO_CYW43_ARCH_POLL=1
+)
 
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
@@ -173,7 +191,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     libb64
     lwipallapps
     lwipcore
-    pico_cyw43_arch_none
+    pico_cyw43_arch_nolwip ## Our custom one in the lib folder
     pico_multicore
     pico_stdlib
     pico_unique_id
@@ -184,15 +202,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     tinyusb_board
     tinyusb_device
 )
-
-#target_compile_definitions(pico_cyw43_arch INTERFACE
-#    CYW43_LWIP=1
-#    PICO_CYW43_ARCH_POLL=1
-#)
-#target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
-#    CYW43_LWIP=1
-#    PICO_CYW43_ARCH_POLL=1
-#)
 
 ## Create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
