@@ -144,7 +144,7 @@ int cyw43_arch_init(void) {
     cyw43_task_should_exit = false;
     xTaskCreate(cyw43_task, "CYW43 Worker", configMINIMAL_STACK_SIZE, NULL, CYW43_TASK_PRIORITY, &cyw43_task_handle);
 #if configUSE_CORE_AFFINITY && configNUM_CORES > 1
-    // the cyw43 task mus tbe on the same core so it can restore IRQs
+    // the cyw43 task must be on the same core so it can restore IRQs
     vTaskCoreAffinitySet(cyw43_task_handle, 1 << portGET_CORE_ID());
 #endif
 
