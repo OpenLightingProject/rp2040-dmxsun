@@ -10,6 +10,7 @@ class Eth_cyw43 {
 };
 
 // If we are NOT on pico_w, we have PIN_LED and we need to define dummies
+// since eth_cyw43.cpp won't be compiled
 #ifdef PIN_LED
     // Dummies so we don't have to do the #ifdef-dance on every call to those
     void Eth_cyw43::init() {};

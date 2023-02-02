@@ -28,6 +28,8 @@ extern "C" {
 #include "localdmx.h"
 #include "eth_cyw43.h"
 
+#include "dhcpdata.h"
+
 #include "usb_EDP.h"
 #include "usb_NodleU1.h"
 
@@ -71,6 +73,7 @@ BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
 Eth_cyw43 eth_cyw43;
+DhcpData dhcpdata;
 
 critical_section_t bufferLock;
 
@@ -136,6 +139,11 @@ int main() {
 
     // Phase 6: Fire up the integrated web server
     // This also initialises the TinyUSB<->lwIP glue. lwIP and the DHCP server
+    dhcpdata.init();
+    init_lwip();
+    wait_for_netif_is_up(); // TinyUSB network interface
+    dhcpd_init();
+
     webServer.init();
 
     // Phase 7: Detect if there is a radio module and init it if so
@@ -144,9 +152,7 @@ int main() {
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
 
-#ifdef PICO_CYW43_SUPPORTED
     eth_cyw43.init();
-#endif
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here

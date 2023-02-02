@@ -77,11 +77,7 @@ static const tCGI cgi_handlers[] = {
 static const char* ssiTags[] = {};
 
 void WebServer::init() {
-    // Initialize lwip, dhcpd and httpd
-    // TinyUSB already needs to be initialized at this point
-    init_lwip();
-    wait_for_netif_is_up();
-    dhcpd_init();
+    // TinyUSB and lwIP already need to be initialized at this point
     httpd_init();
     http_set_cgi_handlers(cgi_handlers, LWIP_ARRAYSIZE(cgi_handlers));
     http_set_ssi_handler(ssi_handler, ssiTags, LWIP_ARRAYSIZE(ssiTags));

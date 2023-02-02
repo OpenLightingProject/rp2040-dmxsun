@@ -60,10 +60,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/lib/libb64/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/jsoncpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
-set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
-set(TINYUSB_LIBNETWORKING_SOURCES
-    ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
-)
+#set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
+#set(TINYUSB_LIBNETWORKING_SOURCES
+#    ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
+#)
 
 ## I'd like to use LTO but it doesn't yet work
 ## https://github.com/raspberrypi/pico-sdk/issues/97
@@ -90,6 +90,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${PICO_W_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/src/boardconfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/dhcpdata.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/dhcpserver.c
     ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/edp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
