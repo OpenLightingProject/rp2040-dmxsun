@@ -237,6 +237,10 @@ class BoardConfig {
 
     bool responding[4];       // True if the board resonded to the bus scan
 
+    static uint8_t shortId; // The part of the unique id that is used as the third byte
+                            // of the usb eth's IP address
+    static char boardSerialString[25];
+
   private:
     uint8_t rawData[5][2048];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 2048 byte each)
 };
@@ -249,6 +253,9 @@ extern "C" {
 #endif
 
 uint8_t  getUsbProtocol();
+
+uint8_t  getShortId();
+char*    getBoardSerialString();
 
 uint32_t getOwnIp();
 uint32_t getOwnMask();

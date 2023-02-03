@@ -31,6 +31,7 @@
 
 #include "log.h"
 
+#include "boardconfig.h"
 #include "dhcpdata.h"
 
 extern uint8_t usbTraffic;
@@ -202,6 +203,7 @@ void service_traffic(void)
     sys_check_timeouts();
 }
 
+// Should moved out of here, at least the "start DHCP server" part
 void dhcpd_init()
 {
     ip4_addr_set_u32(&hostIp, getHostIp());

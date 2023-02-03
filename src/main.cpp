@@ -154,6 +154,16 @@ int main() {
 
     eth_cyw43.init();
 
+    struct netif* iface = netif_list;
+    while (iface != nullptr) {
+        LOG("NETIF %s IPv4: %08x", iface->name, iface->ip_addr);
+
+        if (iface->name[0] == 'w')
+            dhcp_config_wifi->netif = iface;
+
+        iface = iface->next;
+    }
+
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
 

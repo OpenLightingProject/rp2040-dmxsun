@@ -357,23 +357,8 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     uint8_t chr_count = 0;
 
     if (index == STRID_SERIAL) {
-        // Serial number has been requested, construct it from the unique board id
-        pico_unique_board_id_t board_id;
-        pico_get_unique_board_id(&board_id);
-
-        char serial[26];
-        str = serial;
-
-        snprintf(serial, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
-            board_id.id[0],
-            board_id.id[1],
-            board_id.id[2],
-            board_id.id[3],
-            board_id.id[4],
-            board_id.id[5],
-            board_id.id[6],
-            board_id.id[7]
-        );
+        // Serial number has been requested, construct it from the  board id
+        str = getBoardSerialString();
     } else if (index == STRID_PRODUCT) {
       // Network interface name has been requested. Get our IP there
       char product[64];

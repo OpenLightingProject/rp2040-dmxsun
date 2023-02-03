@@ -17,6 +17,8 @@ const uint8_t *config_flash_contents = (const uint8_t *) (XIP_BASE + CONFIG_FLAS
 
 ConfigData* BoardConfig::activeConfig;
 ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
+uint8_t BoardConfig::shortId;
+char BoardConfig::boardSerialString[25];
 
 DEFINE_ENUM(BoardType,BOARDTYPE)
 DEFINE_ENUM(PortParamsDirection,PORTPARAMSDIRECTION)
@@ -37,6 +39,22 @@ void BoardConfig::init() {
     // RP2040 datasheet and my measurements confirm that
     gpio_pull_up(PIN_I2C_SCL);
     gpio_pull_up(PIN_I2C_SDA);
+
+    // Compute the third byte of the IP with a value from
+    // the unique board id: 169.254.X.1 (board), 169.254.X.2 (host)
+    pico_unique_board_id_t id;
+    pico_get_unique_board_id(&id);
+    shortId = id.id[6];
+    snprintf(boardSerialString, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
+        id.id[0],
+        id.id[1],
+        id.id[2],
+        id.id[3],
+        id.id[4],
+        id.id[5],
+        id.id[6],
+        id.id[7]
+    );
 
     memset(this->rawData, 0xff, 5*2048);
 }
@@ -120,12 +138,8 @@ ConfigData BoardConfig::defaultConfig() {
 
     snprintf(cfg.boardName, 32, "! Fallback config v%d!", cfg.configVersion);
 
-    // Compute the third byte of the IP with a value from
-    // the unique board id: 169.254.X.1 (board), 169.254.X.2 (host)
-    pico_unique_board_id_t id;
-    pico_get_unique_board_id(&id);
-    cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)id.id[6] << 16);
-    cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)id.id[6] << 16);
+    cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)shortId << 16);
+    cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)shortId << 16);
 
     // Patch the first 16 internal DMX buffers to the first 16 physical outputs
     // TODO: Needs to depend on boards connected!
@@ -440,6 +454,14 @@ void BoardConfig::logPatching(const char* prefix, Patching patching) {
 
 uint8_t getUsbProtocol() {
     return BoardConfig::activeConfig->usbProtocol;
+}
+
+uint8_t getShortId() {
+    return BoardConfig::shortId;
+}
+
+char* getBoardSerialString() {
+    return BoardConfig::boardSerialString;
 }
 
 uint32_t getOwnIp() {
