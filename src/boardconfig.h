@@ -16,6 +16,11 @@
 // However, we are only using the first 2048 byte of that sector since
 // that is how large the I2C EEPROMs on the IO boards are (since rev 0.7)
 #define CONFIG_FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
+// Remaining flash size for the "program" (including WebUI) is:
+//   2093056 byte = 2044 kByte = 1,99609375 MByte ;)
+// However, according to https://forums.raspberrypi.com/viewtopic.php?p=1867632&sid=b5fc2e594d2cd34b269be5600eef6ea8#p1867632
+// the UF2-file contains so much padding that it can grow to 4 MByte before
+// we completely fill the flash :D
 
 #define MAX_PATCHINGS 32
 

@@ -6,6 +6,9 @@ import snappyjs from 'snappyjs';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LinearScale, CategoryScale } from 'chart.js';
 
+// Direct import required since we use the constructor
+import Collapse from 'bootstrap/js/dist/collapse';
+
 ChartJS.register(BarElement, LinearScale, CategoryScale);
 
 const options = {
@@ -87,7 +90,7 @@ class Wireless extends React.Component {
                         myCollapse = document.getElementById('collapseMesh');
                       }
                       if (myCollapse) {
-                        let bsCollapse = new window.bootstrap.Collapse(myCollapse);
+                        let bsCollapse = new Collapse(myCollapse);
                         bsCollapse.show();
                       }
 

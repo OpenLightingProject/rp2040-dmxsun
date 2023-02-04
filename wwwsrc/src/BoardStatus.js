@@ -3,6 +3,9 @@ import React from 'react';
 import Slider from 'react-input-slider';
 import * as Icon from 'react-bootstrap-icons';
 
+// Direct import required since we use the constructor
+import Tooltip from 'bootstrap/js/dist/tooltip'
+
 class BoardStatus extends React.Component{
     constructor() {
         super();
@@ -18,7 +21,7 @@ class BoardStatus extends React.Component{
         // Initialize all tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new window.bootstrap.Tooltip(tooltipTriggerEl)
+            return new Tooltip(tooltipTriggerEl)
         });
 
         // Focus the modals' input fields when they open
