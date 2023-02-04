@@ -146,6 +146,13 @@ ConfigData BoardConfig::defaultConfig() {
     cfg.ownIp = (cfg.ownIp & 0xff00ffff) | ((uint32_t)shortId << 16);
     cfg.hostIp = (cfg.hostIp & 0xff00ffff) | ((uint32_t)shortId << 16);
 
+    snprintf(cfg.wifi_STA_SSID, 32, "YourWifiName");
+    snprintf(cfg.wifi_STA_PSK, 32, "YourWifiPass");
+
+    snprintf(cfg.wifi_AP_SSID, 32, "dmxsun_%d PW=dmxsun_pw", shortId);
+    snprintf(cfg.wifi_AP_PSK, 32, "dmxsun_pw");
+    cfg.wifi_AP_ip = (cfg.wifi_AP_ip & 0xff00ffff) | ((uint32_t)shortId << 16);
+
     // Patch the first 16 internal DMX buffers to the first 16 physical outputs
     // TODO: Needs to depend on boards connected!
     for (int i = 0; i < 16; i++) {

@@ -20,7 +20,7 @@
 #define MAX_PATCHINGS 32
 
 // Config data types and layout
-#define CONFIG_VERSION 6
+#define CONFIG_VERSION 7
 
 #ifdef __cplusplus
 
@@ -128,7 +128,6 @@ DECLARE_ENUM(PatchType,uint8_t,PATCHTYPE)
 
 
 struct __attribute__((__packed__)) Patching {
-    // First byte:
     bool active;
     PatchType srcType;
     uint16_t srcInstance; // Buffer: 0 to DMXBUFFER_COUNT-1
@@ -179,6 +178,21 @@ struct __attribute__((__packed__)) ConfigData {
     uint32_t               ownIp;
     uint32_t               ownMask;
     uint32_t               hostIp;
+
+    bool                   wifi_STA_enabled;
+    char                   wifi_STA_SSID[32];
+    char                   wifi_STA_PSK[32];
+    EthDhcpMode            wifi_STA_DhcpMode;
+    uint32_t               wifi_STA_ip;
+    uint32_t               wifi_STA_mask;
+    uint32_t               wifi_STA_gw;
+
+    bool                   wifi_AP_enabled;
+    char                   wifi_AP_SSID[32];
+    char                   wifi_AP_PSK[32];
+    uint32_t               wifi_AP_ip;
+    uint32_t               wifi_AP_mask;
+
     UsbProtocol            usbProtocol;
     uint8_t                usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
     RadioRole              radioRole;
@@ -207,6 +221,14 @@ static const ConfigData constDefaultConfig = {
     .ownIp               = 0x0100fea9UL, // 169.254.X.1
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
+    .wifi_STA_enabled    = false,
+    .wifi_STA_DhcpMode   = EthDhcpMode::dhcpOrFail,
+    .wifi_STA_ip         = 0,
+    .wifi_STA_mask       = 0,
+    .wifi_STA_gw         = 0,
+    .wifi_AP_enabled     = true,
+    .wifi_AP_ip          = 0x0100a8c0UL, // 192.168.0.1
+    .wifi_AP_mask        = 0x00ffffffUL, // 255.255.255.0
     .usbProtocol         = UsbProtocol::EDP,
     .radioRole           = RadioRole::sniffer,
     .radioChannel        = 42,
