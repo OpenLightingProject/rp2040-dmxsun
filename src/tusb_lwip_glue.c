@@ -104,7 +104,7 @@ static err_t netif_init_cb(struct netif *netif)
     netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP | NETIF_FLAG_UP;
     netif->state = NULL;
     netif->name[0] = 'u'; // for "USB"
-    netif->name[1] = 0;   // terminate properly
+    netif->name[1] = '0';
     netif->linkoutput = linkoutput_fn;
     netif->output = output_fn;
 

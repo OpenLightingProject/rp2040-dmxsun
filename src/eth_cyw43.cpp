@@ -31,9 +31,10 @@ void Eth_cyw43::init()
 
         if (iface->name[0] == 'w')
         {
-            iface->name[1] = 0; // properly terminate string
+            // Don't "rename" the interface since that breaks the cyw43-driver!
             dhcp_config_wifi->netif = iface;
             iface->hostname = getBoardHostnameString();
+            break;
         }
 
         iface = iface->next;

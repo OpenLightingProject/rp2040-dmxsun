@@ -379,6 +379,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         char ownMask[16];
         char hostIp[16];
 
+        char ifname[3];
         char ip[16];
 
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
@@ -422,27 +423,28 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
 
         struct netif* iface = netif_list;
         while (iface != nullptr) {
+            sprintf(ifname, "%c%c", iface->name[0], iface->name[1]);
             WebServer::ipToString(iface->ip_addr.addr, ip);
-            output["net"][iface->name]["ip"] = ip;
+            output["net"][ifname]["ip"] = ip;
             WebServer::ipToString(iface->netmask.addr, ip);
-            output["net"][iface->name]["netmask"] = ip;
+            output["net"][ifname]["netmask"] = ip;
             WebServer::ipToString(iface->gw.addr, ip);
-            output["net"][iface->name]["gw"] = ip;
+            output["net"][ifname]["gw"] = ip;
             if (iface->hostname) {
-                output["net"][iface->name]["hostname"] = iface->hostname;
+                output["net"][ifname]["hostname"] = iface->hostname;
             }
 
             iface = iface->next;
         }
 
         for (int i = 0; i < DHCP_NUM_ENTRIES_USB; i++) {
-            output["net"]["u"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_usb[i]));
+            output["net"]["u0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_usb[i]));
         }
         for (int i = 0; i < DHCP_NUM_ENTRIES_ETH; i++) {
-            output["net"]["e"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_eth[i]));
+            output["net"]["e0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_eth[i]));
         }
         for (int i = 0; i < DHCP_NUM_ENTRIES_WIFI; i++) {
-            output["net"]["w"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_wifi[i]));
+            output["net"]["w1"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_wifi[i]));
         }
 
         output["wirelessModule"] = wireless.moduleAvailable;

@@ -27,10 +27,6 @@
 
 #include "dhcpserver.h"
 
-#include <hardware/gpio.h>
-
-#include "log.h"
-
 /* DHCP message type */
 #define DHCP_DISCOVER       1
 #define DHCP_OFFER          2
