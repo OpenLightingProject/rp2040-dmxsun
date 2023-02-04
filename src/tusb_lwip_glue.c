@@ -107,6 +107,9 @@ static err_t netif_init_cb(struct netif *netif)
     netif->name[1] = 0;   // terminate properly
     netif->linkoutput = linkoutput_fn;
     netif->output = output_fn;
+
+    netif->hostname = getBoardHostnameString();
+
     return ERR_OK;
 }
 

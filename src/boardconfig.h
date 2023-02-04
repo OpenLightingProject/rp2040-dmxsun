@@ -240,6 +240,7 @@ class BoardConfig {
     static uint8_t shortId; // The part of the unique id that is used as the third byte
                             // of the usb eth's IP address
     static char boardSerialString[25];
+    static char boardHostnameString[12];
 
   private:
     uint8_t rawData[5][2048];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 2048 byte each)
@@ -256,6 +257,7 @@ uint8_t  getUsbProtocol();
 
 uint8_t  getShortId();
 char*    getBoardSerialString();
+char*    getBoardHostnameString();
 
 uint32_t getOwnIp();
 uint32_t getOwnMask();

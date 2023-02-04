@@ -19,6 +19,7 @@ ConfigData* BoardConfig::activeConfig;
 ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
 uint8_t BoardConfig::shortId;
 char BoardConfig::boardSerialString[25];
+char BoardConfig::boardHostnameString[12];
 
 DEFINE_ENUM(BoardType,BOARDTYPE)
 DEFINE_ENUM(PortParamsDirection,PORTPARAMSDIRECTION)
@@ -45,7 +46,7 @@ void BoardConfig::init() {
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
     shortId = id.id[6];
-    snprintf(boardSerialString, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
+    snprintf(boardSerialString, 24, "dmxsun_%02x%02x%02x%02x%02x%02x%02x%02x",
         id.id[0],
         id.id[1],
         id.id[2],
@@ -54,6 +55,10 @@ void BoardConfig::init() {
         id.id[5],
         id.id[6],
         id.id[7]
+    );
+
+    snprintf(boardHostnameString, 11, "dmxsun_%d",
+        shortId
     );
 
     memset(this->rawData, 0xff, 5*2048);
@@ -462,6 +467,10 @@ uint8_t getShortId() {
 
 char* getBoardSerialString() {
     return BoardConfig::boardSerialString;
+}
+
+char* getBoardHostnameString() {
+    return BoardConfig::boardHostnameString;
 }
 
 uint32_t getOwnIp() {

@@ -1,6 +1,7 @@
 #include "eth_cyw43.h"
 
 #include "log.h"
+#include "boardconfig.h"
 #include "dhcpdata.h"
 
 #include <pico/cyw43_arch.h>
@@ -32,6 +33,7 @@ void Eth_cyw43::init()
         {
             iface->name[1] = 0; // properly terminate string
             dhcp_config_wifi->netif = iface;
+            iface->hostname = getBoardHostnameString();
         }
 
         iface = iface->next;
