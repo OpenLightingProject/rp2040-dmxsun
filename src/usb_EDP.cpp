@@ -14,7 +14,7 @@ void Usb_EDP::init() {
     memset(tmpBuf, 0x00, 600);
     memset(tmpBuf2, 0x00, 600);
 
-    edp.init(tmpBuf, tmpBuf2, 64, PatchType::eth);
+    edp.init(tmpBuf, tmpBuf2, 64, PatchType::ip);
 }
 
 void Usb_EDP::hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {

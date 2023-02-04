@@ -120,7 +120,7 @@ DECLARE_ENUM(EthDhcpMode,uint8_t,ETHDHCPMODE)
     XX(buffer,=0)           /* Our internal DMX buffers */ \
     XX(local,=1)            /* Local DMX generation (GPIO via PIO) */ \
     XX(usbProto,=2)         /* From/to the host via Serial or emulated protocol */ \
-    XX(eth,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
+    XX(ip,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
                             /* (all treated the same) (ArtNet or sACN) */ \
     XX(nrf24,=5)            /* nRF24 wireless module connected via SPI  */ \
 
