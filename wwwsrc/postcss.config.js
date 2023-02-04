@@ -6,7 +6,10 @@ module.exports = {
             preset: 'advanced',
         }),
         purgecss({
-            content: ['build/static/js/*.js']
+            content: ['build/static/js/*.js'],
+            fontFace: true,
+            variables: true,
+            keyframes: true,
           })
     ],
 };

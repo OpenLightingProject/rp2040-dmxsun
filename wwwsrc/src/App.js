@@ -14,10 +14,12 @@ import Wireless from "./Wireless.js";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import '@popperjs/core/dist/cjs/popper-lite'
+
 // Required so that we can initialize the tooltips using the example
 // mentioned in the official docs at
 // https://getbootstrap.com/docs/5.0/components/tooltips/#example-enable-tooltips-everywhere
-window.bootstrap = require('bootstrap/dist/js/bootstrap.bundle.min.js');
+window.bootstrap = require('bootstrap/dist/js/bootstrap.min.js');
 
 export default function App() {
   // Have a global, optional URL "prefix" so one can have the App
