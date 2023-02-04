@@ -24,6 +24,18 @@ void Eth_cyw43::init()
     ip4_addr_set_u32(&ip, 0x0104a8c0UL);
     dhcp_config_wifi->dns = ip;
 
+    struct netif* iface = netif_list;
+    while (iface != nullptr) {
+        LOG("NETIF %s IPv4: %08x", iface->name, iface->ip_addr);
+
+        if (iface->name[0] == 'w')
+        {
+            iface->name[1] = 0; // properly terminate string
+            dhcp_config_wifi->netif = iface;
+        }
+
+        iface = iface->next;
+    }
 }
 
 void Eth_cyw43::cyclicTask()

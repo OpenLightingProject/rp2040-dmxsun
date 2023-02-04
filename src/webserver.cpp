@@ -436,13 +436,13 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         }
 
         for (int i = 0; i < DHCP_NUM_ENTRIES_USB; i++) {
-            output["net"]["u0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_usb[i]));
+            output["net"]["u"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_usb[i]));
         }
         for (int i = 0; i < DHCP_NUM_ENTRIES_ETH; i++) {
-            output["net"]["e0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_eth[i]));
+            output["net"]["e"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_eth[i]));
         }
         for (int i = 0; i < DHCP_NUM_ENTRIES_WIFI; i++) {
-            output["net"]["w0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_wifi[i]));
+            output["net"]["w"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_wifi[i]));
         }
 
         output["wirelessModule"] = wireless.moduleAvailable;
