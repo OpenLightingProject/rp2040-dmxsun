@@ -32,7 +32,7 @@ void Eth_cyw43::init()
 
         struct netif* iface = netif_list;
         while (iface != nullptr) {
-            LOG("NETIF %s IPv4: %08x", iface->name, iface->ip_addr);
+            LOG("NETIF %c%c IPv4: %08x", iface->name[0], iface->name[1], iface->ip_addr);
 
             if ((iface->name[0] == 'w') && (iface->name[1] == '1'))
             {
