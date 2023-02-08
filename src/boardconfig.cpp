@@ -21,14 +21,6 @@ uint8_t BoardConfig::shortId;
 char BoardConfig::boardSerialString[25];
 char BoardConfig::boardHostnameString[12];
 
-DEFINE_ENUM(BoardType,BOARDTYPE)
-DEFINE_ENUM(PortParamsDirection,PORTPARAMSDIRECTION)
-DEFINE_ENUM(PortParamsConnector,PORTPARAMSCONNECTOR)
-DEFINE_ENUM(UsbProtocol,USBPROTOCOL)
-DEFINE_ENUM(RadioRole,RADIOROLE)
-DEFINE_ENUM(ConfigSource,CONFIGSOURCE)
-DEFINE_ENUM(PatchType,PATCHTYPE)
-
 
 void BoardConfig::init() {
     i2c_init(i2c0, 100 * 1000);

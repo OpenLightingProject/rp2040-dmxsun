@@ -15,6 +15,9 @@
 #include "wireless.h"
 #include "dhcpdata.h"
 
+#define MAGIC_ENUM_RANGE_MAX 255
+#include "../lib/magic_enum/include/magic_enum.hpp"
+
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
 extern DmxBuffer dmxBuffer;
@@ -416,7 +419,8 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["debug"]["structSize"]["EthDestParams"] = sizeof(EthDestParams);
 
         output["boardName"] = boardConfig.activeConfig->boardName;
-        output["configSource"] = GetConfigSourceString(boardConfig.configSource);
+        output["configSource"] = boardConfig.configSource;
+        output["configSourceString"] = std::string(magic_enum::enum_name<ConfigSource>(boardConfig.configSource));
         output["version"] = VERSION;
         output["serial"] = BoardConfig::boardSerialString;
         output["shortId"] = BoardConfig::shortId;
@@ -484,15 +488,19 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         // Does printing the base board info make sense?
         // Basically it's only to know if it has an invalid, valid or disabled config ...
         output["base"]["exist"] = true;
-        output["base"]["type"] = GetBoardTypeString(boardConfig.configData[4]->boardType);
+        output["base"]["type"] = boardConfig.configData[4]->boardType;
+        output["base"]["typeString"] = std::string(magic_enum::enum_name(boardConfig.configData[4]->boardType));
 
         // Iterate over the max 4 io boards
         for (uint8_t i = 0; i < 4; i++) {
             output["boards"][i]["exist"] = boardConfig.responding[i];
-            output["boards"][i]["type"] = GetBoardTypeString(boardConfig.configData[i]->boardType);
+            output["boards"][i]["type"] = boardConfig.configData[i]->boardType;
+            output["boards"][i]["typeString"] = std::string(magic_enum::enum_name(boardConfig.configData[i]->boardType));
             for (uint8_t j = 0; j < 4; j++) {
-                output["boards"][i]["ports"][j]["direction"] = GetPortParamsDirectionString(boardConfig.configData[i]->portParams[j].direction);
-                output["boards"][i]["ports"][j]["connector"] = GetPortParamsConnectorString(boardConfig.configData[i]->portParams[j].connector);
+                output["boards"][i]["ports"][j]["direction"] = (boardConfig.configData[i]->portParams[j].direction);
+                output["boards"][i]["ports"][j]["directionString"] = std::string(magic_enum::enum_name(boardConfig.configData[i]->portParams[j].direction));
+                output["boards"][i]["ports"][j]["connector"] = boardConfig.configData[i]->portParams[j].connector;
+                output["boards"][i]["ports"][j]["connectorString"] = std::string(magic_enum::enum_name(boardConfig.configData[i]->portParams[j].connector));
             }
         }
 
