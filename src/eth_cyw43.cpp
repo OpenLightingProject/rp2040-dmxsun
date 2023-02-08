@@ -63,7 +63,7 @@ void Eth_cyw43::init()
             CYW43_AUTH_WPA2_AES_PSK
         );
 
-        // CAREFUL: DHCP client is enabled implicitely!
+        // CAREFUL: DHCP client is enabled implicitly!
     }
 }
 
