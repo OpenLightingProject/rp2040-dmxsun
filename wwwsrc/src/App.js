@@ -12,12 +12,26 @@ import Console from "./Console.js";
 import Log from "./Log.js";
 import Wireless from "./Wireless.js";
 
+// Unneeded stuff is removed after the build using PurgeCSS + cssnano
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Required so that we can initialize the tooltips using the example
-// mentioned in the official docs at
-// https://getbootstrap.com/docs/5.0/components/tooltips/#example-enable-tooltips-everywhere
-window.bootstrap = require('bootstrap/dist/js/bootstrap.bundle.min.js');
+// Dependency used by Bootstrap
+import '@popperjs/core/dist/cjs/popper-lite'
+
+// Only import the Bootstrap components (JS part) that we actually need
+// see https://getbootstrap.com/docs/5.0/customize/optimize/
+
+// import 'bootstrap/js/dist/alert';
+import 'bootstrap/js/dist/button';
+// import 'bootstrap/js/dist/carousel';
+import 'bootstrap/js/dist/collapse';
+// import 'bootstrap/js/dist/dropdown';
+import 'bootstrap/js/dist/modal';
+// import 'bootstrap/js/dist/popover';
+// import 'bootstrap/js/dist/scrollspy';
+// import 'bootstrap/js/dist/tab';
+// import 'bootstrap/js/dist/toast';
+import 'bootstrap/js/dist/tooltip';
 
 export default function App() {
   // Have a global, optional URL "prefix" so one can have the App

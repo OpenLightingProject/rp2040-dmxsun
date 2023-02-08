@@ -60,10 +60,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/lib/libb64/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/jsoncpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
-set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
-set(TINYUSB_LIBNETWORKING_SOURCES
-    ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
-)
+#set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
+#set(TINYUSB_LIBNETWORKING_SOURCES
+#    ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
+#)
 
 ## I'd like to use LTO but it doesn't yet work
 ## https://github.com/raspberrypi/pico-sdk/issues/97
@@ -74,17 +74,30 @@ set(TINYUSB_LIBNETWORKING_SOURCES
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    set(PICO_W_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/src/eth_cyw43.cpp
+    )
+else()
+    set(PICO_W_SOURCES
+    )
+endif()
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
     ${TINYUSB_LIBNETWORKING_SOURCES}
+    ${PICO_W_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/src/boardconfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/crc_X25.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/dhcpdata.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/dhcpserver.c
     ${CMAKE_CURRENT_LIST_DIR}/src/dmxbuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/edp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/pico_lwip_random.c
     ${CMAKE_CURRENT_LIST_DIR}/src/statusleds.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/stdio_usb.c
     ${CMAKE_CURRENT_LIST_DIR}/src/tusb_lwip_glue.c
@@ -98,6 +111,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/webserver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/wireless.cpp
 )
+
+
 
 ## Add our rp2040-PIO programs here
 pico_generate_pio_header(${CMAKE_PROJECT_NAME}
@@ -150,6 +165,35 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
+## Include a local copy of the pico_cyw43_arch library so we can
+## modify it. If we use the one from the pico-sdk, this is read-only and
+## hard to modify.
+## We need this since we want to use OUR modified version of lwip and the
+## board freezes when initializing the cyw43-chip since (a wild guess!)
+## lwip_init() is being called twice
+include(${CMAKE_CURRENT_LIST_DIR}/lib/pico_cyw43_arch_nolwip/CMakeLists.txt)
+
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    ## equals pico_cyw43_arch_none:
+    target_compile_definitions(pico_cyw43_arch_nolwip INTERFACE
+        ## Compiles, links and inits fine (with the unmodified library):
+        #CYW43_LWIP=0
+        #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+
+        ## Compiles fine, fails to link due to unfdefined references (with the unmodified library):
+        #CYW43_LWIP=0
+        #PICO_CYW43_ARCH_POLL=1
+
+        ## Compiles fine, links fine but fails to init (with the unmodified library):
+        #CYW43_LWIP=1
+        #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
+
+        ## Compiles fine, links fine but fails to init (with the unmodified library):
+        CYW43_LWIP=1
+        PICO_CYW43_ARCH_POLL=1
+    )
+endif()
+
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -173,6 +217,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     tinyusb_board
     tinyusb_device
 )
+
+if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
+    target_link_libraries(${CMAKE_PROJECT_NAME}
+        pico_cyw43_arch_nolwip ## Our custom one in the lib folder
+    )
+endif()
 
 ## Create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})

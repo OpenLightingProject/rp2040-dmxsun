@@ -44,7 +44,8 @@
 #define LWIP_NETCONN                    0
 #define LWIP_SOCKET                     0
 #define LWIP_DHCP                       1
-#define LWIP_NETIF_HOSTNAME             0
+#define LWIP_DNS                        1
+#define LWIP_NETIF_HOSTNAME             1
 #define LWIP_ICMP                       1
 #define LWIP_UDP                        1
 #define LWIP_TCP                        1
@@ -78,5 +79,9 @@
 #define HTTPD_FSDATA_FILE               "../../../../../src/fsdata.c"
 
 #define LWIP_SINGLE_NETIF               0
+
+// Defined in https://github.com/raspberrypi/pico-examples/blob/master/pico_w/lwipopts_examples_common.h
+#define LWIP_NETIF_TX_SINGLE_PBUF   1
+#define MEM_LIBC_MALLOC             1
 
 #endif /* __LWIPOPTS_H__ */

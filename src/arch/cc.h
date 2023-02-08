@@ -74,4 +74,10 @@ typedef int sys_prot_t;
 #define LWIP_PLATFORM_ASSERT(x) do { if(!(x)) while(1); } while(0)
 #endif
 
+unsigned int pico_lwip_rand(void);
+#ifndef LWIP_RAND
+// Use ROSC based random number generation, more for the fact that rand() may not be seeded, than anything else
+#define LWIP_RAND pico_lwip_rand
+#endif
+
 #endif /* __CC_H__ */

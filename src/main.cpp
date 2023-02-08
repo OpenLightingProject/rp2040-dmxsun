@@ -26,6 +26,9 @@ extern "C" {
 #include "webserver.h"
 #include "wireless.h"
 #include "localdmx.h"
+#include "eth_cyw43.h"
+
+#include "dhcpdata.h"
 
 #include "usb_EDP.h"
 #include "usb_NodleU1.h"
@@ -57,7 +60,9 @@ enum {
     BLINK_READY_SINGLE_UNI     = 42188,
     BLINK_READY_MULTI_UNI      = 21094,
 };
+#ifdef PIN_LED
 #define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
+#endif
 
 // Super-globals (for all modules)
 Log logger;
@@ -67,6 +72,8 @@ StatusLeds statusLeds;
 BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
+Eth_cyw43 eth_cyw43;
+DhcpData dhcpdata;
 
 critical_section_t bufferLock;
 
@@ -92,7 +99,9 @@ void core1_tasks(void);
 int main() {
     // Make the onboard-led blink like crazy during the INIT phase
     // without having to do this in software because we're busy with other stuff
+#ifdef BLINK_LED
     BLINK_LED(BLINK_INIT);
+#endif
 
     // /!\ Do NOT use LOG() until TinyUSB-stack has been initialized /!\
 
@@ -130,6 +139,11 @@ int main() {
 
     // Phase 6: Fire up the integrated web server
     // This also initialises the TinyUSB<->lwIP glue. lwIP and the DHCP server
+    dhcpdata.init();
+    init_lwip();
+    wait_for_netif_is_up(); // TinyUSB network interface
+    dhcpd_init();
+
     webServer.init();
 
     // Phase 7: Detect if there is a radio module and init it if so
@@ -137,6 +151,8 @@ int main() {
 
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
+
+    eth_cyw43.init();
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
@@ -181,6 +197,8 @@ int main() {
 
         webServer.cyclicTask(); // Make sure this is on core0 since it
                                 // WILL halt core1 when writing to the flash!
+
+        eth_cyw43.cyclicTask();
 //        wireless.cyclicTask();
 //        statusLeds.cyclicTask();
 //        led_blinking_task();
@@ -225,6 +243,7 @@ void led_blinking_task(void) {
         }
     }
 
+#ifdef BLINK_LED
     if (universes_none_zero == 0) {
         BLINK_LED(BLINK_READY_NO_DATA);
         statusLeds.setStatic(7, 0, 0, 0);
@@ -238,4 +257,5 @@ void led_blinking_task(void) {
         BLINK_LED(BLINK_READY_MULTI_UNI);
         statusLeds.setStatic(7, 0, 0, 1);
     }
+#endif
 }

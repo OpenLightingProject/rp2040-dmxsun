@@ -31,6 +31,9 @@
 
 #include "log.h"
 
+#include "boardconfig.h"
+#include "dhcpdata.h"
+
 extern uint8_t usbTraffic;
 
 /* lwip context */
@@ -48,10 +51,8 @@ ip_addr_t ipaddr;
 ip_addr_t netmask;
 ip_addr_t gateway;
 
-dhcp_entry_t entries[1];
 ip_addr_t hostIp;
 ip_addr_t ownIp;
-dhcp_config_t dhcp_config;
 
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
 {
@@ -106,6 +107,9 @@ static err_t netif_init_cb(struct netif *netif)
     netif->name[1] = '0';
     netif->linkoutput = linkoutput_fn;
     netif->output = output_fn;
+
+    netif->hostname = getBoardHostnameString();
+
     return ERR_OK;
 }
 
@@ -202,23 +206,16 @@ void service_traffic(void)
     sys_check_timeouts();
 }
 
+// Should moved out of here, at least the "start DHCP server" part
 void dhcpd_init()
 {
-    /* database IP addresses that can be offered to the host; this must be in RAM to store assigned MAC addresses */
     ip4_addr_set_u32(&hostIp, getHostIp());
-    entries[0].addr = hostIp;
-    entries[0].lease = 24 * 60 * 60;
+    dhcp_entries_usb[0].addr = hostIp;
+    dhcp_entries_usb[0].lease = 24 * 60 * 60;
 
-    //ip4_addr_set_u32(&ownIp, getOwnIp());
+    dhcp_config_usb->netif = &netif_data;
 
-    //dhcp_config.router = anyIp;    /* router address (if any) */
-    dhcp_config.port = 67;         /* listen port */
-    //dhcp_config.dns = ownIp;       /* dns server (if any) */
-    //dhcp_config.domain = "dmx";       /* dns suffix */
-    dhcp_config.num_entry = 1;     /* num entry */
-    dhcp_config.entries = entries; /* entries */
-
-    while (dhserv_init(&dhcp_config) != ERR_OK);    
+    while (dhserv_init(&dhcp_config) != ERR_OK);
 }
 
 void wait_for_netif_is_up()

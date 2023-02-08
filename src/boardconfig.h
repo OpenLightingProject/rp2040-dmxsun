@@ -16,11 +16,16 @@
 // However, we are only using the first 2048 byte of that sector since
 // that is how large the I2C EEPROMs on the IO boards are (since rev 0.7)
 #define CONFIG_FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
+// Remaining flash size for the "program" (including WebUI) is:
+//   2093056 byte = 2044 kByte = 1,99609375 MByte ;)
+// However, according to https://forums.raspberrypi.com/viewtopic.php?p=1867632&sid=b5fc2e594d2cd34b269be5600eef6ea8#p1867632
+// the UF2-file contains so much padding that it can grow to 4 MByte before
+// we completely fill the flash :D
 
 #define MAX_PATCHINGS 32
 
 // Config data types and layout
-#define CONFIG_VERSION 6
+#define CONFIG_VERSION 7
 
 #ifdef __cplusplus
 
@@ -120,7 +125,7 @@ DECLARE_ENUM(EthDhcpMode,uint8_t,ETHDHCPMODE)
     XX(buffer,=0)           /* Our internal DMX buffers */ \
     XX(local,=1)            /* Local DMX generation (GPIO via PIO) */ \
     XX(usbProto,=2)         /* From/to the host via Serial or emulated protocol */ \
-    XX(eth,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
+    XX(ip,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
                             /* (all treated the same) (ArtNet or sACN) */ \
     XX(nrf24,=5)            /* nRF24 wireless module connected via SPI  */ \
 
@@ -128,7 +133,6 @@ DECLARE_ENUM(PatchType,uint8_t,PATCHTYPE)
 
 
 struct __attribute__((__packed__)) Patching {
-    // First byte:
     bool active;
     PatchType srcType;
     uint16_t srcInstance; // Buffer: 0 to DMXBUFFER_COUNT-1
@@ -179,6 +183,21 @@ struct __attribute__((__packed__)) ConfigData {
     uint32_t               ownIp;
     uint32_t               ownMask;
     uint32_t               hostIp;
+
+    bool                   wifi_STA_enabled;
+    char                   wifi_STA_SSID[32];
+    char                   wifi_STA_PSK[32];
+    EthDhcpMode            wifi_STA_DhcpMode;
+    uint32_t               wifi_STA_ip;
+    uint32_t               wifi_STA_mask;
+    uint32_t               wifi_STA_gw;
+
+    bool                   wifi_AP_enabled;
+    char                   wifi_AP_SSID[32];
+    char                   wifi_AP_PSK[32];
+    uint32_t               wifi_AP_ip;
+    uint32_t               wifi_AP_mask;
+
     UsbProtocol            usbProtocol;
     uint8_t                usbProtocolDirections; // Bit field. 0 = host to device, 1 = device to host
     RadioRole              radioRole;
@@ -207,6 +226,14 @@ static const ConfigData constDefaultConfig = {
     .ownIp               = 0x0100fea9UL, // 169.254.X.1
     .ownMask             = 0x00ffffffUL, // 255.255.255.0
     .hostIp              = 0x0200fea9UL, // 169.254.X.2
+    .wifi_STA_enabled    = false,
+    .wifi_STA_DhcpMode   = EthDhcpMode::dhcpOrFail,
+    .wifi_STA_ip         = 0,
+    .wifi_STA_mask       = 0,
+    .wifi_STA_gw         = 0,
+    .wifi_AP_enabled     = true,
+    .wifi_AP_ip          = 0x0100a8c0UL, // 192.168.0.1
+    .wifi_AP_mask        = 0x00ffffffUL, // 255.255.255.0
     .usbProtocol         = UsbProtocol::EDP,
     .radioRole           = RadioRole::sniffer,
     .radioChannel        = 42,
@@ -237,6 +264,11 @@ class BoardConfig {
 
     bool responding[4];       // True if the board resonded to the bus scan
 
+    static uint8_t shortId; // The part of the unique id that is used as the third byte
+                            // of the usb eth's IP address
+    static char boardSerialString[25];
+    static char boardHostnameString[12];
+
   private:
     uint8_t rawData[5][2048];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 2048 byte each)
 };
@@ -249,6 +281,10 @@ extern "C" {
 #endif
 
 uint8_t  getUsbProtocol();
+
+uint8_t  getShortId();
+char*    getBoardSerialString();
+char*    getBoardHostnameString();
 
 uint32_t getOwnIp();
 uint32_t getOwnMask();

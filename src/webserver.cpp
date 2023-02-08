@@ -13,6 +13,7 @@
 #include "boardconfig.h"
 #include "dmxbuffer.h"
 #include "wireless.h"
+#include "dhcpdata.h"
 
 extern StatusLeds statusLeds;
 extern BoardConfig boardConfig;
@@ -77,11 +78,7 @@ static const tCGI cgi_handlers[] = {
 static const char* ssiTags[] = {};
 
 void WebServer::init() {
-    // Initialize lwip, dhcpd and httpd
-    // TinyUSB already needs to be initialized at this point
-    init_lwip();
-    wait_for_netif_is_up();
-    dhcpd_init();
+    // TinyUSB and lwIP already need to be initialized at this point
     httpd_init();
     http_set_cgi_handlers(cgi_handlers, LWIP_ARRAYSIZE(cgi_handlers));
     http_set_ssi_handler(ssi_handler, ssiTags, LWIP_ARRAYSIZE(ssiTags));
@@ -381,20 +378,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         char ownIp[16];
         char ownMask[16];
         char hostIp[16];
-        pico_unique_board_id_t board_id;
-        char unique_id_string[25];
-        
-        pico_get_unique_board_id(&board_id);
-        snprintf(unique_id_string, 24, "RP2040_%02x%02x%02x%02x%02x%02x%02x%02x",
-            board_id.id[0],
-            board_id.id[1],
-            board_id.id[2],
-            board_id.id[3],
-            board_id.id[4],
-            board_id.id[5],
-            board_id.id[6],
-            board_id.id[7]
-        );
+
+        char ifname[3];
+        char ip[16];
 
         WebServer::ipToString(boardConfig.activeConfig->ownIp, ownIp);
         WebServer::ipToString(boardConfig.activeConfig->ownMask, ownMask);
@@ -403,7 +389,9 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["debug"]["flash"]["totalSize"] = PICO_FLASH_SIZE_BYTES;
         output["debug"]["flash"]["sectorSize"] = FLASH_SECTOR_SIZE;
         output["debug"]["flash"]["blockSize"] = FLASH_BLOCK_SIZE;
+
         output["debug"]["toolchain"]["pico_sdk_version"] = PICO_SDK_VERSION_STRING;
+        output["debug"]["toolchain"]["PICO_BOARD"] = PICO_BOARD;
 #if defined(__GNUC__)
 # if defined(__GNUC_PATCHLEVEL__)
 #  define __GNUC_VERSION__ (__GNUC__ * 10000 \
@@ -430,11 +418,34 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["boardName"] = boardConfig.activeConfig->boardName;
         output["configSource"] = GetConfigSourceString(boardConfig.configSource);
         output["version"] = VERSION;
-        output["serial"] = unique_id_string;
+        output["serial"] = BoardConfig::boardSerialString;
+        output["shortId"] = BoardConfig::shortId;
 
-        output["net"]["u0"]["ownIp"] = ownIp;
-        output["net"]["u0"]["ownMask"] = ownMask;
-        output["net"]["u0"]["hostIp"] = hostIp;
+        struct netif* iface = netif_list;
+        while (iface != nullptr) {
+            sprintf(ifname, "%c%c", iface->name[0], iface->name[1]);
+            WebServer::ipToString(iface->ip_addr.addr, ip);
+            output["net"][ifname]["ip"] = ip;
+            WebServer::ipToString(iface->netmask.addr, ip);
+            output["net"][ifname]["netmask"] = ip;
+            WebServer::ipToString(iface->gw.addr, ip);
+            output["net"][ifname]["gw"] = ip;
+            if (iface->hostname) {
+                output["net"][ifname]["hostname"] = iface->hostname;
+            }
+
+            iface = iface->next;
+        }
+
+        for (int i = 0; i < DHCP_NUM_ENTRIES_USB; i++) {
+            output["net"]["u0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_usb[i]));
+        }
+        for (int i = 0; i < DHCP_NUM_ENTRIES_ETH; i++) {
+            output["net"]["e0"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_eth[i]));
+        }
+        for (int i = 0; i < DHCP_NUM_ENTRIES_WIFI; i++) {
+            output["net"]["w1"]["dhcp"][i] = DhcpData::dhcpEntryToString(&(dhcp_entries_wifi[i]));
+        }
 
         output["wirelessModule"] = wireless.moduleAvailable;
         output["statusLedBrightness"] = boardConfig.activeConfig->statusLedBrightness;

@@ -6,7 +6,7 @@
 #endif
 
 #include <tusb.h>
-#include <dhserver.h>
+#include <dhcpserver.h>
 #include <dnserver.h>
 #include <lwip/igmp.h>
 #include <lwip/init.h>
