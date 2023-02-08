@@ -54,6 +54,17 @@ void Eth_cyw43::init()
             iface = iface->next;
         }
     }
+
+    if (boardConfig.activeConfig->wifi_STA_enabled) {
+        cyw43_arch_enable_sta_mode();
+        cyw43_arch_wifi_connect_async(
+            boardConfig.activeConfig->wifi_STA_SSID,
+            boardConfig.activeConfig->wifi_STA_PSK,
+            CYW43_AUTH_WPA2_AES_PSK
+        );
+
+        // CAREFUL: DHCP client is enabled implicitely!
+    }
 }
 
 void Eth_cyw43::cyclicTask()

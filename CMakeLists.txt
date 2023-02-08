@@ -60,6 +60,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/lib/libb64/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/lib/jsoncpp/interfaceLibForPicoSDK.cmake)
 
 ## Extra stuff from TinyUSB, that is not part of tinyusb_device library
+## No longer included here since it has been copied to src/dhcpserver.c
 #set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
 #set(TINYUSB_LIBNETWORKING_SOURCES
 #    ${PICO_TINYUSB_PATH}/lib/networking/dhserver.c
