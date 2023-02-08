@@ -3,8 +3,6 @@
 
 #include "pins.h"
 
-#include "enumFactory.h"
-
 #ifdef __cplusplus
 #include <RF24.h>
 #endif
@@ -29,41 +27,35 @@
 
 #ifdef __cplusplus
 
-#define BOARDTYPE(XX) \
-    XX(invalid_00,=0x00) \
-    XX(dmx_4ports_unisolated,=0x01) \
-    XX(dmx_4ports_isolated,=0x02) \
-    XX(dmx_2ports_rdm_unisolated,=0x03) \
-    XX(dmx_2ports_rdm_isolated,=0x04) \
-    \
-    XX(led_4ports,=0x20) \
-    \
-    XX(config_only_dongle,=0xfd) \
-    XX(baseboard_fallback,=0xfe) \
-    XX(invalid_ff,=0xff) \
+enum BoardType : uint8_t {
+    invalid_00                = 0x00,
+    dmx_4ports_unisolated     = 0x01,
+    dmx_4ports_isolated       = 0x02,
+    dmx_2ports_rdm_unisolated = 0x03,
+    dmx_2ports_rdm_isolated   = 0x04,
 
-DECLARE_ENUM(BoardType,uint8_t,BOARDTYPE)
+    led_4ports                = 0x20,
 
+    config_only_dongle        = 0xfd,
+    baseboard_fallback        = 0xfe,
+    invalid_ff                = 0xff
+};
 
-#define PORTPARAMSDIRECTION(XX) \
-    XX(unknown,=0)    /* or: port doesn't exist on board */ \
-    XX(out,=1)        /* DMX fixed sending port */ \
-    XX(in,=2)         /* DMX fixed receiving port */ \
-    XX(switchable,=3) /* software-switchable, RDM capable */ \
+enum PortParamsDirection : uint8_t {
+    unknown                   = 0, // OR: Port doesn't exist on board
+    out                       = 1, // DMX fixed sending port
+    in                        = 2, // DMX fixed input port
+    switchable                = 3, // Software-swichtable, RDM capable
+};
 
-DECLARE_ENUM(PortParamsDirection,uint8_t,PORTPARAMSDIRECTION)
-
-
-#define PORTPARAMSCONNECTOR(XX) \
-    XX(xlr_5_female,=0) \
-    XX(xlr_5_male,=1) \
-    XX(xlr_3_female,=2) \
-    XX(xlr_3_male,=3) \
-    XX(rj45,=4) \
-    XX(screws,=5) \
-
-DECLARE_ENUM(PortParamsConnector,uint8_t,PORTPARAMSCONNECTOR)
-
+enum PortParamsConnector : uint8_t {
+    xlr_5_female              = 0,
+    xlr_5_male                = 1,
+    xlr_3_female              = 2,
+    xlr_3_male                = 3,
+    rj45                      = 4,
+    screws                    = 5,
+};
 
 // Bits 0-1: Data direction
 // Bits 2-4: Connector type
@@ -73,19 +65,17 @@ struct __attribute__((__packed__)) PortParams {
     uint8_t UNUSED                : 2;
 };
 
-#define USBPROTOCOL(XX) \
-    XX(EDP,=0)          /* our "native"/edp protocol only */ \
-    XX(JaRule,=1)       /* MAX 8 ports, each IN OR OUT */ \
-    XX(uDMX,=2)         /* One TX only, data comes via CONTROL endpoint */ \
-    XX(OpenDMX,=3)      /* Multiple (8?) serial endpoints */ \
-    XX(NodleU1,=4)      /* Digital Enlightenment / DMXControl Projects e.V. */ \
-                        /* 1 universe standard, 16 with protocol modifications */ \
-    XX(UsbPro,=5)       /* ENTTEC USB Pro. One in OR out */ \
-                        /* Not sure if we can/should actually do this since we */ \
-                        /* would need to properly emulate an FT*I chip for that */ \
-
-DECLARE_ENUM(UsbProtocol,uint8_t,USBPROTOCOL)
-
+enum UsbProtocol : uint8_t {
+    EDP                       = 0, // Our "native" protocol only
+    JaRule                    = 1, // Max 8 ports, each IN or OUT
+    uDMX                      = 2, // One TX only, data comes in via CONTROL endpoint
+    OpenDMX                   = 3, // Multiple (8?) serial endpoints
+    NodleU1                   = 4, // Digital Enlightenment / DMXControl Projects e.V.
+                                   // 1 universe standard, 16 with protocol modifications
+    UsbPro                    = 5, // ENTTEC USB Pro. One IN or OUT
+                                   // Not sure if we can/should actually do this since we
+                                   // would need to properly emulate an FT*I chip for that
+};
 
 // Size: 2 byte
 struct __attribute__((__packed__)) RadioParams {
@@ -96,41 +86,35 @@ struct __attribute__((__packed__)) RadioParams {
     uint8_t padding               : 8;
 };
 
-#define RADIOROLE(XX) \
-    XX(sniffer,=0)        /* rx only for spectrum scanning */ \
-    XX(broadcast,=1)      /* simple broadcast sender and receiver */ \
-    XX(mesh,=2)           /* RF24Mesh, can RX and TX universes */ \
-                          /*role in mesh (master / node) is set by radioAdress */ \
-    XX(QuickDMX_TX,=3)    /* TODO: NOT IMPLEMENTED */ \
-    XX(QuickDMX_RX,=4)    /* TODO: NOT IMPLEMENTED */ \
-    XX(APE_TX,=5)         /* TODO: NOT IMPLEMENTED */ \
-    XX(APE_RX,=6)         /* TODO: NOT IMPLEMENTED */ \
-    XX(D_Fi_TX,=7)        /* TODO: NOT IMPLEMENTED */ \
-    XX(D_Fi_RX,=8)        /* TODO: NOT IMPLEMENTED */ \
-    XX(Cameo_WDMX_TX,=9)  /* TODO: NOT IMPLEMENTED */ \
-    XX(Cameo_WDMX_RX,=10) /* TODO: NOT IMPLEMENTED */ \
+enum RadioRole : uint8_t {
+    sniffer                   = 0, // RX only for spectrum scanning
+    broadcast                 = 1, // Simple broadcast TX and RX
+    mesh                      = 2, // RF24Mesh, can RX and TX universes
+                                   // Role in mesh (master/node) is set by radioAdress
+    QuickDMX_TX               = 3, // TODO: NOT IMPLEMENTED
+    QuickDMX_RX               = 4, // TODO: NOT IMPLEMENTED
+    APE_TX                    = 5, // TODO: NOT IMPLEMENTED
+    APE_RX                    = 6, // TODO: NOT IMPLEMENTED
+    D_Fi_TX                   = 7, // TODO: NOT IMPLEMENTED
+    D_Fi_RX                   = 8, // TODO: NOT IMPLEMENTED
+    Cameo_WDMX_TX             = 9, // TODO: NOT IMPLEMENTED
+    Cameo_WDMX_RX            = 10, // TODO: NOT IMPLEMENTED
+};
 
-DECLARE_ENUM(RadioRole,uint8_t,RADIOROLE)
+enum EthDhcpMode : uint8_t {
+    staticIp                  = 0, // Static IP, no DHCP is tried
+    dhcpWithFallback          = 1, // DHCP is tried, fallback to static IP
+    dhcpOrFail                = 2, // DHCP is tried, module is disabled on failure
+};
 
+enum PatchType : uint8_t {
+    buffer                    = 0, // Our internal DMX buffers
+    local                     = 1, // Local DMX generation (GPIO via PIO)
+    usbProto                  = 2, // From/to host via Serial or emulated protocol
+    ip                        = 3, // From/to "host via UsbEth", Ethernet or WiFi
 
-#define ETHDHCPMODE(XX) \
-    XX(staticIp,=0)         /* static IP, no DHCP is tried */ \
-    XX(dhcpWithFallback,=1) /* DHCP is tried, fallback to static IP */ \
-    XX(dhcpOrFail,=2)       /* DHCP is tried, module is disabled on failure */ \
-
-DECLARE_ENUM(EthDhcpMode,uint8_t,ETHDHCPMODE)
-
-
-#define PATCHTYPE(XX) \
-    XX(buffer,=0)           /* Our internal DMX buffers */ \
-    XX(local,=1)            /* Local DMX generation (GPIO via PIO) */ \
-    XX(usbProto,=2)         /* From/to the host via Serial or emulated protocol */ \
-    XX(ip,=3)              /* From/to the host via UsbEth, Ethernet or Wifi */ \
-                            /* (all treated the same) (ArtNet or sACN) */ \
-    XX(nrf24,=5)            /* nRF24 wireless module connected via SPI  */ \
-
-DECLARE_ENUM(PatchType,uint8_t,PATCHTYPE)
-
+    nrf24                     = 5, // nRF24 wireless module connected via SPI
+};
 
 struct __attribute__((__packed__)) Patching {
     bool active;
@@ -150,16 +134,14 @@ struct __attribute__((__packed__)) Patching {
                            // used for patchings with UsbEth, Eth and WiFi as dstType
 };
 
-#define CONFIGSOURCE(XX) \
-    XX(IOBoard00,=0) \
-    XX(IOBoard01,=1) \
-    XX(IOBoard10,=2) \
-    XX(IOBoard11,=3) \
-    XX(BaseBoard,=4) \
-    XX(Fallback,=5) \
-
-DECLARE_ENUM(ConfigSource,uint8_t,CONFIGSOURCE)
-
+enum ConfigSource : uint8_t {
+    IOBoard00                 = 0,
+    IOBoard01                 = 1,
+    IOBoard10                 = 2,
+    IOBoard11                 = 3,
+    BaseBoard                 = 4,
+    Fallback                  = 255
+};
 
 // Additional parameters for patchings with UsbEth, Eth and WiFi destinations
 struct __attribute__((__packed__)) EthDestParams {

@@ -19,3 +19,6 @@
 [submodule "lib/jsoncpp"]
 	path = lib/jsoncpp
 	url = https://github.com/kripton/jsoncpp.git
+[submodule "lib/magic_enum"]
+	path = lib/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
