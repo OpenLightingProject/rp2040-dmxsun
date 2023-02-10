@@ -9,6 +9,7 @@ extern "C" {
 #include <hardware/clocks.h>    // Needed for the onboard LED blinking patterns
 #include <hardware/dma.h>       // To control the data transfer from mem to pio
 #include <hardware/gpio.h>      // To "manually" control the trigger pin
+#include <hardware/adc.h>       // Pico-W runtime detection
 
 #include <pico/stdlib.h>
 #include "pico/multicore.h"
@@ -59,10 +60,9 @@ enum {
     BLINK_READY_NO_DATA        = 65535,
     BLINK_READY_SINGLE_UNI     = 42188,
     BLINK_READY_MULTI_UNI      = 21094,
+
 };
-#ifdef PIN_LED
-#define BLINK_LED(div) clock_gpio_init(PIN_LED, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
-#endif
+#define BLINK_LED(div) clock_gpio_init(PIN_LED_PICO, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_RTC, div);
 
 // Super-globals (for all modules)
 Log logger;
@@ -97,11 +97,22 @@ void core1_tasks(void);
 // 8. Depending on base boards and config: DMX PIOs and GPIO config
 
 int main() {
+    // Runtime-detect which board we are running on
+    adc_init();
+    // Make sure GPIO is high-impedance, no pullups etc
+    adc_gpio_init(29);
+    // Select ADC input 3 (GPIO29)
+    adc_select_input(3);
+    // Give some time for the voltage to stabilize and the ADC to sample
+    sleep_ms(5);
+    uint16_t firstRead = adc_read();
+    BoardConfig::boardIsPicoW = (firstRead < 1000);
+
     // Make the onboard-led blink like crazy during the INIT phase
     // without having to do this in software because we're busy with other stuff
-#ifdef BLINK_LED
-    BLINK_LED(BLINK_INIT);
-#endif
+    if (!BoardConfig::boardIsPicoW) {
+        BLINK_LED(BLINK_INIT);
+    }
 
     // /!\ Do NOT use LOG() until TinyUSB-stack has been initialized /!\
 
@@ -113,7 +124,6 @@ int main() {
     // Phase 1: Init the status LEDs
     statusLeds.init();
     statusLeds.setBrightness(20);
-    //sleep_ms(200);
     statusLeds.writeLeds();
 
     // Phase 2: Detect and read IO boards
@@ -152,7 +162,9 @@ int main() {
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
 
-    eth_cyw43.init();
+    if (BoardConfig::boardIsPicoW) {
+        eth_cyw43.init();
+    }
 
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
@@ -168,7 +180,7 @@ int main() {
     statusLeds.writeLeds();
 
     // SETUP COMPLETE
-    LOG("SYSTEM: SETUP COMPLETE :D");
+    LOG("SYSTEM: SETUP COMPLETE :D ADC read: %d", firstRead);
 
     // Run all important tasks at least once before we start AUX tasks on core1
     // so the USB device enumeration doesn't time-out
@@ -198,7 +210,9 @@ int main() {
         webServer.cyclicTask(); // Make sure this is on core0 since it
                                 // WILL halt core1 when writing to the flash!
 
-        eth_cyw43.cyclicTask();
+        if (BoardConfig::boardIsPicoW) {
+            eth_cyw43.cyclicTask();
+        }
 //        wireless.cyclicTask();
 //        statusLeds.cyclicTask();
 //        led_blinking_task();
@@ -243,19 +257,19 @@ void led_blinking_task(void) {
         }
     }
 
-#ifdef BLINK_LED
-    if (universes_none_zero == 0) {
-        BLINK_LED(BLINK_READY_NO_DATA);
-        statusLeds.setStatic(7, 0, 0, 0);
-    } else if (universes_none_zero == 1) {
-        BLINK_LED(BLINK_READY_SINGLE_UNI);
-        statusLeds.setStatic(7, 0, 1, 0);
-    } else if (universes_none_zero > 4) {
-        BLINK_LED(BLINK_READY_MULTI_UNI);
-        statusLeds.setStatic(7, 1, 1, 1);
-    } else if (universes_none_zero > 1) {
-        BLINK_LED(BLINK_READY_MULTI_UNI);
-        statusLeds.setStatic(7, 0, 0, 1);
+    if (!BoardConfig::boardIsPicoW) {
+        if (universes_none_zero == 0) {
+            BLINK_LED(BLINK_READY_NO_DATA);
+            statusLeds.setStatic(7, 0, 0, 0);
+        } else if (universes_none_zero == 1) {
+            BLINK_LED(BLINK_READY_SINGLE_UNI);
+            statusLeds.setStatic(7, 0, 1, 0);
+        } else if (universes_none_zero > 4) {
+            BLINK_LED(BLINK_READY_MULTI_UNI);
+            statusLeds.setStatic(7, 1, 1, 1);
+        } else if (universes_none_zero > 1) {
+            BLINK_LED(BLINK_READY_MULTI_UNI);
+            statusLeds.setStatic(7, 0, 0, 1);
+        }
     }
-#endif
 }

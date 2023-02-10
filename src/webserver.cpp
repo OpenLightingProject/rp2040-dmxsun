@@ -419,6 +419,7 @@ u16_t WebServer::ssi_handler(const char* ssi_tag_name, char *pcInsert, int iInse
         output["debug"]["structSize"]["EthDestParams"] = sizeof(EthDestParams);
 
         output["boardName"] = boardConfig.activeConfig->boardName;
+        output["boardIsPicoW"] = BoardConfig::boardIsPicoW;
         output["configSource"] = boardConfig.configSource;
         output["configSourceString"] = std::string(magic_enum::enum_name<ConfigSource>(boardConfig.configSource));
         output["version"] = VERSION;
