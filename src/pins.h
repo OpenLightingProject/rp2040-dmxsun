@@ -42,10 +42,10 @@
 #define PIN_IO11_3     21
 
 // Pico's on-board, single-color status LED
-// Not available on the Pico-W
-#ifdef PICO_DEFAULT_LED_PIN
-#define PIN_LED        PICO_DEFAULT_LED_PIN // = 25 on the pico
-#endif
+// If a regular "Pico" is detected at runtime => Port 25
+// If a Pico-W is detected at runtime => GPIO 0 of the cyw43
+#define PIN_LED_PICO   25
+#define PIN_LED_PICOW  CYW43_WL_GPIO_LED_PIN
 
 // WS2812-based status LEDs
 #define PIN_LEDS       22

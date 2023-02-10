@@ -251,6 +251,8 @@ class BoardConfig {
     static char boardSerialString[25];
     static char boardHostnameString[12];
 
+    static bool boardIsPicoW;
+
   private:
     uint8_t rawData[5][2048];  // raw content of the memories (0-3: 4 IO boards, 4: baseboard, 2048 byte each)
 };

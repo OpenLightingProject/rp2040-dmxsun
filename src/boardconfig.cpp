@@ -20,6 +20,7 @@ ConfigSource BoardConfig::configSource = ConfigSource::Fallback;
 uint8_t BoardConfig::shortId;
 char BoardConfig::boardSerialString[25];
 char BoardConfig::boardHostnameString[12];
+bool BoardConfig::boardIsPicoW;
 
 
 void BoardConfig::init() {
