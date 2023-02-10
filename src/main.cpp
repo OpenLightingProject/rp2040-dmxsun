@@ -14,6 +14,8 @@ extern "C" {
 #include <pico/stdlib.h>
 #include "pico/multicore.h"
 
+#include <pico/cyw43_arch.h>    // Toggle the LED on the Pico-W
+
 #include "pins.h"
 #include "picotool_binary_information.h"
 
@@ -79,6 +81,9 @@ critical_section_t bufferLock;
 
 uint8_t usbTraffic = 0;
 
+struct repeating_timer led_toggle_timer;
+
+bool led_toggle_timer_callback(repeating_timer_t *rt);
 void led_blinking_task(void);
 
 void core1_tasks(void);
@@ -166,6 +171,12 @@ int main() {
         eth_cyw43.init();
     }
 
+    // Re-init the PICO-LED to a normal LED
+    gpio_init(PIN_LED_PICO);
+    gpio_set_dir(PIN_LED_PICO, GPIO_OUT);
+    // Set up a timer to make status LED blink
+    add_repeating_timer_ms(25, led_toggle_timer_callback, NULL, &led_toggle_timer);
+
     // Phase 9: Do all the patching between the internal DMX buffers and ports
     // Patching is read from BoardConfig and actually nothing needs to be done here
 
@@ -232,6 +243,16 @@ void core1_tasks() {
     }
 };
 
+// LED toggle task
+bool led_toggle_timer_callback(repeating_timer_t *rt) {
+    if (BoardConfig::boardIsPicoW) {
+        cyw43_arch_gpio_put(PIN_LED_PICOW, !cyw43_arch_gpio_get(PIN_LED_PICOW));
+    } else {
+        gpio_put(PIN_LED_PICO, !gpio_get(PIN_LED_PICO));
+    }
+    return true;
+}
+
 //--------------------------------------------------------------------+
 // BLINKING TASK
 //--------------------------------------------------------------------+
@@ -257,19 +278,16 @@ void led_blinking_task(void) {
         }
     }
 
-    if (!BoardConfig::boardIsPicoW) {
-        if (universes_none_zero == 0) {
-            BLINK_LED(BLINK_READY_NO_DATA);
-            statusLeds.setStatic(7, 0, 0, 0);
-        } else if (universes_none_zero == 1) {
-            BLINK_LED(BLINK_READY_SINGLE_UNI);
-            statusLeds.setStatic(7, 0, 1, 0);
-        } else if (universes_none_zero > 4) {
-            BLINK_LED(BLINK_READY_MULTI_UNI);
-            statusLeds.setStatic(7, 1, 1, 1);
-        } else if (universes_none_zero > 1) {
-            BLINK_LED(BLINK_READY_MULTI_UNI);
-            statusLeds.setStatic(7, 0, 0, 1);
-        }
+    if (universes_none_zero == 0) {
+        led_toggle_timer.delay_us = 1200 * 1000;
+        statusLeds.setStatic(7, 0, 0, 0);
+    } else if (universes_none_zero == 1) {
+        led_toggle_timer.delay_us = 800 * 1000;
+        statusLeds.setStatic(7, 0, 1, 0);
+    } else if (universes_none_zero > 4) {
+        led_toggle_timer.delay_us = 300 * 1000;
+        statusLeds.setStatic(7, 1, 1, 1);
+    } else if (universes_none_zero > 1) {
+        statusLeds.setStatic(7, 0, 0, 1);
     }
 }

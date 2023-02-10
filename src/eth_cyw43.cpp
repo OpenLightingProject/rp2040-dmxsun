@@ -20,7 +20,6 @@ void Eth_cyw43::init()
             boardConfig.activeConfig->wifi_AP_PSK,
             CYW43_AUTH_WPA2_AES_PSK
         );
-        cyw43_arch_gpio_put(0, 1);
 
         // Add some IP addresses for the DHCP to provide
         for (int i = 0; i < DHCP_NUM_ENTRIES_WIFI; i++) {

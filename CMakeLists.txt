@@ -205,6 +205,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     pico_cyw43_arch_nolwip
     pico_multicore
     pico_stdlib
+    pico_time
     pico_unique_id
     RF24
     RF24Network
