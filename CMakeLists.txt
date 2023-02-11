@@ -5,6 +5,9 @@ cmake_minimum_required(VERSION 3.13)
 ## https://forums.raspberrypi.com/viewtopic.php?t=336775
 set(ENV{PICO_BOARD} "pico_w")
 
+## We want our modified lwIP (mainy SVG-support in httpd and zopfli compression)
+set(ENV{PICO_LWIP_PATH ${CMAKE_CURRENT_LIST_DIR}/lib/lwip)
+
 ## pico_sdk_import.cmake is copied from
 ## https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake
 include(${CMAKE_CURRENT_LIST_DIR}/pico_sdk_import.cmake)
@@ -161,33 +164,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
-## Include a local copy of the pico_cyw43_arch library so we can
-## modify it. If we use the one from the pico-sdk, this is read-only and
-## hard to modify.
-## We need this since we want to use OUR modified version of lwip and the
-## board freezes when initializing the cyw43-chip since (a wild guess!)
-## lwip_init() is being called twice
-include(${CMAKE_CURRENT_LIST_DIR}/lib/pico_cyw43_arch_nolwip/CMakeLists.txt)
-
-## equals pico_cyw43_arch_none:
-target_compile_definitions(pico_cyw43_arch_nolwip INTERFACE
-    ## Compiles, links and inits fine (with the unmodified library):
-    #CYW43_LWIP=0
-    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
-
-    ## Compiles fine, fails to link due to unfdefined references (with the unmodified library):
-    #CYW43_LWIP=0
-    #PICO_CYW43_ARCH_POLL=1
-
-    ## Compiles fine, links fine but fails to init (with the unmodified library):
-    #CYW43_LWIP=1
-    #PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 # none still uses threadsafe_background to make gpio use easy
-
-    ## Compiles fine, links fine but fails to init (with the unmodified library):
-    CYW43_LWIP=1
-    PICO_CYW43_ARCH_POLL=1
-)
-
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -202,7 +178,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     libb64
     lwipallapps
     lwipcore
-    pico_cyw43_arch_nolwip
+    pico_cyw43_arch_lwip_poll
+    pico_lwip
     pico_multicore
     pico_stdlib
     pico_time

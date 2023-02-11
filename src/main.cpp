@@ -155,7 +155,17 @@ int main() {
     // Phase 6: Fire up the integrated web server
     // This also initialises the TinyUSB<->lwIP glue. lwIP and the DHCP server
     dhcpdata.init();
-    init_lwip();
+
+    if (BoardConfig::boardIsPicoW) {
+        // pico_cyw43_arch automatically and unconditionally calls lwip_init ...
+        eth_cyw43.init();
+    } else {
+        // Since we didn't init pico_cyw43_arch, we call lwip_init now
+        // TODO?: Not using an async_context as of now
+        lwip_init();
+    }
+
+    init_tinyusb_netif();   // Init TinyUSB's lwip integration and the netif
     wait_for_netif_is_up(); // TinyUSB network interface
     dhcpd_init();
 
@@ -166,10 +176,6 @@ int main() {
 
     // Phase 8: Set up PIOs and GPIOs according to the IO boards
     localDmx.init();
-
-    if (BoardConfig::boardIsPicoW) {
-        eth_cyw43.init();
-    }
 
     // Re-init the PICO-LED to a normal LED
     gpio_init(PIN_LED_PICO);
