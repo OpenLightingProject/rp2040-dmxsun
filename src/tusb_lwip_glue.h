@@ -15,7 +15,7 @@
 
 #include "boardconfig.h"
 
-void init_lwip();
+void init_tinyusb_netif();
 void wait_for_netif_is_up();
 void dhcpd_init();
 void service_traffic();
