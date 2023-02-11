@@ -30,6 +30,7 @@ extern "C" {
 #include "wireless.h"
 #include "localdmx.h"
 #include "eth_cyw43.h"
+#include "oled_u8g2.h"
 
 #include "dhcpdata.h"
 
@@ -71,6 +72,7 @@ Log logger;
 DmxBuffer dmxBuffer;
 LocalDmx localDmx;
 StatusLeds statusLeds;
+Oled_u8g2 oled_u8g2;
 BoardConfig boardConfig;
 WebServer webServer;
 Wireless wireless;
@@ -134,6 +136,11 @@ int main() {
     // Phase 2: Detect and read IO boards
     boardConfig.init();
     boardConfig.readIOBoards();
+
+    oled_u8g2.scanBusForOLED();
+    if (oled_u8g2.oledAvailable) {
+        oled_u8g2.init();
+    }
 
     // Phase 2b: Init our DMX buffers
     critical_section_init(&bufferLock);
