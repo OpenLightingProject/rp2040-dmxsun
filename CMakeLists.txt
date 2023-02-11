@@ -97,6 +97,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_LIST_DIR}/src/localdmx.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/log.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/oled_u8g2.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/pico_lwip_random.c
     ${CMAKE_CURRENT_LIST_DIR}/src/statusleds.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/stdio_usb.c
@@ -148,6 +149,13 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
     PUBLIC JSON_USE_EXCEPTION=0
 )
 
+## Config for the u8g2 OLED library
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/u8g2 u8g2)
+target_include_directories(${CMAKE_PROJECT_NAME} INTERFACE
+  u8g2/include
+)
+target_include_directories(u8g2 PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/u8g2/cppsrc)
+
 ## LWIP works a little bit different than the other libraries since
 ## it ships its own FileList
 set(LWIP_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/lwip)
@@ -190,6 +198,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     snappy
     tinyusb_board
     tinyusb_device
+    u8g2
 )
 
 ## Create map/bin/hex/uf2 file etc.
