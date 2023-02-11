@@ -91,10 +91,12 @@ git clone --recursive https://github.com/OpenLightingProject/rp2040-dmxsun.git
 cd rp2040-dmxsun
 mkdir build
 cd build
-cmake ../src
+cmake ..
 make -j$(($(nproc)+1))
 ```
 This should result in an `.uf2`-file being generated that you can flash to your Pico-board as described in Raspberry Pi's documentation.
+
+**If you are seeing build errors, please make sure you are using pcio-sdk v1.5.0 (released 2023-02-11)**
 
 
 ## How does the data flow internally?
