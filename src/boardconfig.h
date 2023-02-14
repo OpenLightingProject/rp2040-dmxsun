@@ -90,7 +90,7 @@ enum RadioRole : uint8_t {
     sniffer                   = 0, // RX only for spectrum scanning
     broadcast                 = 1, // Simple broadcast TX and RX
     mesh                      = 2, // RF24Mesh, can RX and TX universes
-                                   // Role in mesh (master/node) is set by radioAdress
+                                   // Role in mesh (master/node) is set by radioAddress
     QuickDMX_TX               = 3, // TODO: NOT IMPLEMENTED
     QuickDMX_RX               = 4, // TODO: NOT IMPLEMENTED
     APE_TX                    = 5, // TODO: NOT IMPLEMENTED
