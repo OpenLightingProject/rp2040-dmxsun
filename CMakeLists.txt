@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.13)
 set(ENV{PICO_BOARD} "pico_w")
 
 ## We want our modified lwIP (mainy SVG-support in httpd and zopfli compression)
-set(ENV{PICO_LWIP_PATH ${CMAKE_CURRENT_LIST_DIR}/lib/lwip)
+set(ENV{PICO_LWIP_PATH} ${CMAKE_CURRENT_LIST_DIR}/lib/lwip)
 
 ## pico_sdk_import.cmake is copied from
 ## https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake
