@@ -1,6 +1,7 @@
 #ifndef DMXBUFFER_H
 #define DMXBUFFER_H
 
+#include <cstdint>
 #include <stdio.h>
 
 #ifndef DMXBUFFER_COUNT
