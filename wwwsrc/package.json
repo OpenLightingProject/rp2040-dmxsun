@@ -8,7 +8,7 @@
     "chart.js": "^4.2.0",
     "couch64": "^1.0.2",
     "cssnano": "^6.0.0",
-    "cssnano-preset-advanced": "^5.3.9",
+    "cssnano-preset-advanced": "^6.0.0",
     "postcss-cli": "^10.1.0",
     "purgecss": "^5.0.0",
     "react": "^18.2.0",
