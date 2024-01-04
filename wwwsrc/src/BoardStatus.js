@@ -501,7 +501,7 @@ class BoardStatus extends React.Component{
                                     <button type="button" className="btn btn-outline-secondary"
                                       data-bs-toggle="tooltip" data-bs-placement="bottom"
                                       title="Load configuration from this io board"
-                                      onClick={this.saveConfig.bind(this, slot)}>
+                                      onClick={this.loadConfig.bind(this, slot)}>
                                         <Icon.JournalArrowUp width={32} height={32} pointerEvents="none"/>
                                     </button>
                                     &nbsp;
