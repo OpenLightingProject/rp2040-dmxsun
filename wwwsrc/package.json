@@ -7,7 +7,7 @@
     "bootstrap": "^5.3.1",
     "chart.js": "^4.2.0",
     "couch64": "^1.0.2",
-    "cssnano": "^6.0.0",
+    "cssnano": "^7.0.1",
     "cssnano-preset-advanced": "^6.0.0",
     "postcss-cli": "^11.0.0",
     "purgecss": "^5.0.0",
