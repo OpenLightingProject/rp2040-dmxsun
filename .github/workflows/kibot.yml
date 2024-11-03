@@ -46,7 +46,7 @@ jobs:
             ibom.html octopart.csv schematic.pdf schematic.svg board_top.pdf board_bottom.pdf board_top_with_copper.pdf board_bottom_with_copper.pdf \
             gerbers.gbr gerbers_jlcpcb.gbr JLCPCB_drill JLCPCB_bom JLCPCB_cpl JLCPCB_gerber_archive drills.gbr drills.drl pickandplace.csv bom.csv \
             hasl_green_top.svg hasl_green_bottom.svg oshpark_afterdark_top.svg oshpark_afterdark_bottom.svg oshpark_purple_top.svg oshpark_purple_bottom.svg \
-            board_black_top.svg board_black_bottom.svg autocad.dxf model.step openboardview.brd \
+            autocad.dxf model.step openboardview.brd \
             kicad_3d_view_top kicad_3d_view_bottom kicad_3d_view_front kicad_3d_view_rear kicad_3d_view_right kicad_3d_view_left
       - uses: actions/upload-artifact@v4
         if: ${{success()}}
