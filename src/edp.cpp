@@ -242,7 +242,7 @@ bool Edp::processIncomingChunk(uint16_t chunkSize) {
             // inData contains the last chunk received + possibly garbage
 
             // For sparse packets to work, we need 512 byte of zeroed space, so we
-            // will re-use inData for that. So zero it here
+            // will reuse inData for that. So zero it here
             memset(inData, 0x00, 600);
 
             patching = findPatching(packetHeader->universeId);
