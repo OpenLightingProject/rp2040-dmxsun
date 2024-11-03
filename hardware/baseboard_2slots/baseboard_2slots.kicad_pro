@@ -49,7 +49,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.508
+          "min_clearance": 0.0
         }
       },
       "diff_pair_dimensions": [
@@ -61,7 +61,10 @@
       ],
       "drc_exclusions": [
         "courtyards_overlap|145460001|33500001|00000000-0000-0000-0000-000060554eda|30c7e0e5-d2ad-404c-a4aa-22e75535eede",
-        "courtyards_overlap|145460001|33500001|30c7e0e5-d2ad-404c-a4aa-22e75535eede|00000000-0000-0000-0000-000060554eda"
+        "footprint_type_mismatch|236836000|28810000|00000000-0000-0000-0000-000060554078|00000000-0000-0000-0000-000000000000",
+        "starved_thermal|142650000|80000000|00000000-0000-0000-0000-0000605bccb0|b7911586-636f-4abe-9c8b-0bf21655625e|F.Cu",
+        "starved_thermal|147730000|80000000|00000000-0000-0000-0000-0000605bccb0|4d42ac89-c247-4e00-b7d0-9581ad4685d9|F.Cu",
+        "starved_thermal|261350000|80000000|00000000-0000-0000-0000-0000605bccb3|9171a73d-f005-48d4-b25a-7d3e1023aa29|B.Cu"
       ],
       "meta": {
         "filename": "board_design_settings.json",

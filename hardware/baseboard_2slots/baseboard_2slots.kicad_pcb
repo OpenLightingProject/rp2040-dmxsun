@@ -26028,16 +26028,6 @@
 		(uuid "00000000-0000-0000-0000-0000605530b6")
 	)
 	(gr_line
-		(start 62.908 25)
-		(end 62.908 25)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "Edge.Cuts")
-		(uuid "972895fe-af3e-48a6-9f87-88aaf6a92f44")
-	)
-	(gr_line
 		(start 280.6 25)
 		(end 280.6 85)
 		(stroke
@@ -35191,7 +35181,7 @@
 		(keepout
 			(tracks not_allowed)
 			(vias not_allowed)
-			(pads not_allowed)
+			(pads allowed)
 			(copperpour not_allowed)
 			(footprints allowed)
 		)
