@@ -6836,7 +6836,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Converter_DCDC:Converter_DCDC_muRata_CRE1xxxxxxDC_THT"
+		(property "Footprint" "Converter_DCDC:Converter_DCDC_Murata_CRE1xxxxxxDC_THT"
 			(at 186.69 36.83 0)
 			(effects
 				(font
@@ -8242,7 +8242,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Converter_DCDC:Converter_DCDC_muRata_CRE1xxxxxx3C_THT"
+		(property "Footprint" "Converter_DCDC:Converter_DCDC_Murata_CRE1xxxxxx3C_THT"
 			(at 160.02 50.8 0)
 			(effects
 				(font
@@ -9169,15 +9169,6 @@
 			)
 		)
 		(property "Description" "Open Hardware logo, large"
-			(at 163.83 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Enable" "0"
 			(at 163.83 184.15 0)
 			(effects
 				(font

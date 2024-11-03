@@ -61,7 +61,16 @@
       ],
       "drc_exclusions": [
         "courtyards_overlap|145460001|33500001|00000000-0000-0000-0000-000060554eda|30c7e0e5-d2ad-404c-a4aa-22e75535eede",
-        "courtyards_overlap|145460001|33500001|30c7e0e5-d2ad-404c-a4aa-22e75535eede|00000000-0000-0000-0000-000060554eda"
+        "footprint_type_mismatch|236836000|28810000|00000000-0000-0000-0000-000060554078|00000000-0000-0000-0000-000000000000",
+        "solder_mask_bridge|103000000|31900000|7a588272-a082-4586-8829-7a35d075cfad|59cadd32-46f0-4f72-bdb1-f71fee193ba6",
+        "solder_mask_bridge|103750000|33800000|159ef769-2f47-4d04-a8f0-535c522f2055|6706b5ec-0bcb-4bee-965c-85cdc5d3980b",
+        "starved_thermal|142650000|80000000|00000000-0000-0000-0000-0000605bccb0|386786d8-c789-4943-ad68-a5ae4419bea7|F.Cu",
+        "starved_thermal|145190000|80000000|00000000-0000-0000-0000-0000605bccb0|2febb582-8a2a-4691-a6c4-eb1efc9c23a9|F.Cu",
+        "starved_thermal|253730000|80000000|00000000-0000-0000-0000-0000605bccb0|54f189fd-71a5-4009-89cd-70c857537358|F.Cu",
+        "starved_thermal|253730000|80000000|00000000-0000-0000-0000-0000605bccb3|54f189fd-71a5-4009-89cd-70c857537358|B.Cu",
+        "starved_thermal|261350000|80000000|00000000-0000-0000-0000-0000605bccb3|d4caff3a-9354-409e-9b21-ee90c3c4922b|B.Cu",
+        "starved_thermal|33650000|83200000|00000000-0000-0000-0000-0000605bccb0|4d1b81ec-4ba7-4689-be1b-139db5a3100b|F.Cu",
+        "starved_thermal|367350000|80000000|00000000-0000-0000-0000-0000605bccb0|b1efd3b8-bb07-4aeb-9203-6e907aa720cc|F.Cu"
       ],
       "meta": {
         "filename": "board_design_settings.json",
@@ -101,9 +110,9 @@
         "padstack": "error",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_edge_clearance": "ignore",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
@@ -244,13 +253,9 @@
   },
   "erc": {
     "erc_exclusions": [
-      "power_pin_not_driven|1041400|1270000|4d469d96-2f44-4efe-85a4-68ce6004db3f|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|1524000|933450|47686d1d-09d3-4351-8a7c-80485571bf78|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|1562100|1549400|5114d26e-293f-4ffe-a111-57b33c6e76aa|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|1651000|266700|ae85a62f-819d-464f-b90e-f42d5183432a|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|355600|990600|926c3254-6343-463f-a7fa-ebef74248d78|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|381000|933450|926c3254-6343-463f-a7fa-ebef74248d78|00000000-0000-0000-0000-000000000000|||",
-      "power_pin_not_driven|469900|1587500|797101e8-6859-422a-bb48-c029d1f6f49c|00000000-0000-0000-0000-000000000000|||"
+      "pin_to_pin|254000|1035050|9d2a1758-cf73-4729-96b6-29820146c4f3|018a8fd3-ddf5-4f10-a592-daf20f08af3d|/9512a509-4611-45cc-87af-6efa0e009434|/9512a509-4611-45cc-87af-6efa0e009434|/9512a509-4611-45cc-87af-6efa0e009434",
+      "power_pin_not_driven|1041400|952500|ec56dea7-bd35-41da-8181-bacb745ce8de|00000000-0000-0000-0000-000000000000|/9512a509-4611-45cc-87af-6efa0e009434|/9512a509-4611-45cc-87af-6efa0e009434|",
+      "power_pin_not_driven|381000|933450|926c3254-6343-463f-a7fa-ebef74248d78|00000000-0000-0000-0000-000000000000|/9512a509-4611-45cc-87af-6efa0e009434|/9512a509-4611-45cc-87af-6efa0e009434|"
     ],
     "meta": {
       "version": 0

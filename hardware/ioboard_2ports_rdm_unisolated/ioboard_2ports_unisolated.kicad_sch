@@ -2842,6 +2842,10 @@
 		(uuid "ec9b884b-9005-4761-8f18-448fa3407e11")
 	)
 	(no_connect
+		(at 205.74 36.83)
+		(uuid "05926c85-6424-47fb-b1a9-099e0ad2e5ff")
+	)
+	(no_connect
 		(at 179.705 93.98)
 		(uuid "29ead0a2-dd91-45f4-8ac8-fa594bb00087")
 	)
@@ -8134,15 +8138,6 @@
 			)
 		)
 		(property "Description" "Open Hardware logo, small"
-			(at 165.1 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Enable" "0"
 			(at 165.1 184.15 0)
 			(effects
 				(font
