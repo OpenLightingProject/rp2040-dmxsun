@@ -83,6 +83,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/lib/jsoncpp/interfaceLibForPicoSDK.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+## Get rid of some warnings that don't affect use since we build everything
+## from source. See https://stackoverflow.com/a/48149400
+add_compile_options(-Wno-psabi)
+
 ## Add our own C/C++ files here
 ## Sorted alphabetically
 add_executable(${CMAKE_PROJECT_NAME}
@@ -171,6 +175,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${PICO_TINYUSB_PATH}/lib/networking
     ${CMAKE_CURRENT_LIST_DIR}
 )
+
+## Print memory usage percentages after linking
+string(APPEND CMAKE_EXE_LINKER_FLAGS "-Wl,--print-memory-usage")
 
 ## Pull in all pico-sdk + non-pico-sdk libraries
 ## Sorted alphabetically
