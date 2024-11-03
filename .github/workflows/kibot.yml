@@ -26,9 +26,12 @@ jobs:
         board: [baseboard_4slots, baseboard_2slots, ioboard_2ports_rdm_isolated, ioboard_2ports_rdm_unisolated, ioboard_4ports_isolated, ioboard_4ports_unisolated]
     runs-on: ubuntu-latest
     container:
-      image: setsoft/kicad_auto:ki6
+      image: ghcr.io/inti-cmnb/kicad8_auto_full:latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # So we can run a diff between last 2 changes
+          fetch-depth: '0'
       # Checks
       - name: run ERC
         run: |
