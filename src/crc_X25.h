@@ -5,13 +5,13 @@
  * Generated on Sat Oct 16 22:13:45 2021
  * by pycrc v0.9.2, https://pycrc.org
  * using the configuration:
- *  - Width         = 16
- *  - Poly          = 0x1021
- *  - XorIn         = 0xffff
- *  - ReflectIn     = True
- *  - XorOut        = 0xffff
- *  - ReflectOut    = True
- *  - Algorithm     = table-driven
+ *  - width         = 16
+ *  - poly          = 0x1021
+ *  - xor in         = 0xffff
+ *  - reflect in    = True
+ *  - xor out        = 0xffff
+ *  - reflect out   = True
+ *  - algorithm     = table-driven
  *
  * This file defines the functions crc_init(), crc_update() and crc_finalize().
  *
