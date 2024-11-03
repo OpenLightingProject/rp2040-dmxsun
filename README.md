@@ -123,7 +123,7 @@ As said above, the internal patching is hardcoded and cannot be changed by the u
 
 ## How is the project licensed?
 
-This source code, schematics and board layouts is licensed under the GPL.
+This source code, schematics and board layouts is licensed under the Apache-2.0 license.
 
 Parts of the original example code (`stdio_usb.*`, ...) is:
 
@@ -140,7 +140,7 @@ This project proudly uses the following libraries and thanks the respective deve
 * [libb64](https://github.com/libb64/libb64), Public domain
 * [lwIP](https://savannah.nongnu.org/projects/lwip/), Modified BSD License
 * [Pico-DMX](https://github.com/jostlowe/Pico-DMX), BSD 3-Clause "New" or "Revised" License
-* [RF24, RF24Network and RF24Mesh](https://github.com/nRF24/RF24), GPL-2.0
+* [RF24, RF24Network and RF24Mesh](https://github.com/nRF24/RF24), GPL-2.0. Since this is not compatible with our Apache-2.0 license, this dependency will be removed in the future. dmxsun was GPL-licensed in the past
 * [snappy](https://github.com/google/snappy), The 3-Clause BSD License
 
 And for the integrated Web UI:
@@ -153,4 +153,4 @@ And for the integrated Web UI:
 
 ## What else do I need to know?
 
-If you attach an nRF24-board, you yourself are responsible to make sure you don't violate any local laws or regulations. Not all channels and transmit powers that the nRF24 module can use may be allowed to be used in your area. The Open Lighting Project cannot be held responsible should you break the law by using this project's hardware and/or software.
+If you attach an nRF24-board, you yourself are responsible to make sure you don't violate any local laws or regulations. Not all channels and transmit powers that the nRF24 module can use may be allowed to be used in your area. The Open Lighting Project cannot be held responsible should you break the law by using this project's hardware and/or software. Also, we did not run any EMC tests on the hardware. It might not be legal to operate the board without FCC, CE or similar certification, depending on where you live.
