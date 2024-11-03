@@ -62,9 +62,9 @@
       "drc_exclusions": [
         "courtyards_overlap|145460001|33500001|00000000-0000-0000-0000-000060554eda|30c7e0e5-d2ad-404c-a4aa-22e75535eede",
         "footprint_type_mismatch|236836000|28810000|00000000-0000-0000-0000-000060554078|00000000-0000-0000-0000-000000000000",
-        "starved_thermal|142650000|80000000|00000000-0000-0000-0000-0000605bccb0|b7911586-636f-4abe-9c8b-0bf21655625e|F.Cu",
-        "starved_thermal|147730000|80000000|00000000-0000-0000-0000-0000605bccb0|4d42ac89-c247-4e00-b7d0-9581ad4685d9|F.Cu",
-        "starved_thermal|261350000|80000000|00000000-0000-0000-0000-0000605bccb3|9171a73d-f005-48d4-b25a-7d3e1023aa29|B.Cu"
+        "starved_thermal|142650000|80000000|00000000-0000-0000-0000-0000605bccb0|f2a89612-e759-4a60-b1b5-6c88cea64ea2|F.Cu",
+        "starved_thermal|147730000|80000000|00000000-0000-0000-0000-0000605bccb0|91230c18-4c78-462d-8380-4b6aa95a4a12|F.Cu",
+        "starved_thermal|261350000|80000000|00000000-0000-0000-0000-0000605bccb3|f62406c0-ee06-4631-ad72-6b8391e21ba8|B.Cu"
       ],
       "meta": {
         "filename": "board_design_settings.json",
@@ -104,9 +104,9 @@
         "padstack": "error",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_edge_clearance": "ignore",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
